@@ -4,6 +4,8 @@ Laboratorio de ensayos al fuego, **fase 1: preparación de muestras**. Calcula c
 
 Sin fusión ni química del ensayo (fase 2). Los códigos de preparación PREP-31 y PREP-31B son públicos de ALS (alsglobal.com); sin afiliación.
 
+**[▶ Probar en el navegador](https://laboratorio-ensayos-bromrnpno3wqjwkdmqcuov.streamlit.app/)** (Streamlit Community Cloud, sin registro).
+
 ## Qué hace
 
 - **Protocolo:** varianza de Gy por etapa y acumulada (suma de varianzas relativas), con un nomograma de muestreo en el que la ruta del protocolo se recorre etapa por etapa (reducir el tamaño es un tramo horizontal; dividir, uno vertical). Presets PREP-31, PREP-31B y el protocolo de una mina de oro de Minnitt (2017).
