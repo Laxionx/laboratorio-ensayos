@@ -93,16 +93,19 @@ def crucible_warnings(
     out: list[Warning] = []
     cap, limit = crucible.capacity_cm3, crucible.fill_limit_cm3
     dry_cm3 = dry_charge_g / DRY_BULK_DENSITY
-    for what, vol, extra in (
-        ("La carga en polvo", dry_cm3, f"{dry_charge_g:.0f} g a {DRY_BULK_DENSITY:g} g/cm³"),
-        ("Lo fundido (plomo y escoria)", lead_cm3 + slag_cm3, "plomo líquido más escoria"),
+    for kind, what, vol, extra in (
+        ("dry", "La carga en polvo", dry_cm3, f"{dry_charge_g:.0f} g a {DRY_BULK_DENSITY:g} g/cm³"),
+        ("melt", "Lo fundido (plomo y escoria)", lead_cm3 + slag_cm3, "plomo líquido más escoria"),
     ):
+        args = (("vol", vol), ("grams", dry_charge_g), ("density", DRY_BULK_DENSITY),
+                ("cap", cap), ("two_thirds", limit))  # fmt: skip
         if vol > cap:
             out.append(Warning(
                 "riesgo",
                 f"{what} ocupa {vol:.0f} cm³ ({extra}): pasa de la capacidad del crisol "
                 f"({cap:.0f} cm³); se derrama. Usa un crisol mayor o una carga menor.",
                 "capacidad: Bugbee 1922, Tabla IV (20 g = 190 cm³); densidad en polvo: supuesto",
+                f"{kind}_over_capacity", args,
             ))  # fmt: skip
         elif vol > limit:
             out.append(Warning(
@@ -110,5 +113,6 @@ def crucible_warnings(
                 f"{what} ocupa {vol:.0f} cm³ ({extra}): pasa de los 2/3 del crisol "
                 f"({limit:.0f} de {cap:.0f} cm³).",
                 "Bugbee 1922: «nunca más de dos tercios llenos» (el 2/3 es del volumen)",
+                f"{kind}_over_two_thirds", args,
             ))  # fmt: skip
     return out

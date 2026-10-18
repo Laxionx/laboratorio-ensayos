@@ -7,7 +7,8 @@ from __future__ import annotations
 import numpy as np
 import plotly.graph_objects as go
 from calculo import GoldView
-from dibujo import BRONZE_SVG, INK, SCHEME_NOTE, STEEL, es, svg, text
+from dibujo import BRONZE_SVG, INK, STEEL, es, scheme_note, svg, text
+from i18n import t
 from nomograma import _layout, _note, _player
 from scipy.stats import poisson
 
@@ -60,9 +61,9 @@ def histogram_figure(view: GoldView) -> go.Figure:
                 x=x,
                 y=y,
                 width=width,
-                name="ensayos simulados",
+                name=t("plot.hist.sim"),
                 marker=dict(color=BAR_COLOR),
-                hovertemplate="%{x:.3g} g/t: %{y} ensayos<extra></extra>",
+                hovertemplate=t("plot.hist.hover"),
             )
         ]
         out.append(
@@ -70,7 +71,7 @@ def histogram_figure(view: GoldView) -> go.Figure:
                 x=[view.grade_gpt] * 2,
                 y=[0, top],
                 mode="lines",
-                name=f"ley real {es(view.grade_gpt, 2)} g/t",
+                name=t("plot.hist.true", grade=es(view.grade_gpt, 2)),
                 line=dict(color=TRUE_COLOR, width=3),
             )
         )
@@ -80,7 +81,7 @@ def histogram_figure(view: GoldView) -> go.Figure:
                 x=[median] * 2,
                 y=[0, top],
                 mode="lines",
-                name=f"mediana de lo simulado {es(median, 2)} g/t",
+                name=t("plot.hist.median", median=es(median, 2)),
                 line=dict(color=MEDIAN_COLOR, width=3, dash="dash"),
             )
         )
@@ -91,7 +92,7 @@ def histogram_figure(view: GoldView) -> go.Figure:
                     x=ks * per_grain,
                     y=n * poisson.pmf(ks, view.lam),
                     mode="markers",
-                    name="Poisson analítico",
+                    name=t("plot.hist.poisson"),
                     marker=dict(size=7, color=INK),
                 )
             )
@@ -100,18 +101,22 @@ def histogram_figure(view: GoldView) -> go.Figure:
     def note(n: int) -> dict:
         grades = sim.grades_gpt[:n]
         return _note(
-            f"{n} ensayos: mediana {es(float(np.median(grades)), 2)} g/t, "
-            f"máximo {es(float(grades.max()), 1)} g/t"
+            t(
+                "plot.hist.note",
+                n=n,
+                median=es(float(np.median(grades)), 2),
+                max=es(float(grades.max()), 1),
+            )
         )
 
     frames = [go.Frame(data=traces(n), name=str(n), layout=note(n)) for n in sizes]
     fig = go.Figure(data=traces(sizes[-1]), frames=frames, layout=note(sizes[-1]))
     _layout(
         fig,
-        "Ensayos repetidos de la misma alícuota (Poisson, semilla fija)",
+        t("plot.hist.title"),
         460,
-        x=dict(title="Ley que daría el ensayo (g/t)"),
-        y=dict(title="Número de ensayos"),
+        x=dict(title=t("plot.hist.x")),
+        y=dict(title=t("plot.hist.y")),
         bottom=130,
     )
     return _player(fig, names, ms=500)
@@ -127,9 +132,9 @@ def representative_runs(view: GoldView) -> list[tuple[str, int]]:
     """(rótulo, granos) de tres ensayos de la simulación: percentil 10, mediana y percentil 99."""
     counts = view.simulation.counts
     return [
-        ("ensayo bajo (percentil 10)", int(np.percentile(counts, 10, method="lower"))),
-        ("ensayo mediano", int(np.median(counts))),
-        ("ensayo alto (percentil 99)", int(np.percentile(counts, 99, method="higher"))),
+        (t("svg.gold.low"), int(np.percentile(counts, 10, method="lower"))),
+        (t("svg.gold.median"), int(np.median(counts))),
+        (t("svg.gold.high"), int(np.percentile(counts, 99, method="higher"))),
     ]
 
 
@@ -151,7 +156,7 @@ def aliquot_svg(view: GoldView) -> str:
     body = text(
         24,
         30,
-        f"La misma alícuota de {es(view.aliquot_g, 0)} g, tres ensayos de la simulación",
+        t("svg.gold.title", mass=es(view.aliquot_g, 0)),
         17,
         cls="t",
     )
@@ -165,14 +170,14 @@ def aliquot_svg(view: GoldView) -> str:
             + text(
                 x0,
                 y0 + CRUCIBLE[1] + 26,
-                f"{count} {'grano' if count == 1 else 'granos'} de oro",
+                t("svg.gold.grain1" if count == 1 else "svg.gold.grains", n=count),
                 15,
                 cls="t",
             )
             + text(
                 x0,
                 y0 + CRUCIBLE[1] + 46,
-                f"ley que daría: {es(count * per_grain, 2)} g/t (real {es(view.grade_gpt, 2)} g/t)",
+                t("svg.gold.grade", grade=es(count * per_grain, 2), real=es(view.grade_gpt, 2)),
                 13,
             )
         )
@@ -180,15 +185,13 @@ def aliquot_svg(view: GoldView) -> str:
             body += text(
                 x0 + CRUCIBLE[0],
                 y0 + CRUCIBLE[1] + 26,
-                f"(se dibujan {MAX_DOTS})",
+                t("svg.gold.shown", n=MAX_DOTS),
                 11,
                 "end",
                 color=STEEL,
             )
-    body += text(
-        24, H - 14, f"{SCHEME_NOTE}; la posición de cada grano es ilustrativa.", 12, color=STEEL
-    )
-    return svg(W, H, body, True, "Tres alícuotas con distinto número de granos de oro")
+    body += text(24, H - 14, t("svg.gold.foot", note=scheme_note()), 12, color=STEEL)
+    return svg(W, H, body, True, t("svg.gold.label"))
 
 
 def poisson_summary(view: GoldView) -> dict[str, float]:

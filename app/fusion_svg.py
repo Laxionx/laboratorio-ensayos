@@ -17,8 +17,9 @@ import textwrap
 
 import numpy as np
 from calculo import FusionView
-from colores import NOTE, temperature_color
+from colores import temperature_color
 from dibujo import INK, RISE_CSS, STEEL, es, rise, svg, text
+from i18n import num_g, t, tm
 
 from muestreo.crisol import CRUCIBLE, DRY_BULK_DENSITY, Layers, layers
 from muestreo.fusion import FUSION_TEMP_C, SLAG_DENSITY, pb_liquid_density
@@ -42,6 +43,10 @@ def y_of(z_cm: float) -> float:
 def half_width_px(z_cm: float) -> float:
     """Semiancho (px) del interior del cono a la altura `z_cm`."""
     return CRUCIBLE.radius_at(z_cm) * PX_PER_CM
+
+
+def temp_note() -> str:
+    return t("scheme.temp")
 
 
 def view_layers(view: FusionView) -> Layers:
@@ -87,7 +92,7 @@ def _crucible() -> str:
         f'x2="{xr:.2f}" y2="{y_of(z23):.2f}" stroke="{STEEL}" stroke-width="1.5" '
         f'stroke-dasharray="6 5"/>'
         + text(CX - half_width_px(z23) + 10, y_of(z23) - 6,
-               f"2/3 de la capacidad ({es(CRUCIBLE.fill_limit_cm3, 0)} cm³)", 11, color=STEEL)
+               t("svg.f.limit", v=es(CRUCIBLE.fill_limit_cm3, 0)), 11, color=STEEL)
     )  # fmt: skip
 
 
@@ -141,36 +146,32 @@ def _panel(view: FusionView) -> str:
     x, rows = (
         470.0,
         [
-            ("Soda (Na₂CO₃)", used.soda_g, designed.soda_g),
-            ("Litargirio (PbO)", used.litharge_g, designed.litharge_g),
-            ("Bórax vidrio", used.borax_g, designed.borax_g),
-            ("Sílice (SiO₂)", used.silica_g, designed.silica_g),
-            ("Harina", used.flour_g, designed.flour_g),
-            ("Nitro (KNO₃)", used.niter_g, designed.niter_g),
+            (t("r.soda"), used.soda_g, designed.soda_g),
+            (t("r.litharge"), used.litharge_g, designed.litharge_g),
+            (t("r.borax"), used.borax_g, designed.borax_g),
+            (t("r.silica"), used.silica_g, designed.silica_g),
+            (t("r.flour"), used.flour_g, designed.flour_g),
+            (t("r.niter"), used.niter_g, designed.niter_g),
         ],
     )
-    out = [text(x, 70, "Carga (g)", 15, cls="t")]
+    out = [text(x, 70, t("svg.f.charge"), 15, cls="t")]
     for i, (name, usedg, designedg) in enumerate(rows):
         y = 98 + 22 * i
-        mark = "" if abs(usedg - designedg) < 1e-9 else f"  (calculada {es(designedg, 1)})"
+        mark = "" if abs(usedg - designedg) < 1e-9 else t("svg.f.calc", x=es(designedg, 1))
         out.append(text(x, y, name, 13))
         out.append(text(x + 160, y, f"{es(usedg, 1)}{mark}", 13, color=STEEL))
     y = 98 + 22 * len(rows) + 22
     rho = pb_liquid_density(FUSION_TEMP_C)
     lines = (
-        (f"Plomo líquido: {es(r.button_g, 1)} g · {es(r.lead_hot_cm3, 2)} cm³ a {es(rho, 2)} g/cm³",
+        (t("svg.f.lead", mass=es(r.button_g, 1), vol=es(r.lead_hot_cm3, 2), rho=es(rho, 2)),
          15, INK),
-        (f"Botón ya frío: {es(r.button_g, 1)} g · {es(r.button_cm3, 2)} cm³ (sólido, 11,34 g/cm³)",
-         12, STEEL),
-        (f"Escoria: {es(r.slag.mass_g, 1)} g · grado {r.slag.label} ({es(r.slag.degree, 2)})",
-         15, INK),
-        (f"Volumen de la escoria: {es(r.slag_cm3, 1)} cm³ (densidad supuesta "
-         f"{es(SLAG_DENSITY, 1)} g/cm³)", 12, STEEL),
-        (f"Carga en polvo: {es(r.dry_charge_g, 0)} g ≈ {es(r.dry_charge_g / DRY_BULK_DENSITY, 0)} "
-         f"cm³ (supuesto {es(DRY_BULK_DENSITY, 1)} g/cm³); capacidad "
-         f"{es(CRUCIBLE.capacity_cm3, 0)} "
-         f"cm³", 12, STEEL),
-        (f"Gotas dibujadas: {drop_count(r.button_g)} · burbujas: {bubble_count(r.gas_mol)}",
+        (t("svg.f.cold", mass=es(r.button_g, 1), vol=es(r.button_cm3, 2)), 12, STEEL),
+        (t("svg.f.slag", mass=es(r.slag.mass_g, 1), label=tm(r.slag.label),
+           degree=es(r.slag.degree, 2)), 15, INK),
+        (t("svg.f.slagvol", vol=es(r.slag_cm3, 1), rho=es(SLAG_DENSITY, 1)), 12, STEEL),
+        (t("svg.f.dry", mass=es(r.dry_charge_g, 0), vol=es(r.dry_charge_g / DRY_BULK_DENSITY, 0),
+           rho=es(DRY_BULK_DENSITY, 1), cap=es(CRUCIBLE.capacity_cm3, 0)), 12, STEEL),
+        (t("svg.f.drops", drops=drop_count(r.button_g), bubbles=bubble_count(r.gas_mol)),
          12, STEEL),
     )  # fmt: skip
     for n, (line, size, color) in enumerate(lines):
@@ -179,18 +180,19 @@ def _panel(view: FusionView) -> str:
 
 
 def _legend(view: FusionView) -> str:
-    paragraphs = [
-        f"Crisol cónico ilustrativo: radio de {es(CRUCIBLE.r_bottom, 2)} cm al fondo y "
-        f"{es(CRUCIBLE.r_top, 2)} cm arriba, {es(CRUCIBLE.height, 1)} cm de alto; su capacidad, "
-        f"{es(CRUCIBLE.capacity_cm3, 0)} cm³, es la del crisol de 20 g de Bugbee (Tabla IV). "
-        "El plomo está LÍQUIDO y forma un charco al fondo: volumen = masa ÷ densidad del plomo "
-        f"líquido a {es(FUSION_TEMP_C, 0)} °C (OECD/NEA 2007). La escoria llena el cono encima: "
-        f"volumen = masa ÷ {es(SLAG_DENSITY, 1)} g/cm³ (supuesto). Gotas de plomo: "
-        f"{DROPS_PER_G:g} por g reducido; burbujas de CO₂ y SO₂ y su posición: ilustrativas. "
-        f"Escoria con el {NOTE} a {es(FUSION_TEMP_C, 0)} °C.",
-    ]
-    lines = [ln for para in paragraphs for ln in textwrap.wrap(para, 140)]
-    lines.append("esquema, no a escala: las cantidades sí son del cálculo")
+    paragraph = t(
+        "svg.f.legend",
+        r0=es(CRUCIBLE.r_bottom, 2),
+        r1=es(CRUCIBLE.r_top, 2),
+        h=es(CRUCIBLE.height, 1),
+        cap=es(CRUCIBLE.capacity_cm3, 0),
+        temp=es(FUSION_TEMP_C, 0),
+        slag_rho=es(SLAG_DENSITY, 1),
+        per_g=num_g(DROPS_PER_G),
+        note=temp_note(),
+    )
+    lines = textwrap.wrap(paragraph, 140)
+    lines.append(t("svg.f.foot"))
     top = H - 17 * len(lines) - 6
     return "".join(
         text(24, top + 17 * n, ln, 12, color=INK if n == len(lines) - 1 else STEEL)
@@ -199,11 +201,11 @@ def _legend(view: FusionView) -> str:
 
 
 def crucible_svg(view: FusionView, paused: bool = False) -> str:
-    title = text(24, 30, "Crisol en corte durante la fusión", 18, cls="t")
+    title = text(24, 30, t("svg.f.title"), 18, cls="t")
     body = (
         title + _melt(view) + _crucible() + _particles(view, paused) + _panel(view) + _legend(view)
     )
     return svg(
-        W, H, body, paused, "Crisol cónico con el plomo líquido al fondo y la escoria encima",
+        W, H, body, paused, t("svg.f.label"),
         RISE_CSS,
     )  # fmt: skip

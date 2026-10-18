@@ -11,17 +11,22 @@ from __future__ import annotations
 import base64
 from html import escape
 
+from i18n import num, t
+
 INK, PAPER, STEEL, STEEL_LIGHT = "#1F2A30", "#F5F1E8", "#4F5F69", "#A7B3BA"
 BRONZE_SVG = "#B7791F"
 SANS = "Segoe UI, Helvetica, Arial, sans-serif"
 SERIF = "Georgia, 'Times New Roman', serif"
 R = ".lb-svg "  # todo el CSS del esquema queda dentro de su raíz
-SCHEME_NOTE = "esquema ilustrativo: las cantidades de granos sí son del cálculo"
 
 
 def es(x: float, decimals: int = 1) -> str:
-    """Número con coma decimal y espacio de miles."""
-    return f"{x:,.{decimals}f}".replace(",", " ").replace(".", ",")
+    """Número con el formato del idioma (coma decimal y espacio de miles, o punto y coma)."""
+    return num(x, decimals)
+
+
+def scheme_note() -> str:
+    return t("scheme.note")
 
 
 def svg(width: int, height: int, body: str, paused: bool, label: str, motion_css: str = "") -> str:

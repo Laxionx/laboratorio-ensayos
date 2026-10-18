@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import itertools
 
-NOTE = "color ilustrativo de la temperatura"
 STOPS = (
     (20.0, (20, 30, 42)),  # acero frío
     (250.0, (30, 38, 50)),

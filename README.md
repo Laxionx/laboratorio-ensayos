@@ -1,10 +1,14 @@
+[English version](README.en.md)
+
 # laboratorio-ensayos
 
 Laboratorio de ensayos al fuego. **Fase 1: preparación de muestras** y **fase 2: carga fundente**. Calcula cuánto error de muestreo mete cada etapa de un protocolo de preparación (chancar, dividir, pulverizar, tomar la alícuota de 30 o 50 g) con la ecuación del error fundamental de Gy, cuánto se acumula, y cuántos granos de oro caen en la alícuota cuando el oro es grueso. Implementado desde la literatura y validado contra números publicados.
 
 Sin copelación ni pérdidas de oro y plata, sin termodinámica de escorias y sin ensayo de platinoides. Los códigos de preparación PREP-31 y PREP-31B son públicos de ALS (alsglobal.com); sin afiliación.
 
-**[▶ Probar en el navegador](https://laboratorio-ensayos-bromrnpno3wqjwkdmqcuov.streamlit.app/)** (Streamlit Community Cloud, sin registro).
+![El crisol durante la fusión: charco de plomo líquido al fondo del cono, escoria encima, gotas de plomo y burbujas de gas](docs/img/fusion-crisol.es.gif)
+
+**[▶ Probar en el navegador](https://laboratorio-ensayos-bromrnpno3wqjwkdmqcuov.streamlit.app/)** (Streamlit Community Cloud, sin registro). La app tiene un selector Español / English arriba de la barra lateral; con `?lang=en` abre en inglés.
 
 ## Qué hace
 

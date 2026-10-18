@@ -1,0 +1,195 @@
+"""English texts of the Protocol, Coarse gold and Validation tabs (phase 1), of their charts and
+of the aliquot diagram."""
+
+T = {
+    "page.title": "Fire-assay laboratory: sampling",
+    "app.title": "Fire-assay laboratory: sample preparation",
+    "app.caption": (
+        "How much sampling error each preparation stage adds and how many gold grains fall in "
+        "the aliquot, with Gy's equation validated against published numbers. With the flux "
+        "charge of the fusion (phase 2; no cupellation). Start with the **Guide**; change the "
+        "data in the sidebar. Public ALS preparation codes; no affiliation."
+    ),
+    "toggle.label": "Animate",
+    "toggle.help": (
+        "Turns off the crucible animation of the Fusion tab. It also turns off by itself if the "
+        "system has «reduce motion» enabled."
+    ),
+    "tab.guide": "Guide",
+    "tab.protocol": "Protocol",
+    "tab.gold": "Coarse gold",
+    "tab.fusion": "Fusion",
+    "tab.validation": "Validation",
+    "err.protocol": "The protocol could not be calculated with these data: {exc}",
+    "err.gold": "The gold could not be calculated with these data: {exc}",
+    "p.total": "Total protocol error",
+    "p.worst": "Stage that adds the most",
+    "p.worst.value": "Stage {n}",
+    "p.worst.delta": "{pct} of the variance",
+    "p.last": "Error of the last split",
+    "p.safe": "Every split below the safety",
+    "p.safe.delta": "safety {pct} %",
+    "p.info": (
+        "This protocol uses its own masses and sizes (Minnitt 2017, Table VIII); the received "
+        "mass, the aliquot and the slope m change nothing."
+    ),
+    "p.mineral": "Mineral: {name}. ",
+    "p.mineral.note": (
+        "K and α are those Minnitt (2017) calibrated for a Witwatersrand gold ore: they do not "
+        "apply to another mineral."
+    ),
+    "p.nomo.caption": (
+        "Each horizontal leg reduces the size (constant mass); each vertical leg splits "
+        "(constant size). The straight lines are of constant error: the route must stay above "
+        "the safety line. «Play» walks through the stages. The initial size only draws the "
+        "first leg."
+    ),
+    "p.col.stage": "Stage",
+    "p.col.dn": "dN (cm)",
+    "p.col.mass": "Mass in → out (g)",
+    "p.col.var": "Relative variance",
+    "p.col.err": "Stage error (%)",
+    "p.col.cum": "Cumulative error (%)",
+    "p.col.share": "Share of the variance (%)",
+    "p.cum.caption": (
+        "The cumulative error is the square root of the sum of the relative variances. Lot-mass "
+        "correction: {corr}."
+    ),
+    "p.corr.yes": "yes",
+    "p.corr.no": "no (as in Minnitt's Table VIII)",
+    "p.slope.caption": (
+        "Rosin-Rammler slope m: it is an assumption. Between m = 0.5 and 3 the total error "
+        "changes a lot because the d95 is cubed."
+    ),
+    "g.grains": "Expected grains in the aliquot",
+    "g.p0": "Probability of no grain",
+    "g.median": "Median of the 1,000 assays",
+    "g.median.delta": "true grade {grade} g/t",
+    "g.above": "Assays above 2× the true grade",
+    "g.sfa": (
+        "{lam} grains are expected per aliquot, fewer than {n} (Clifton's criterion): the "
+        "**screen fire assay** is advisable (about {mass} g sieved at {screen} µm, the fines in "
+        "duplicate and the coarse fraction whole)."
+    ),
+    "g.ok": (
+        "{lam} grains are expected per aliquot: it meets Clifton's criterion of {n} particles."
+    ),
+    "g.caption1": (
+        "For {n} grains, {mass} g of sample would be needed. With {lam} grains, Clifton's 95 % "
+        "limits are {lo} % and +{hi} % (exact Poisson: {elo} % and +{ehi} %; with few grains "
+        "Clifton's equations are not entirely valid)."
+    ),
+    "g.caption2": (
+        "The true grade (green) and the median of the simulated assays (red) do not coincide: "
+        "with few grains, most assays give less than the grade and a few give much more. «Play» "
+        "accumulates from 10 to 1,000 assays."
+    ),
+    "g.alt": "Three aliquots with gold grains",
+    "g.grain": "{size} µm grain ({shape}): {mass} µg.",
+    "v.intro": (
+        "Each source is calculated with Gy's equation and compared with what it publishes. What "
+        "does not match is shown as it is."
+    ),
+    "v.col.source": "Source",
+    "v.col.concept": "Item",
+    "v.col.published": "Published",
+    "v.col.calculated": "Calculated",
+    "v.col.unit": "Unit",
+    "v.col.fits": "Matches?",
+    "v.col.note": "Note",
+    "v.yes": "yes",
+    "v.no": "no",
+    "v.s1": "Minnitt 2017, Table VIII",
+    "v.s2": "Chieregati 2017, Table 2",
+    "v.s3": "Clifton 1969, Fig. 4",
+    "v.s4": "Minnitt 2007, problems 1 to 3 and appendix",
+    "v.s5": "Minnitt 2007 with c·f·g·ℓ = 448",
+    "v.s6": "Minnitt 2007, appendix (dℓ)",
+    "v.p1": "19 variances per stage (DSA and SFA)",
+    "v.p2": "variance and error of 4 stages",
+    "v.p3": "95 % limits for 7, 20, 75 and 400 particles",
+    "v.p4": "29.58 %, ≈16 kg and 0.9 cm",
+    "v.p5": "the same",
+    "v.p6": "dℓ = 0.001337 cm and 0.0011977 cm",
+    "v.f1": "{n} of {m} rows",
+    "v.f2": "{n} of {m}",
+    "v.f3": "{n} of {m} limits (±2 points)",
+    "v.f4": "{n} of 4 with the printed data (erratum of the paper)",
+    "v.f5": "{n} of {m}",
+    "v.f6": "{n} of {m}",
+    "v.h.m17": "#### Minnitt (2017), Table VIII: variance per stage",
+    "v.h.chi": "#### Chieregati (2017), Table 2: copper protocol",
+    "v.h.cli": "#### Clifton and co-authors (1969), Fig. 4: 95 % limits",
+    "v.h.m07": "#### Minnitt, Rice and Spangenberg (2007): a finding, not a validation",
+    "v.m07.printed": "**With the printed data** (c = 16,000,000, f = 0.5, g = 0.25, ℓ = 0.000035):",
+    "v.m07.implied": (
+        "**With c·f·g·ℓ = 448**, the value implied by the published results (it documents the "
+        "erratum; it does not validate the formula):"
+    ),
+    "v.m07.lib": "**The part of the appendix that does match:**",
+    "plot.play": "▶ Play",
+    "plot.pause": "⏸ Pause",
+    "plot.nomo.error": "error {level} %",
+    "plot.nomo.safety": " (safety)",
+    "plot.nomo.route": "protocol route",
+    "plot.nomo.current": "current point",
+    "plot.nomo.hover": "dN %{x:.3g} cm, mass %{y:.3g} g<extra></extra>",
+    "plot.nomo.note": "{k} of {n}: {label} (dN {d} cm, {m} g)",
+    "plot.nomo.title": "Sampling nomogram (Gy): the protocol route",
+    "plot.nomo.x": "Nominal top size dN (cm)",
+    "plot.nomo.y": "Sample mass (g)",
+    "plot.stage.err": "stage error",
+    "plot.stage.cum": "cumulative",
+    "plot.stage.safety": "safety {pct} %",
+    "plot.stage.title": "Error per stage and cumulative",
+    "plot.stage.y": "Relative standard deviation (%)",
+    "plot.sens.total": "total error",
+    "plot.sens.chosen": "chosen m",
+    "plot.sens.title": "The error depends on the slope m (assumption)",
+    "plot.sens.x": "Rosin-Rammler slope m",
+    "plot.sens.y": "Total protocol error (%)",
+    "plot.gran.d95": "d95 = {mm} mm",
+    "plot.gran.spec": "specification",
+    "plot.gran.title": "Size-distribution curves of the specifications (assumed shape)",
+    "plot.gran.x": "Size (µm)",
+    "plot.gran.y": "Cumulative passing (%)",
+    "plot.hist.sim": "simulated assays",
+    "plot.hist.hover": "%{x:.3g} g/t: %{y} assays<extra></extra>",
+    "plot.hist.true": "true grade {grade} g/t",
+    "plot.hist.median": "median of the simulated {median} g/t",
+    "plot.hist.poisson": "analytical Poisson",
+    "plot.hist.note": "{n} assays: median {median} g/t, maximum {max} g/t",
+    "plot.hist.title": "Repeated assays of the same aliquot (Poisson, fixed seed)",
+    "plot.hist.x": "Grade the assay would give (g/t)",
+    "plot.hist.y": "Number of assays",
+    "plot.val.exact": "exact match",
+    "plot.val.fits": "matches the published rounding",
+    "plot.val.nofit": "does not match",
+    "plot.val.hover": "%{text}<br>published %{x}<br>calculated %{y:.5f}<extra></extra>",
+    "plot.val.title": "Published versus calculated variance (Minnitt 2017 and Chieregati 2017)",
+    "plot.val.x": "Published",
+    "plot.val.y": "Calculated",
+    "plot.cli.published": "published (Fig. 4)",
+    "plot.cli.eqs": "equations (11) and (12)",
+    "plot.cli.exact": "exact Poisson (Garwood)",
+    "plot.cli.lower": "lower",
+    "plot.cli.upper": "upper",
+    "plot.cli.title": "95 % limits by particles per sample (Clifton 1969)",
+    "plot.cli.x": "Particles per sample",
+    "plot.cli.y": "Relative error (%)",
+    "plot.m07.published": "published",
+    "plot.m07.printed": "printed data (c·f·g·ℓ = 70)",
+    "plot.m07.implied": "implied (c·f·g·ℓ = 448)",
+    "plot.m07.title": "Minnitt 2007, problem 1: relative error (%)",
+    "scheme.note": "illustrative diagram: the grain counts do come from the calculation",
+    "svg.gold.title": "The same {mass} g aliquot, three assays of the simulation",
+    "svg.gold.low": "low assay (10th percentile)",
+    "svg.gold.median": "median assay",
+    "svg.gold.high": "high assay (99th percentile)",
+    "svg.gold.grain1": "{n} gold grain",
+    "svg.gold.grains": "{n} gold grains",
+    "svg.gold.grade": "grade it would give: {grade} g/t (true {real} g/t)",
+    "svg.gold.shown": "({n} drawn)",
+    "svg.gold.foot": "{note}; the position of each grain is illustrative.",
+    "svg.gold.label": "Three aliquots with different numbers of gold grains",
+}

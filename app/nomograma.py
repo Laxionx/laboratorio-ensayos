@@ -12,6 +12,7 @@ import numpy as np
 import plotly.graph_objects as go
 from calculo import ProtocolView
 from dibujo import INK, PAPER, STEEL, es
+from i18n import t, tm
 
 from muestreo.granulometria import curve
 
@@ -39,8 +40,8 @@ def _layout(
 
 
 def _player(fig: go.Figure, names: list[str], ms: int) -> go.Figure:
-    """Botones y deslizador en español. Arranca mostrando el estado final; «Reproducir» lo
-    recorre desde el principio. Nada arranca solo."""
+    """Botones y deslizador, en el idioma de la app. Arranca mostrando el estado final;
+    «Reproducir» lo recorre desde el principio. Nada arranca solo."""
     play = dict(
         frame=dict(duration=ms, redraw=True),
         fromcurrent=False,
@@ -58,8 +59,8 @@ def _player(fig: go.Figure, names: list[str], ms: int) -> go.Figure:
                 xanchor="left",
                 yanchor="top",
                 buttons=[
-                    dict(label="▶ Reproducir", method="animate", args=[None, play]),
-                    dict(label="⏸ Pausa", method="animate", args=[[None], pause]),
+                    dict(label=t("plot.play"), method="animate", args=[None, play]),
+                    dict(label=t("plot.pause"), method="animate", args=[[None], pause]),
                 ],
             )
         ],
@@ -139,13 +140,14 @@ def nomogram_figure(view: ProtocolView) -> go.Figure:
                     x=xs,
                     y=ys,
                     mode="lines",
-                    name=f"error {es(level, 0)} %" + (" (seguridad)" if safe else ""),
+                    name=t("plot.nomo.error", level=es(level, 0))
+                    + (t("plot.nomo.safety") if safe else ""),
                     line=dict(
                         color=COLORS["safety"] if safe else COLORS["line"],
                         width=3.5 if safe else 1.2,
                         dash="solid" if safe else "dot",
                     ),
-                    hovertemplate="dN %{x:.3g} cm, masa %{y:.3g} g<extra></extra>",
+                    hovertemplate=t("plot.nomo.hover"),
                 )
             )
         xs, ys = path_prefix(view, k)
@@ -154,7 +156,7 @@ def nomogram_figure(view: ProtocolView) -> go.Figure:
                 x=xs,
                 y=ys,
                 mode="lines+markers",
-                name="ruta del protocolo",
+                name=t("plot.nomo.route"),
                 line=dict(color=INK, width=3),
                 marker=dict(size=8, color=INK),
             )
@@ -166,7 +168,7 @@ def nomogram_figure(view: ProtocolView) -> go.Figure:
                 x=last[0],
                 y=last[1],
                 mode="markers",
-                name="punto actual",
+                name=t("plot.nomo.current"),
                 showlegend=False,
                 marker=dict(
                     size=15,
@@ -181,7 +183,14 @@ def nomogram_figure(view: ProtocolView) -> go.Figure:
     def note(k: int) -> dict:
         label, d, m = points[k]
         return _note(
-            f"{k + 1} de {len(points)}: {label} (dN {es(d, 4 if d < 0.1 else 2)} cm, {es(m, 0)} g)"
+            t(
+                "plot.nomo.note",
+                k=k + 1,
+                n=len(points),
+                label=tm(label),
+                d=es(d, 4 if d < 0.1 else 2),
+                m=es(m, 0),
+            )
         )
 
     frames = [go.Frame(data=traces(k), name=names[k], layout=note(k)) for k in range(len(points))]
@@ -190,15 +199,15 @@ def nomogram_figure(view: ProtocolView) -> go.Figure:
     masses = [m for _, _, m in points]
     _layout(
         fig,
-        "Nomograma de muestreo (Gy): la ruta del protocolo",
+        t("plot.nomo.title"),
         520,
         x=dict(
-            title="Tamaño máximo nominal dN (cm)",
+            title=t("plot.nomo.x"),
             type="log",
             range=[math.log10(grid[0]), math.log10(grid[-1])],
         ),
         y=dict(
-            title="Masa de la muestra (g)",
+            title=t("plot.nomo.y"),
             type="log",
             range=[math.log10(min(masses) / 5.0), math.log10(max(masses) * 5.0)],
         ),
@@ -210,13 +219,13 @@ def nomogram_figure(view: ProtocolView) -> go.Figure:
 def stage_figure(view: ProtocolView) -> go.Figure:
     """Error relativo de cada división (barras) y el acumulado (línea), en %."""
     stages = view.result.stages
-    names = [s.name for s in stages]
+    names = [tm(s.name) for s in stages]
     fig = go.Figure()
     fig.add_trace(
         go.Bar(
             x=names,
             y=[100 * s.rsd for s in stages],
-            name="error de la etapa",
+            name=t("plot.stage.err"),
             marker=dict(color=COLORS["split"]),
             text=[es(100 * s.rsd, 1) for s in stages],
             textposition="outside",
@@ -227,21 +236,21 @@ def stage_figure(view: ProtocolView) -> go.Figure:
             x=names,
             y=[100 * s.cum_rsd for s in stages],
             mode="lines+markers",
-            name="acumulado",
+            name=t("plot.stage.cum"),
             line=dict(color=INK, width=3),
         )
     )
     fig.add_hline(
         y=view.params.safety_pct,
         line=dict(color=COLORS["safety"], dash="dash"),
-        annotation_text=f"seguridad {es(view.params.safety_pct, 0)} %",
+        annotation_text=t("plot.stage.safety", pct=es(view.params.safety_pct, 0)),
     )
     return _layout(
         fig,
-        "Error por etapa y acumulado",
+        t("plot.stage.title"),
         380,
         x=dict(title=""),
-        y=dict(title="Desviación estándar relativa (%)"),
+        y=dict(title=t("plot.stage.y")),
     )
 
 
@@ -254,7 +263,7 @@ def sensitivity_figure(view: ProtocolView) -> go.Figure:
             x=ms,
             y=[100 * e for _, e, _ in view.sensitivity],
             mode="lines+markers",
-            name="error total",
+            name=t("plot.sens.total"),
             line=dict(color=COLORS["split"], width=3),
         )
     )
@@ -264,16 +273,16 @@ def sensitivity_figure(view: ProtocolView) -> go.Figure:
             x=[view.params.m],
             y=[current],
             mode="markers",
-            name="m elegida",
+            name=t("plot.sens.chosen"),
             marker=dict(size=14, symbol="diamond", color=INK),
         )
     )
     return _layout(
         fig,
-        "El error depende de la pendiente m (supuesto)",
+        t("plot.sens.title"),
         380,
-        x=dict(title="Pendiente m de Rosin-Rammler"),
-        y=dict(title="Error total del protocolo (%)", type="log"),
+        x=dict(title=t("plot.sens.x")),
+        y=dict(title=t("plot.sens.y"), type="log"),
     )
 
 
@@ -285,13 +294,13 @@ def granulometry_figure(view: ProtocolView) -> go.Figure | None:
         if stage.spec is None:
             continue
         sieves, passing = curve(stage.spec.pct, stage.spec.size_um, view.params.m)
-        fig.add_trace(go.Scatter(x=sieves, y=passing, mode="lines", name=stage.name))
+        fig.add_trace(go.Scatter(x=sieves, y=passing, mode="lines", name=tm(stage.name)))
         fig.add_trace(
             go.Scatter(
                 x=[result.d_n_cm * 1e4],
                 y=[95.0],
                 mode="markers",
-                name=f"d95 = {es(result.d_n_cm * 10, 3)} mm",
+                name=t("plot.gran.d95", mm=es(result.d_n_cm * 10, 3)),
                 marker=dict(size=11, symbol="diamond"),
             )
         )
@@ -300,7 +309,7 @@ def granulometry_figure(view: ProtocolView) -> go.Figure | None:
                 x=[stage.spec.size_um],
                 y=[stage.spec.pct],
                 mode="markers",
-                name="especificación",
+                name=t("plot.gran.spec"),
                 marker=dict(size=9, color=INK),
                 showlegend=False,
             )
@@ -309,8 +318,8 @@ def granulometry_figure(view: ProtocolView) -> go.Figure | None:
         return None
     return _layout(
         fig,
-        "Curvas granulométricas de las especificaciones (forma supuesta)",
+        t("plot.gran.title"),
         380,
-        x=dict(title="Tamaño (µm)", type="log"),
-        y=dict(title="Pasante acumulado (%)", range=[0, 102]),
+        x=dict(title=t("plot.gran.x"), type="log"),
+        y=dict(title=t("plot.gran.y"), range=[0, 102]),
     )

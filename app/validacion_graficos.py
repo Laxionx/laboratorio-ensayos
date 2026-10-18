@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import plotly.graph_objects as go
 from dibujo import INK, es
+from i18n import t, tm
 from nomograma import _layout
 
 from muestreo import oro
@@ -27,11 +28,11 @@ def variance_figure(checks: list[Check]) -> go.Figure:
             x=[lo, hi],
             y=[lo, hi],
             mode="lines",
-            name="coincidencia exacta",
+            name=t("plot.val.exact"),
             line=dict(color=LINE, dash="dash"),
         )
     )
-    for ok, name, color in ((True, "cuadra al redondeo publicado", OK), (False, "no cuadra", BAD)):
+    for ok, name, color in ((True, t("plot.val.fits"), OK), (False, t("plot.val.nofit"), BAD)):
         part = [c for c in rows if c.ok is ok]
         if part:
             fig.add_trace(
@@ -41,16 +42,16 @@ def variance_figure(checks: list[Check]) -> go.Figure:
                     mode="markers",
                     name=name,
                     marker=dict(size=10, color=color),
-                    text=[f"{c.source}: {c.item}" for c in part],
-                    hovertemplate="%{text}<br>publicado %{x}<br>calculado %{y:.5f}<extra></extra>",
+                    text=[f"{tm(c.source)}: {tm(c.item)}" for c in part],
+                    hovertemplate=t("plot.val.hover"),
                 )
             )
     return _layout(
         fig,
-        "Varianza publicada frente a calculada (Minnitt 2017 y Chieregati 2017)",
+        t("plot.val.title"),
         440,
-        x=dict(title="Publicada", type="log"),
-        y=dict(title="Calculada", type="log"),
+        x=dict(title=t("plot.val.x"), type="log"),
+        y=dict(title=t("plot.val.y"), type="log"),
     )
 
 
@@ -59,16 +60,16 @@ def clifton_figure() -> go.Figure:
     ns = list(CLIFTON_PUBLISHED)
     fig = go.Figure()
     series = (
-        ("publicado (Fig. 4)", [CLIFTON_PUBLISHED[n] for n in ns], "diamond", INK, None),
+        (t("plot.cli.published"), [CLIFTON_PUBLISHED[n] for n in ns], "diamond", INK, None),
         (
-            "ecuaciones (11) y (12)",
+            t("plot.cli.eqs"),
             [tuple(100 * v for v in oro.clifton_limits(n)) for n in ns],
             "circle",
             OK,
             None,
         ),
         (
-            "Poisson exacto (Garwood)",
+            t("plot.cli.exact"),
             [tuple(100 * v for v in oro.poisson_exact_limits(n)) for n in ns],
             "x",
             BAD,
@@ -76,7 +77,7 @@ def clifton_figure() -> go.Figure:
         ),
     )
     for name, values, symbol, color, _ in series:
-        for side, label in ((0, "inferior"), (1, "superior")):
+        for side, label in ((0, t("plot.cli.lower")), (1, t("plot.cli.upper"))):
             fig.add_trace(
                 go.Scatter(
                     x=ns,
@@ -90,10 +91,10 @@ def clifton_figure() -> go.Figure:
             )
     return _layout(
         fig,
-        "Límites al 95 % según las partículas por muestra (Clifton 1969)",
+        t("plot.cli.title"),
         420,
-        x=dict(title="Partículas por muestra", type="log"),
-        y=dict(title="Error relativo (%)"),
+        x=dict(title=t("plot.cli.x"), type="log"),
+        y=dict(title=t("plot.cli.y")),
     )
 
 
@@ -102,7 +103,7 @@ def minnitt_2007_figure(printed_calc_pct: float, implied_pct: float) -> go.Figur
     published = MINNITT_2007_PRINTED["sigma_pct"]
     fig = go.Figure(
         go.Bar(
-            x=["publicado", "datos impresos (c·f·g·ℓ = 70)", "implícito (c·f·g·ℓ = 448)"],
+            x=[t("plot.m07.published"), t("plot.m07.printed"), t("plot.m07.implied")],
             y=[published, printed_calc_pct, implied_pct],
             marker=dict(color=[INK, BAD, OK]),
             text=[es(v, 2) for v in (published, printed_calc_pct, implied_pct)],
@@ -111,7 +112,7 @@ def minnitt_2007_figure(printed_calc_pct: float, implied_pct: float) -> go.Figur
     )
     return _layout(
         fig,
-        "Minnitt 2007, problema 1: error relativo (%)",
+        t("plot.m07.title"),
         360,
         x=dict(title=""),
         y=dict(title="%"),

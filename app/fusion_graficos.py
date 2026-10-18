@@ -5,6 +5,7 @@ from __future__ import annotations
 import plotly.graph_objects as go
 from calculo import FusionView
 from dibujo import es
+from i18n import t
 from nomograma import _layout
 
 from muestreo.fusion_avisos import BUTTON_RANGE
@@ -28,7 +29,7 @@ def balance_figure(view: FusionView) -> go.Figure:
     rows = balance_rows(view)
     fig = go.Figure(
         go.Bar(
-            x=[n for n, _ in rows],
+            x=[t("bal." + n) for n, _ in rows],
             y=[v for _, v in rows],
             marker=dict(color=[COLORS[n] for n, _ in rows]),
             text=[es(v, 1) for _, v in rows],
@@ -42,13 +43,13 @@ def balance_figure(view: FusionView) -> go.Figure:
         fillcolor="#1F7A6F",
         opacity=0.12,
         line_width=0,
-        annotation_text="botón de 25 a 30 g",
+        annotation_text=t("bal.band"),
         annotation_position="top left",
     )
     return _layout(
         fig,
-        "Balance del plomo: qué reduce u oxida cada parte (g de Pb)",
+        t("bal.title"),
         380,
         x=dict(title=""),
-        y=dict(title="g de plomo"),
+        y=dict(title=t("bal.y")),
     )
