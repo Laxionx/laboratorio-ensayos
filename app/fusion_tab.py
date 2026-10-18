@@ -91,16 +91,17 @@ def fusion_tab(f: FusionUIParams, animate: bool) -> None:
 
 
 def _check_table(checks: list[fd.FusionCheck]) -> str:
-    def number(x: float) -> str:
-        return f"{x:.6g}".replace(".", ",")
+    def number(x: float | None) -> str:
+        return "-" if x is None else f"{x:.6g}".replace(".", ",")
 
     df = pd.DataFrame({
-        "Fuente": [c.source for c in checks],
         "Concepto": [c.item for c in checks],
         "Publicado": [number(c.published) for c in checks],
-        "Calculado": [number(c.calculated) for c in checks],
+        "Pesos actuales": [number(c.calculated) for c in checks],
+        "Pesos de Bugbee": [number(c.bugbee) for c in checks],
+        "Veredicto": [c.fit for c in checks],
+        "Dif. (Bugbee)": [number(c.difference_bugbee) for c in checks],
         "Unidad": [c.unit for c in checks],
-        "¿Cuadra?": [c.fit for c in checks],
         "Nota": [c.note for c in checks],
     })  # fmt: skip
     return markdown_table(df)
@@ -112,12 +113,14 @@ def fusion_validation_section() -> None:
     checks = fd.all_checks()
     s = fd.summary(checks)
     st.markdown(
-        f"{s['total']} cifras publicadas: **{s['al redondeo']}** cuadran al redondeo publicado, "
-        f"**{s['a una unidad']}** a una unidad del último dígito y **{s['no']}** no. Bugbee "
-        "calculó a mano con pesos atómicos redondeados y a veces truncó; aquí se usan pesos "
-        "atómicos actuales, y los poderes reductores y los factores de escoria salen de la "
-        "estequiometría. Las cifras de la Tabla XX y de la Tabla XXI se leyeron también en la "
-        "imagen del escaneo."
+        f"{s['total']} cifras publicadas: **{s['cuadra']}** cuadran con pesos atómicos actuales, "
+        f"**{s['cuadra con los pesos de Bugbee']}** cuadran con los pesos de Bugbee, "
+        f"**{s['truncamiento de Bugbee']}** son truncamientos suyos y **{s['no cuadra']}** no "
+        "cuadran. Difieren porque Bugbee calculó a mano con pesos atómicos redondeados (207 para "
+        "el Pb, 56 para el Fe) y a veces truncó en vez de redondear; los pesos de Bugbee de esta "
+        "tabla se infieren de sus propias cifras (el juego que mejor las reproduce, declarado en "
+        "`fusion_pesos.py`) y la app calcula siempre con pesos actuales. Las cifras de la Tabla XX "
+        "y de la Tabla XXI se leyeron también en la imagen del escaneo."
     )
     st.markdown("#### Poderes reductores y oxidantes teóricos")
     st.markdown(_check_table(fd.theoretical_checks()))

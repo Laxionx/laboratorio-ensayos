@@ -23,42 +23,17 @@ Cortes:
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-
 from . import fusion as fu
-from .quimica import PB, M, molar_mass
-from .validacion import Check, decimals_of, matches_rounding
+from .fusion_pesos import (
+    VERDICTS,
+    FusionCheck,
+    dual,
+    make_check,
+)
+from .validacion import Check, decimals_of, matches_rounding  # noqa: F401
 
+_check = make_check
 
-@dataclass(frozen=True)
-class FusionCheck(Check):
-    """Una comparación con su grado de ajuste: «sí» (al redondeo), «a una unidad» o «no»."""
-
-    close: bool = False  # a menos de una unidad del último dígito impreso
-
-    @property
-    def fit(self) -> str:
-        return "sí" if self.ok else ("a una unidad" if self.close else "no")
-
-
-def _check(
-    source: str, item: str, printed: str, calc: float, unit: str, note: str = ""
-) -> FusionCheck:
-    published = float(printed)
-    unit_size = 10.0 ** (-decimals_of(printed))
-    return FusionCheck(
-        source,
-        item,
-        published,
-        calc,
-        unit,
-        matches_rounding(calc, printed),
-        note,
-        abs(calc - published) <= unit_size * (1 + 1e-9),
-    )
-
-
-BUGBEE = "Bugbee 1922"
 # Tabla XX: mineral -> (S a SO2, S a SO3, medido) como se imprime
 TABLE_XX = {
     "galena": ("2.6", "3.46", "3.41"),
@@ -74,74 +49,67 @@ ARGOLS = {"sub": 11.04, "mono": 10.93, "bi": 10.62, "tri": 9.26}  # R.P. de unos
 AT = fu.AT_G
 
 
+def _spec(key: str) -> fu.MineralSpec:
+    return {m.key: m for m in (*fu.MINERALS, *fu.EXTRA_MINERALS)}[key]
+
+
 def theoretical_checks() -> list[FusionCheck]:
-    """Poderes reductores y oxidantes teóricos."""
-    s = "Bugbee 1922, poder reductor"
-    carbon = 2 * PB / molar_mass("C")
+    """Poderes reductores y oxidantes teóricos, con pesos actuales y con los de Bugbee."""
+    s, pyrite = "Bugbee 1922, poder reductor", "FeS2"
+    t = "g Pb/g"
     checks = [
-        _check(s, "carbono (2PbO + C)", "34.5", carbon, "g Pb/g"),
-        _check(s, "hierro (PbO + Fe)", "3.70", PB / molar_mass("Fe"), "g Pb/g"),
-        _check(s, "azufre a SO2", "12.9", 2 * PB / molar_mass("S"), "g Pb/g"),
-        _check(s, "azufre a SO3", "19.4", 3 * PB / molar_mass("S"), "g Pb/g"),
-        _check(s, "pirita, 5PbO (a SO2)", "8.6", 5 * PB / molar_mass("FeS2"), "g Pb/g"),
-        _check(
-            s, "pirita, férrica (15PbO por 2FeS2)", "12.9", 7.5 * PB / molar_mass("FeS2"), "g Pb/g"
+        dual(s, "carbono (2PbO + C)", "34.5", t, lambda w: 2 * w.pb / w.mm("C")),
+        dual(s, "hierro (PbO + Fe)", "3.70", t, lambda w: w.pb / w.mm("Fe")),
+        dual(s, "azufre a SO2", "12.9", t, lambda w: 2 * w.pb / w.mm("S")),
+        dual(s, "azufre a SO3", "19.4", t, lambda w: 3 * w.pb / w.mm("S")),
+        dual(s, "pirita, 5PbO (a SO2)", "8.6", t, lambda w: 5 * w.pb / w.mm(pyrite)),
+        dual(
+            s, "pirita, férrica (15PbO por 2FeS2)", "12.9", t, lambda w: 7.5 * w.pb / w.mm(pyrite)
         ),
-        _check(
-            s, "pirita, ferrosa (14PbO por 2FeS2)", "12.07", 7 * PB / molar_mass("FeS2"), "g Pb/g"
-        ),
+        dual(s, "pirita, ferrosa (14PbO por 2FeS2)", "12.07", t, lambda w: 7 * w.pb / w.mm(pyrite)),
     ]
     for key, (so2, so3, _measured) in TABLE_XX.items():
         name = fu.BY_KEY[key].name if key in fu.BY_KEY else key.capitalize()
-        checks.append(
-            _check(
-                "Bugbee 1922, Tabla XX",
-                f"{name}: S a SO2",
-                so2,
-                fu.reducing_power(key, "SO2"),
-                "g Pb/g",
+        spec = _spec(key)
+        for printed, mode in ((so2, "SO2"), (so3, "SO3")):
+            checks.append(
+                dual(
+                    "Bugbee 1922, Tabla XX",
+                    f"{name}: S a {mode}",
+                    printed,
+                    t,
+                    lambda w, spec=spec, mode=mode: w.rp(spec, mode),
+                )
             )
-        )
-        checks.append(
-            _check(
-                "Bugbee 1922, Tabla XX",
-                f"{name}: S a SO3",
-                so3,
-                fu.reducing_power(key, "SO3"),
-                "g Pb/g",
-            )
-        )
     o = "Bugbee 1922, poder oxidante"
     checks += [
-        _check(o, "nitro (4KNO3 + 5C)", "5.12", 10 * PB / (4 * M["KNO3"]), "g Pb/g"),
-        _check(
-            o,
-            "Fe2O3 (Fe2O3 + Pb)",
-            "1.31",
-            -fu.reducing_power("hematita"),
-            "g Pb/g",
-            "Bugbee redondea 207/158; con 159,7 salen 1,30 (USGS imprime 1,3)",
-        ),
-        _check(o, "MnO2 (MnO2 + Pb)", "2.4", PB / molar_mass("MnO2"), "g Pb/g"),
-        _check(o, "minio (Pb3O4 + Pb = 4PbO)", "0.30", PB / molar_mass("Pb3O4"), "g Pb/g"),
+        dual(o, "nitro (4KNO3 + 5C)", "5.12", t, lambda w: 10 * w.pb / (4 * w.mm("KNO3"))),
+        dual(o, "Fe2O3 (Fe2O3 + Pb)", "1.31", t, lambda w: w.pb / w.mm("Fe2O3")),
+        dual(o, "MnO2 (MnO2 + Pb)", "2.4", t, lambda w: w.pb / w.mm("MnO2")),
+        dual(o, "minio (Pb3O4 + Pb = 4PbO)", "0.30", t, lambda w: w.pb / w.mm("Pb3O4")),
     ]
     return checks
 
 
 def neutralization_checks() -> list[FusionCheck]:
     s = "Bugbee 1922, Tablas XXI y XXII"
+    sp = lambda base: lambda w: w.silica_per_base(base)  # noqa: E731
     checks = [
-        _check(
+        dual(s, "1 g de FeO neutraliza (g de SiO2, bi-silicato)", "0.84", "g", sp("FeO")),
+        dual(
             s,
-            "1 g de FeO neutraliza (g de SiO2, bi-silicato)",
-            "0.84",
-            fu.silica_per_base("FeO"),
+            "1 g de FeO requiere (g de bórax vidrio)",
+            "1.4",
             "g",
+            lambda w: w.borax_per_base("FeO"),
         ),
-        _check(s, "1 g de FeO requiere (g de bórax vidrio)", "1.4", fu.borax_per_base("FeO"), "g"),
-        _check(s, "1 g de CaCO3 neutraliza (g de SiO2)", "0.60", fu.silica_per_base("CaCO3"), "g"),
-        _check(
-            s, "1 g de CaCO3 requiere (g de bórax vidrio)", "1.0", fu.borax_per_base("CaCO3"), "g"
+        dual(s, "1 g de CaCO3 neutraliza (g de SiO2)", "0.60", "g", sp("CaCO3")),
+        dual(
+            s,
+            "1 g de CaCO3 requiere (g de bórax vidrio)",
+            "1.0",
+            "g",
+            lambda w: w.borax_per_base("CaCO3"),
         ),
     ]
     for label, mass, rows in (
@@ -157,26 +125,29 @@ def neutralization_checks() -> list[FusionCheck]:
         ),
     ):
         for base, printed in rows:
-            calc = mass / fu.silica_per_base(base)
             checks.append(
-                _check(s, f"Tabla XXI, {label}: {base} (bi-silicato)", printed, calc, "g")
+                dual(
+                    s,
+                    f"Tabla XXI, {label}: {base} (bi-silicato)",
+                    printed,
+                    "g",
+                    lambda w, m=mass, b=base: m / w.silica_per_base(b),
+                )
             )
     t22 = (
-        ("1 A.T. de FeO", "24.5", AT * fu.silica_per_base("FeO")),
-        ("1 A.T. de CaCO3", "17.4", AT * fu.silica_per_base("CaCO3")),
-        ("1 A.T. de MgCO3", "20.8", AT * fu.silica_per_base("MgCO3")),
-        ("10 g de PbO", "2.7", 10 * fu.silica_per_base("PbO")),
-        ("30 g de NaHCO3", "10.8", 30 * fu.silica_per_base("NaHCO3")),
-        ("30 g de Na2CO3", "17.0", 30 * fu.silica_per_base("Na2CO3")),
-        ("10 g de K2CO3", "4.4", 10 * fu.silica_per_base("K2CO3")),
+        ("1 A.T. de FeO", "24.5", lambda w: AT * w.silica_per_base("FeO")),
+        ("1 A.T. de CaCO3", "17.4", lambda w: AT * w.silica_per_base("CaCO3")),
+        ("1 A.T. de MgCO3", "20.8", lambda w: AT * w.silica_per_base("MgCO3")),
+        ("10 g de PbO", "2.7", lambda w: 10 * w.silica_per_base("PbO")),
+        ("30 g de NaHCO3", "10.8", lambda w: 30 * w.silica_per_base("NaHCO3")),
+        ("30 g de Na2CO3", "17.0", lambda w: 30 * w.silica_per_base("Na2CO3")),
+        ("10 g de K2CO3", "4.4", lambda w: 10 * w.silica_per_base("K2CO3")),
     )
-    for label, printed, calc in t22:
+    for label, printed, fn in t22:
         note = ""
         if label == "1 A.T. de CaCO3":
             note = "su propio 0,60 g por g da 17,5; el 17,4 de la tabla es un redondeo suyo"
-        checks.append(
-            _check(s, f"Tabla XXII, sílice que piden {label}", printed, calc, "g SiO2", note)
-        )
+        checks.append(dual(s, f"Tabla XXII, sílice que piden {label}", printed, "g SiO2", fn, note))
     return checks
 
 
@@ -219,68 +190,45 @@ def example_checks() -> list[FusionCheck]:
         _check(s, "50 % CaCO3: resto a bórax (como sílice)", "6.4", t["remainder"], "g"),
         _check(s, "50 % CaCO3: bórax vidrio", "10.7", t["borax"], "g"),
     ]
-    pure = fu.design_charge(
-        fu.FusionParams(
-            AT,
-            {"cuarzo": 100},
-            soda_per_g=0,
-            litharge_slag_per_g=0,
-            borax_min_g=0,
-            borax_fraction=0,
-            flour_rp=12.0,
-        )
-    )
-    slag_litharge = pure.litharge_g - 28.0 * M["PbO"] / PB
+    note = "calculadora (estequiometría actual); Bugbee usa su Tabla XXII"
+    pure = lambda key: lambda w: w.design({"cuarzo": 100}, 0.0, 0.0, pure_split=True)[key]  # noqa: E731
     checks += [
-        _check(
+        dual(
             s,
             "1 A.T. de sílice pura: soda (3/5 de la sílice)",
             "30.7",
-            pure.soda_g,
             "g",
-            "calculadora, con pesos atómicos actuales",
+            pure("soda"),
+            "calculadora",
         ),
-        _check(
+        dual(
             s,
             "1 A.T. de sílice pura: litargirio para la escoria",
             "43.2",
-            slag_litharge,
             "g",
-            "calculadora, con pesos atómicos actuales",
+            pure("litharge slag"),
+            "calculadora",
         ),
-        _check(s, "1 A.T. de sílice pura: harina (R.P. 12)", "2.33", pure.flour_g, "g"),
+        dual(s, "1 A.T. de sílice pura: harina (R.P. 12)", "2.33", "g", pure("flour")),
     ]
-    mixed = fu.design_charge(
-        fu.FusionParams(
-            AT,
-            {"cuarzo": 50, "calcita": 50},
-            soda_per_g=30.0 / AT,
-            litharge_slag_per_g=30.0 / AT,
-            flour_rp=12.0,
-        )
-    )
-    calcite = fu.design_charge(
-        fu.FusionParams(
-            AT, {"calcita": 100}, soda_per_g=30.0 / AT, litharge_slag_per_g=30.0 / AT, flour_rp=12.0
-        )
-    )
-    for tag, r, vals in (
-        ("50 % CaCO3", mixed, ("10.7", "12.8", "60")),
-        ("CaCO3 puro", calcite, ("23.6", "28.3", "60")),
+    for tag, minerals, vals in (
+        ("50 % CaCO3", {"cuarzo": 50, "calcita": 50}, ("10.7", "12.8", "60")),
+        ("CaCO3 puro", {"calcita": 100}, ("23.6", "28.3", "60")),
     ):
-        for label, calc, printed in (
-            ("bórax vidrio", r.borax_g, vals[0]),
-            ("sílice", r.silica_g, vals[1]),
-            ("litargirio", r.litharge_g, vals[2]),
+        for label, key, printed in zip(
+            ("bórax vidrio", "sílice", "litargirio"),
+            ("borax", "silica", "litharge"),
+            vals,
+            strict=True,
         ):
             checks.append(
-                _check(
+                dual(
                     s,
                     f"{tag}: carga calculada, {label}",
                     printed,
-                    calc,
                     "g",
-                    "calculadora (estequiometría actual); Bugbee usa su Tabla XXII",
+                    lambda w, m=minerals, k=key: w.design(m, 30.0, 30.0)[k],
+                    note,
                 )
             )
     return checks
@@ -386,9 +334,8 @@ def all_checks() -> list[FusionCheck]:
 
 
 def summary(checks: list[FusionCheck]) -> dict[str, int]:
-    return {
-        "total": len(checks),
-        "al redondeo": sum(c.ok for c in checks),
-        "a una unidad": sum((not c.ok) and c.close for c in checks),
-        "no": sum((not c.ok) and (not c.close) for c in checks),
-    }
+    """Conteo por veredicto (ver `fusion_pesos`)."""
+    out = {"total": len(checks)}
+    for v in VERDICTS:
+        out[v] = sum(c.fit == v for c in checks)
+    return out

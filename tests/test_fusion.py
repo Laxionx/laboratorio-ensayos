@@ -11,6 +11,7 @@ import pytest
 
 from muestreo import fusion as fu
 from muestreo import fusion_datos as fd
+from muestreo import fusion_pesos as fp
 from muestreo.fusion_avisos import BUTTON_RANGE
 from muestreo.quimica import PB, M, molar_mass
 
@@ -61,18 +62,17 @@ def test_los_electrones_dan_los_atomos_de_plomo_de_las_reacciones_de_bugbee():
         fu.pb_reduced_per_mol(1, 0, 0, "SO4")
 
 
-def test_la_tabla_xx_se_reproduce_con_las_marcas_documentadas():
+def test_la_tabla_xx_se_reproduce_con_los_veredictos_documentados():
     fits = {c.item: c.fit for c in fd.theoretical_checks() if c.source.endswith("Tabla XX")}
     assert len(fits) == 16
-    exact = [i for i, f in fits.items() if f == "sí"]
-    assert len(exact) == 10  # 10 de 16 al redondeo publicado
-    assert sorted(i for i, f in fits.items() if f == "a una unidad") == [
-        "Esfalerita: S a SO2",
-    ]
-    assert sorted(i for i, f in fits.items() if f == "no") == [
-        "Arsenopirita: S a SO3", "Calcopirita: S a SO3", "Estibina: S a SO3",
-        "Pirita: S a SO3", "Pirrotita: S a SO2",
+    assert sum(f == "cuadra" for f in fits.values()) == 10  # 10 de 16 con pesos actuales
+    assert sorted(i for i, f in fits.items() if f == "cuadra con los pesos de Bugbee") == [
+        "Calcopirita: S a SO3", "Esfalerita: S a SO2", "Pirita: S a SO3", "Pirrotita: S a SO2",
     ]  # fmt: skip
+    assert sorted(i for i, f in fits.items() if f == "no cuadra") == [
+        "Arsenopirita: S a SO3",
+        "Estibina: S a SO3",
+    ]
 
 
 def test_lo_que_no_cuadra_en_la_tabla_xx_es_pequeno_y_viene_del_libro():
@@ -391,6 +391,7 @@ def test_la_calculadora_reproduce_las_cargas_de_los_ejemplos_a_una_unidad():
     assert len(checks) == 6
     for c in checks.values():
         assert abs(c.difference) < 0.2, c.item  # con estequiometría actual, no con su tabla
+        assert abs(c.difference_bugbee) < 0.2, c.item  # ni con sus pesos
     assert checks["50 % CaCO3: carga calculada, bórax vidrio"].ok
     assert checks["50 % CaCO3: carga calculada, sílice"].ok
     assert checks["50 % CaCO3: carga calculada, litargirio"].ok
@@ -417,7 +418,10 @@ def test_la_mezcla_3_5_0_5_6_da_bisilicato_con_100_g_y_sesquisilicato_con_125_g(
 
 def test_resumen_de_la_validacion_de_bugbee_y_usgs():
     checks = fd.all_checks()
-    assert fd.summary(checks) == {"total": 67, "al redondeo": 43, "a una unidad": 7, "no": 17}
+    assert fd.summary(checks) == {
+        "total": 67, "cuadra": 43, "cuadra con los pesos de Bugbee": 14,
+        "truncamiento de Bugbee": 3, "no cuadra": 7,
+    }  # fmt: skip
     assert fd.usgs_niter_example().ok
 
 
@@ -452,3 +456,80 @@ def test_el_umbral_de_perkins_es_137_partes_de_pbo_por_parte_de_cobre():
     plenty = fu.evaluate_charge(params, reagents.scaled(litharge=4.0))  # sobre 137 × Cu: sin aviso
     assert plenty.slag.components_g["PbO"] > 137 * cu_g
     assert not any("Perkins" in t for t in _texts(plenty))
+
+
+# ------------------------------------------------------------------ pesos de Bugbee
+def test_los_pesos_de_bugbee_estan_declarados_y_son_enteros_o_de_uso_comun():
+    w = fp.BUGBEE_WEIGHTS
+    assert (w["Pb"], w["Fe"], w["S"], w["C"], w["O"]) == (207.1, 56.0, 32.06, 12.0, 16.0)
+    assert w["Si"] == 28.3 and w["Cu"] == 64.0 and set(w) == set(fp.ATOMIC_WEIGHTS)
+    assert fp.BUGBEE_WEIGHTS != fp.ATOMIC_WEIGHTS  # la app usa SIEMPRE los actuales
+    assert "infiere" in fp.__doc__.lower()
+
+
+def test_con_207_56_y_32_el_hierro_da_3_696_y_la_pirita_12_075_que_bugbee_trunca():
+    assert 207 / 56 == pytest.approx(3.696, abs=0.001)  # Bugbee imprime 3,70
+    assert 14 * 207 / (2 * 120) == pytest.approx(12.075)  # imprime 12,07: truncó
+    assert fp.truncated_equals(12.075, "12.07") and not fp.truncated_equals(12.075, "12.08")
+    assert fp.matches_rounding(3.696, "3.70")
+
+
+def test_el_motor_con_pesos_actuales_es_el_mismo_calculo_que_la_app():
+    cur = fp.CURRENT
+    for key in ("pirita", "calcopirita", "galena", "hematita", "arsenopirita", "estibina"):
+        spec = {m.key: m for m in (*fu.MINERALS, *fu.EXTRA_MINERALS)}[key]
+        for mode in ("SO2", "SO3"):
+            assert cur.rp(spec, mode) == pytest.approx(fu.reducing_power(key, mode), rel=1e-12)
+    for base in ("FeO", "CaCO3", "PbO", "Na2CO3", "NaHCO3"):
+        assert cur.silica_per_base(base) == pytest.approx(fu.silica_per_base(base), rel=1e-12)
+        assert cur.borax_per_base(base) == pytest.approx(fu.borax_per_base(base), rel=1e-12)
+    soda = cur.design({"cuarzo": 100}, 0, 0, pure_split=True)
+    pure = fu.design_charge(P(AT, {"cuarzo": 100}, soda_per_g=0, litharge_slag_per_g=0,
+                              borax_min_g=0, borax_fraction=0, flour_rp=12.0))  # fmt: skip
+    assert soda["soda"] == pytest.approx(pure.soda_g, rel=1e-9)
+    assert soda["litharge slag"] == pytest.approx(pure.litharge_g - 28 * M["PbO"] / PB, rel=1e-9)
+    for minerals in ({"cuarzo": 50, "calcita": 50}, {"calcita": 100}):
+        mixed = cur.design(minerals, 30.0, 30.0)
+        charge = fu.design_charge(P(AT, minerals, soda_per_g=30 / AT, litharge_slag_per_g=30 / AT,
+                                    flour_rp=12.0))  # fmt: skip
+        assert mixed["borax"] == pytest.approx(charge.borax_g, rel=1e-9)
+        assert mixed["silica"] == pytest.approx(charge.silica_g, rel=1e-9)
+        assert mixed["litharge"] == pytest.approx(charge.litharge_g, rel=1e-9)
+
+
+def test_el_veredicto_distingue_las_cuatro_categorias():
+    assert fp.verdict("3.70", 3.701, 3.5) == fp.CUADRA
+    assert fp.verdict("3.70", 3.71, 3.698) == fp.CON_PESOS
+    assert fp.verdict("51.2", 51.45, 51.271) == fp.TRUNCA  # 51,271 truncado da 51,2
+    assert fp.verdict("51.2", 51.45, 51.31) == fp.NO_CUADRA  # truncado da 51,3
+    assert fp.verdict("6.96", 6.999, 6.985) == fp.NO_CUADRA
+    assert fp.verdict("1.0", 2.0, None) == fp.NO_CUADRA
+    assert fp.truncated_equals(51.271, "51.2") and not fp.truncated_equals(51.31, "51.2")
+
+
+def test_conteo_exacto_por_categoria_de_las_cifras_que_dependen_de_pesos():
+    weighted = [c for c in fd.all_checks() if c.bugbee is not None]
+    assert len(weighted) == 55  # 67 menos las 12 que no dependen de pesos atómicos
+    counts = {v: sum(c.fit == v for c in weighted) for v in fp.VERDICTS}
+    assert counts == {fp.CUADRA: 31, fp.CON_PESOS: 14, fp.TRUNCA: 3, fp.NO_CUADRA: 7}
+    # con los pesos de Bugbee quedan a media unidad: las que cuadran con ellos y no con los actuales
+    assert sum(c.fit == fp.CON_PESOS for c in weighted) == 14
+    assert 55 - counts[fp.NO_CUADRA] == 48  # 48 de 55 se explican con la aritmética de Bugbee
+
+
+def test_lo_que_queda_como_no_cuadra_va_con_su_diferencia_sin_maquillar():
+    bad = {c.item: c for c in fd.all_checks() if c.fit == fp.NO_CUADRA}
+    assert set(bad) == {
+        "Arsenopirita: S a SO3", "Estibina: S a SO3", "Fe2O3 (Fe2O3 + Pb)",
+        "Tabla XXII, sílice que piden 1 A.T. de FeO",
+        "Tabla XXII, sílice que piden 1 A.T. de CaCO3",
+        "CaCO3 puro: carga calculada, bórax vidrio", "CaCO3 puro: carga calculada, sílice",
+    }  # fmt: skip
+    assert bad["Estibina: S a SO3"].difference_bugbee == pytest.approx(7.3837 - 7.35, abs=1e-3)
+    assert abs(bad["Tabla XXII, sílice que piden 1 A.T. de CaCO3"].difference_bugbee) > 0.1
+    assert all(abs(c.difference_bugbee) > 0.01 for c in bad.values())
+
+
+def test_las_cifras_sin_pesos_no_tienen_columna_de_bugbee():
+    plain = [c for c in fd.all_checks() if c.bugbee is None]
+    assert len(plain) == 12 and all(c.fit in (fp.CUADRA, fp.NO_CUADRA) for c in plain)

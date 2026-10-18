@@ -60,13 +60,13 @@ Fuentes, ambas de dominio público: Bugbee (1922), *A Textbook of Fire Assaying*
 
 ### Validación de la fase 2
 
-Cortes fijados antes de correr ([tests/test_fusion.py](tests/test_fusion.py)); la estequiometría usa pesos atómicos actuales y Bugbee calculó a mano con pesos redondeados y a veces truncó, así que lo que no llega a media unidad del último dígito se marca «a una unidad» o «no», sin retoques.
+Cortes fijados antes de correr ([tests/test_fusion.py](tests/test_fusion.py)); la app calcula SIEMPRE con pesos atómicos actuales; Bugbee calculó a mano con pesos redondeados y a veces truncó. Cada cifra se muestra con cuatro columnas (publicada, pesos actuales, pesos de Bugbee, veredicto): «cuadra», «cuadra con los pesos de Bugbee», «truncamiento de Bugbee» o «no cuadra» (con su diferencia, sin retoques). El juego de pesos de Bugbee está en `muestreo/fusion_pesos.py` y se INFIERE de sus propias cifras, a favor suyo.
 
 | Fuente | Publicado | Calculado | ¿Cuadra? |
 |---|---|---|---|
-| Bugbee 1922, poderes reductores (carbono, hierro, azufre, pirita), nitro, minio, MnO2 | 34,5; 3,70; 12,9; 19,4; 8,6; 12,9; 12,07; 5,12; 0,30; 2,4 | estequiometría | 43 de las 67 cifras de Bugbee y del USGS cuadran al redondeo; 7 a una unidad; 17 no (ver más abajo) |
-| Bugbee 1922, Tabla XX (8 minerales, S a SO2 y SO3) | 16 cifras | electrones que entrega cada mineral | 10 de 16 al redondeo; esfalerita SO2 a una unidad; no: arsenopirita, calcopirita, estibina y pirita (SO3) y pirrotita (SO2), por 0,01 a 0,04 |
-| Bugbee 1922, neutralización de bases y Tablas XXI y XXII | 0,84 y 0,60 g de SiO2; 1,4 y 1,0 g de bórax; 8 + 7 cifras de factores | estequiometría | las de 0,84, 0,60, 1,4, 1,0, PbO y MgCO3 sí; varias de las tablas, a una unidad o no (Bugbee truncó los valores de 1 assay-ton; su 17,4 de CaCO3 no concuerda con su propio 0,60 g por g, que da 17,5) |
+| Bugbee 1922, poderes reductores (carbono, hierro, azufre, pirita), nitro, minio, MnO2 | 34,5; 3,70; 12,9; 19,4; 8,6; 12,9; 12,07; 5,12; 0,30; 2,4 | estequiometría | de 67 cifras: 43 cuadran, 14 cuadran con los pesos de Bugbee, 3 son truncamiento suyo y 7 no cuadran (ver la Validación) |
+| Bugbee 1922, Tabla XX (8 minerales, S a SO2 y SO3) | 16 cifras | electrones que entrega cada mineral | 10 cuadran; 4 con los pesos de Bugbee (calcopirita SO3, esfalerita SO2, pirita SO3, pirrotita SO2); 2 no cuadran (arsenopirita y estibina, S a SO3) |
+| Bugbee 1922, neutralización de bases y Tablas XXI y XXII | 0,84 y 0,60 g de SiO2; 1,4 y 1,0 g de bórax; 8 + 7 cifras de factores | estequiometría | las de 0,84, 0,60, 1,4, 1,0, PbO y MgCO3 sí; varias de las tablas, con sus pesos o por truncamiento suyo; no cuadran Fe2O3, FeO de la Tabla XXII y el CaCO3 (su 17,4 no concuerda con su propio 0,60 g por g, que da 17,5) |
 | Bugbee 1922, ejemplo de 50 % CaCO3 y 50 % SiO2 | 8,7; 17,0; 8,1; 33,8; 14,6; 19,2; 12,8; 6,4; 10,7 | con los factores tabulados de Bugbee | **9 de 9** exactos |
 | Bugbee 1922, ejemplos con la calculadora | 30,7 y 43,2 g (1 A.T. de sílice pura); 10,7, 12,8 y 60 g (50 % CaCO3); 23,6, 28,3 y 60 g (CaCO3 puro) | 30,87 y 43,34; 10,70, 12,84 y 60,16; 23,66, 28,39 y 60,16 | dentro de 0,2 g (estequiometría actual) |
 | Bugbee 1922, mezcla 3,5 : 0,5 : 6 | 100 g ⇒ ≈ bi-silicato; 125 g ⇒ ≈ sesqui-silicato | grado 2,31 y 1,78 | sí (corte: 2 ± 0,35 y 1,5 ± 0,35) |
