@@ -14,10 +14,10 @@ import re
 # (frase en español, frase en inglés). Se aplican en este orden: las largas, antes que las cortas.
 PHRASES: tuple[tuple[str, str], ...] = (
     # notas
-    ("no cuadra: con K y α impresos sale", "does not match: with the printed K and α it gives"),
-    ("para 0,00005 haría falta dN ≈", "for 0.00005 it would take dN ≈"),
+    ("no cuadra: con K y α impresos sale", "does not match: the printed K and α give"),
+    ("para 0,00005 haría falta dN ≈", "matching 0.00005 would take dN ≈"),
     ("y la fila siguiente", "and the next row"),
-    ("sí cuadra con", "does match with"),
+    ("sí cuadra con", "does match"),
     (
         "su propio 0,60 g por g da 17,5; el 17,4 de la tabla es un redondeo suyo",
         "his own 0.60 g per g gives 17.5; the 17.4 in the table is his own rounding",
