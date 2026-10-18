@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from muestreo import Mineral, evaluate
+from muestreo import Mineral, evaluate, fusion
 from muestreo.gy import GyError
 from muestreo.oro import GoldSimulation, expected_particles, grain_mass_g, simulate
 from muestreo.protocolo import (
@@ -124,3 +124,75 @@ def run_gold(p: GoldParams, grade_gpt: float, aliquot_g: float) -> GoldView:
     return GoldView(p, grade_gpt, aliquot_g, grain,
                     expected_particles(grade_gpt, aliquot_g, grain),
                     simulate(grade_gpt, aliquot_g, grain))  # fmt: skip
+
+
+# ------------------------------------------------------------------ fusión (fase 2)
+FUSION_SAMPLES = ("1 assay-ton (29,17 g)", "30 g")
+FUSION_SAMPLE_G = {FUSION_SAMPLES[0]: fusion.AT_G, FUSION_SAMPLES[1]: 30.0}
+FUSION_DEGREES = tuple(fusion.DEGREES)  # mono, sesqui, bi
+FUSION_DEFAULT_MINERALS = {"cuarzo": 80.0, "calcita": 8.0, "hematita": 3.0, "pirita": 3.0,
+                           "calcopirita": 1.0}  # fmt: skip
+
+
+@dataclass(frozen=True)
+class FusionUIParams:
+    """Lo que el visitante fija en la pestaña Fusión."""
+
+    sample: str = FUSION_SAMPLES[0]
+    minerals: tuple[tuple[str, float], ...] = tuple(
+        (m.key, FUSION_DEFAULT_MINERALS.get(m.key, 0.0)) for m in fusion.MINERALS
+    )
+    sulfur: str = "SO3"
+    button_g: float = fusion.BUTTON_TARGET
+    degree: str = "bi"
+    flour_rp: float = 11.0  # Bugbee 10 a 12; USGS 10 a 11
+    niter_op: float = 4.1  # Bugbee 4,0 a 4,2
+    soda_per_g: float = 1.0
+    litharge_per_g: float = 1.4
+    x_flour: float = 1.0  # cambios a la carga calculada, para ver qué pasa si está mal
+    x_silica: float = 1.0
+    x_litharge: float = 1.0
+
+
+@dataclass(frozen=True)
+class FusionView:
+    params: fusion.FusionParams
+    designed: fusion.Reagents
+    used: fusion.Reagents
+    result: fusion.ChargeResult
+    rows: tuple[tuple[str, float, float, float, float], ...]  # mineral, %, g, R.P., g de Pb
+
+    @property
+    def changed(self) -> bool:
+        return self.used != self.designed
+
+
+def run_fusion(f: FusionUIParams) -> FusionView:
+    """Lanza FusionError (ValueError) si la mineralogía o los datos no sirven."""
+    sample_g = FUSION_SAMPLE_G[f.sample]
+    params = fusion.FusionParams(
+        sample_g,
+        dict(f.minerals),
+        f.sulfur,
+        f.button_g,
+        fusion.DEGREES[f.degree],
+        f.flour_rp,
+        f.niter_op,
+        f.soda_per_g,
+        f.litharge_per_g,
+    )
+    designed = fusion.design_charge(params)
+    used = designed.scaled(f.x_flour, f.x_silica, f.x_litharge)
+    result = fusion.evaluate_charge(params, used)
+    rows = tuple(
+        (
+            fusion.BY_KEY[k].name,
+            v,
+            sample_g * v / 100.0,
+            fusion.reducing_power(k, f.sulfur),
+            sample_g * v / 100.0 * fusion.reducing_power(k, f.sulfur),
+        )
+        for k, v in f.minerals
+        if v > 0
+    )
+    return FusionView(params, designed, used, result, rows)

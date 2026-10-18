@@ -25,10 +25,10 @@ def _run() -> AppTest:
     return AppTest.from_file(APP, default_timeout=180).run()
 
 
-def test_las_cuatro_pestanas_cargan_sin_excepciones():
+def test_las_cinco_pestanas_cargan_sin_excepciones():
     at = _run()
     assert not at.exception and not at.error
-    assert [t.label for t in at.tabs] == ["Guía", "Protocolo", "Oro grueso", "Validación"]
+    assert [t.label for t in at.tabs] == ["Guía", "Protocolo", "Oro grueso", "Fusión", "Validación"]
     values = {m.label: m.value for m in at.metric}
     assert values["Error total del protocolo"] == "56,0 %"  # PREP-31, alícuota de 30 g, DSA
     assert values["Granos esperados en la alícuota"] == "3,38"

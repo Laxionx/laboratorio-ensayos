@@ -1,8 +1,8 @@
 # laboratorio-ensayos
 
-Laboratorio de ensayos al fuego, **fase 1: preparación de muestras**. Calcula cuánto error de muestreo mete cada etapa de un protocolo de preparación (chancar, dividir, pulverizar, tomar la alícuota de 30 o 50 g) con la ecuación del error fundamental de Gy, cuánto se acumula, y cuántos granos de oro caen en la alícuota cuando el oro es grueso. Implementado desde la literatura y validado contra números publicados.
+Laboratorio de ensayos al fuego. **Fase 1: preparación de muestras** y **fase 2: carga fundente**. Calcula cuánto error de muestreo mete cada etapa de un protocolo de preparación (chancar, dividir, pulverizar, tomar la alícuota de 30 o 50 g) con la ecuación del error fundamental de Gy, cuánto se acumula, y cuántos granos de oro caen en la alícuota cuando el oro es grueso. Implementado desde la literatura y validado contra números publicados.
 
-Sin fusión ni química del ensayo (fase 2). Los códigos de preparación PREP-31 y PREP-31B son públicos de ALS (alsglobal.com); sin afiliación.
+Sin copelación ni pérdidas de oro y plata, sin termodinámica de escorias y sin ensayo de platinoides. Los códigos de preparación PREP-31 y PREP-31B son públicos de ALS (alsglobal.com); sin afiliación.
 
 **[▶ Probar en el navegador](https://laboratorio-ensayos-bromrnpno3wqjwkdmqcuov.streamlit.app/)** (Streamlit Community Cloud, sin registro).
 
@@ -10,6 +10,7 @@ Sin fusión ni química del ensayo (fase 2). Los códigos de preparación PREP-3
 
 - **Protocolo:** varianza de Gy por etapa y acumulada (suma de varianzas relativas), con un nomograma de muestreo en el que la ruta del protocolo se recorre etapa por etapa (reducir el tamaño es un tramo horizontal; dividir, uno vertical). Presets PREP-31, PREP-31B y el protocolo de una mina de oro de Minnitt (2017).
 - **Oro grueso:** granos esperados en la alícuota, simulación de 1 000 ensayos repetidos (Poisson, semilla fija), recomendación de screen fire assay si se esperan menos de 20 granos (criterio de Clifton).
+- **Fusión (fase 2):** dada la mineralogía de la muestra (9 minerales) y la alícuota (1 assay-ton o 30 g), calcula la carga fundente (litargirio, carbonato de sodio, bórax, sílice, harina o nitro) que da un botón de plomo de 25 a 30 g y una escoria del grado de silicato elegido (mono, sesqui o bi); evalúa una carga cambiada (botón chico o grande, escoria ácida o básica, riesgo de mata) y dibuja el crisol en corte.
 - **Validación:** tabla y gráficos de lo calculado frente a lo publicado.
 - **Guía:** el error fundamental, los factores y qué dato pide cada uno, y qué errores de muestreo NO se modelan.
 
@@ -46,9 +47,36 @@ Cortes fijados antes de correr ([tests/test_validacion.py](tests/test_validacion
 
 La simulación de oro grueso se valida contra Poisson: media y desviación de los 1 000 ensayos dentro de 3σ del valor analítico (error de Monte Carlo), con semilla fija.
 
+## Fase 2: carga fundente
+
+El módulo `muestreo.fusion` (con `fusion_avisos`, `quimica` y los datos de validación en `fusion_datos`) calcula:
+
+- el **poder reductor** de la muestra por estequiometría (g de Pb que reduce 1 g del mineral con litargirio en exceso; el azufre sale como SO2 o como SO3, como en Bugbee) y el de la harina (**dato del laboratorio**: Bugbee da 10 a 12, el USGS 10 a 11; valor inicial 11);
+- el **nitro** si la muestra reduce de más (poder oxidante, dato del laboratorio: 4,0 a 4,2 según Bugbee; 5,12 el teórico);
+- el balance ácido-base para el **grado de silicato** pedido (oxígeno del ácido / oxígeno de la base: mono 1, sesqui 1,5, bi 2) con sílice y bórax (1 g de bórax vidrio equivale a 0,6 g de sílice);
+- el **botón** esperado, la composición y el grado de la escoria y los **avisos**: botón fuera de 25 a 30 g, escoria más ácida que tri-silicato o más básica que mono-silicato, riesgo de mata con sulfuros, poco litargirio (exceso de Lodge) o mucho cobre (Perkins, USGS). Cada umbral lleva su cita; los que no tienen cita publicada se rotulan «umbral supuesto».
+
+Fuentes, ambas de dominio público: Bugbee (1922), *A Textbook of Fire Assaying*, y Haffty, Riley y Goss (1977), *A Manual on Fire Assaying*, USGS Bulletin 1445. No es la receta de ningún laboratorio. Temperatura de fusión para el color del crisol: 1 050 °C (USGS); el botón se dibuja sólido con la densidad del plomo, 11,34 g/cm³ (CRC); la densidad de la escoria (3,0 g/cm³) es un **supuesto ilustrativo**, porque Bugbee no la da.
+
+### Validación de la fase 2
+
+Cortes fijados antes de correr ([tests/test_fusion.py](tests/test_fusion.py)); la estequiometría usa pesos atómicos actuales y Bugbee calculó a mano con pesos redondeados y a veces truncó, así que lo que no llega a media unidad del último dígito se marca «a una unidad» o «no», sin retoques.
+
+| Fuente | Publicado | Calculado | ¿Cuadra? |
+|---|---|---|---|
+| Bugbee 1922, poderes reductores (carbono, hierro, azufre, pirita), nitro, minio, MnO2 | 34,5; 3,70; 12,9; 19,4; 8,6; 12,9; 12,07; 5,12; 0,30; 2,4 | estequiometría | 43 de las 67 cifras de Bugbee y del USGS cuadran al redondeo; 7 a una unidad; 17 no (ver más abajo) |
+| Bugbee 1922, Tabla XX (8 minerales, S a SO2 y SO3) | 16 cifras | electrones que entrega cada mineral | 10 de 16 al redondeo; esfalerita SO2 a una unidad; no: arsenopirita, calcopirita, estibina y pirita (SO3) y pirrotita (SO2), por 0,01 a 0,04 |
+| Bugbee 1922, neutralización de bases y Tablas XXI y XXII | 0,84 y 0,60 g de SiO2; 1,4 y 1,0 g de bórax; 8 + 7 cifras de factores | estequiometría | las de 0,84, 0,60, 1,4, 1,0, PbO y MgCO3 sí; varias de las tablas, a una unidad o no (Bugbee truncó los valores de 1 assay-ton; su 17,4 de CaCO3 no concuerda con su propio 0,60 g por g, que da 17,5) |
+| Bugbee 1922, ejemplo de 50 % CaCO3 y 50 % SiO2 | 8,7; 17,0; 8,1; 33,8; 14,6; 19,2; 12,8; 6,4; 10,7 | con los factores tabulados de Bugbee | **9 de 9** exactos |
+| Bugbee 1922, ejemplos con la calculadora | 30,7 y 43,2 g (1 A.T. de sílice pura); 10,7, 12,8 y 60 g (50 % CaCO3); 23,6, 28,3 y 60 g (CaCO3 puro) | 30,87 y 43,34; 10,70, 12,84 y 60,16; 23,66, 28,39 y 60,16 | dentro de 0,2 g (estequiometría actual) |
+| Bugbee 1922, mezcla 3,5 : 0,5 : 6 | 100 g ⇒ ≈ bi-silicato; 125 g ⇒ ≈ sesqui-silicato | grado 2,31 y 1,78 | sí (corte: 2 ± 0,35 y 1,5 ± 0,35) |
+| USGS 1445, nitro de un botón de 30 g | 10,7 g | 10,7 g | sí |
+
+Se muestran junto a los teóricos, sin ser corte: los poderes reductores **medidos** de Bugbee (Tabla XX) y las cargas del USGS evaluadas con la calculadora (botón y grado de silicato que darían).
+
 ## Límites
 
-- Solo el error fundamental de muestreo de Gy: no hay errores de delimitación y extracción, de preparación (contaminación, pérdidas), de ponderación, de segregación y agrupamiento, ni el error analítico.
+- Fase 1: solo el error fundamental de muestreo de Gy: no hay errores de delimitación y extracción, de preparación (contaminación, pérdidas), de ponderación, de segregación y agrupamiento, ni el error analítico.
 - K y α son del ejemplo publicado; cada laboratorio debe calibrar los suyos.
 - Los granos de oro se suponen de un solo tamaño y forma (esfera o cubo), libres y al azar.
 - Los equipos de preparación no se simulan: el tamaño de cada etapa sale de la especificación del protocolo.

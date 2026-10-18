@@ -7,12 +7,22 @@ from dataclasses import dataclass
 
 import pandas as pd
 import streamlit as st
-from calculo import MINERALS, GoldParams, MineralParams, ProtocolParams
+from calculo import (
+    FUSION_DEFAULT_MINERALS,
+    FUSION_DEGREES,
+    FUSION_SAMPLES,
+    MINERALS,
+    FusionUIParams,
+    GoldParams,
+    MineralParams,
+    ProtocolParams,
+)
 
+from muestreo import fusion
 from muestreo.protocolo import PRESETS
 
 PREFIX = "dato_"
-PROT, MIN, GOLD = "Protocolo", "Mineral", "Oro grueso"
+PROT, MIN, GOLD, FUS = "Protocolo", "Mineral", "Oro grueso", "Fusión"
 ALIQUOTS = ("30", "50")  # Au-AA23 y Au-AA24
 SHAPES = ("esfera", "cubo")
 
@@ -124,9 +134,56 @@ DATOS: tuple[Dato, ...] = (
     Dato(GOLD, "shape", "Forma del grano", "", 0, 0, "esfera", 0,
          "Esfera (π/6·d³) o cubo (d³). El oro real es irregular: la forma es un supuesto.",
          "observación del oro al microscopio.", widget="select", options=SHAPES),
+    Dato(FUS, "f_sample", "Masa de la alícuota a fundir", "", 0, 0, FUSION_SAMPLES[0], 0,
+         "Un assay-ton (29,1667 g) o 30 g. La fusión lleva la carga que se calcula para esta masa.",
+         "la alícuota que pesa el laboratorio.", widget="select", options=FUSION_SAMPLES),
+    *(
+        Dato(FUS, "m_" + m.key, f"{m.name} ({m.formula})", "%", 0, 100,
+             FUSION_DEFAULT_MINERALS.get(m.key, 0.0), 1,
+             "Parte de la muestra en masa. Todos los minerales suman 100 % como máximo: lo que "
+             "falta es material inerte (no ácido ni básico, solo pasa a la escoria).",
+             "mineralogía de la muestra (microscopio, difracción de rayos X o análisis químico).")
+        for m in fusion.MINERALS
+    ),
+    Dato(FUS, "f_sulfur", "Azufre oxidado a", "", 0, 0, "SO3", 0,
+         "SO3: con carbonato alcalino, el azufre queda como sulfato (poder reductor mayor). SO2: "
+         "sin carbonato alcalino. Bugbee: el real queda entre los dos; se mide en una fusión "
+         "preliminar.", "fusión preliminar de reconocimiento.", widget="select",
+         options=fusion.SULFUR_MODES),
+    Dato(FUS, "f_button", "Botón de plomo pedido", "g", 20, 35, 28, 0.5,
+         "Bugbee: 28 g bastan como colector; no menos de 25 g ni más de 30 g.",
+         "el tamaño del botón que pide el laboratorio."),
+    Dato(FUS, "f_degree", "Grado de silicato de la escoria", "", 0, 0, "bi", 0,
+         "Oxígeno del ácido entre oxígeno de la base: mono 1, sesqui 1,5, bi 2. Bugbee: bi o "
+         "sesqui para menas silíceas y básicas; cerca de mono para sulfuros.",
+         "la práctica del laboratorio.", widget="select", options=FUSION_DEGREES),
+    Dato(FUS, "f_flour", "Poder reductor de la harina", "g Pb/g", 8, 13, 11, 0.5,
+         "Dato del laboratorio, no del modelo: g de plomo que reduce 1 g de harina. Bugbee da "
+         "10 a 12 (usa 12 en sus ejemplos) y el USGS 10 a 11; el valor inicial es el medio.",
+         "fusión de prueba con la harina del laboratorio (Bugbee, «Testing reagents»)."),
+    Dato(FUS, "f_niter", "Poder oxidante del nitro", "g Pb/g", 3.0, 5.12, 4.1, 0.1,
+         "Dato del laboratorio: g de plomo que oxida 1 g de nitro. El teórico es 5,12; Bugbee da "
+         "4,0 a 4,2 con su tipo de carga (3,7 a 4,7 según la acidez) y el USGS 4,2.",
+         "fusión preliminar con el nitro del laboratorio."),
+    Dato(FUS, "f_soda", "Soda por gramo de muestra", "g/g", 0.5, 3.0, 1.0, 0.1,
+         "Carbonato de sodio como fundente base. Bugbee: al menos el peso de la muestra.",
+         "la práctica del laboratorio."),
+    Dato(FUS, "f_lith", "Litargirio para la escoria por gramo de muestra", "g/g", 0.5, 3.0, 1.4,
+         0.1, "Litargirio que se queda en la escoria, además del que se reduce a plomo. Bugbee, "
+         "carga de 1 assay-ton: 70 g en total, 30 para el botón.",
+         "la práctica del laboratorio."),
+    Dato(FUS, "x_flour", "Probar: harina cambiada", "×", 0, 2, 1, 0.1,
+         "Multiplica la harina calculada para ver qué pasa con una carga mal pesada (botón chico "
+         "o grande). 1 deja la carga calculada.", "no es un dato de planta."),
+    Dato(FUS, "x_silica", "Probar: sílice cambiada", "×", 0, 3, 1, 0.1,
+         "Multiplica la sílice calculada: más sílice vuelve ácida la escoria y arriesga mata.",
+         "no es un dato de planta."),
+    Dato(FUS, "x_lith", "Probar: litargirio cambiado", "×", 0.3, 2, 1, 0.05,
+         "Multiplica el litargirio calculado: poco litargirio también arriesga mata.",
+         "no es un dato de planta."),
 )  # fmt: skip
 BY_KEY = {d.key: d for d in DATOS}
-GROUPS = (PROT, MIN, GOLD)
+GROUPS = (PROT, MIN, GOLD, FUS)
 
 
 def _ask(d: Dato) -> float | bool | str:
@@ -147,7 +204,7 @@ def reset_to_example() -> None:
         del st.session_state[k]
 
 
-def sidebar_config() -> tuple[ProtocolParams, MineralParams, GoldParams, float]:
+def sidebar_config() -> tuple[ProtocolParams, MineralParams, GoldParams, float, FusionUIParams]:
     """Lee la barra lateral. Devuelve el protocolo, el mineral, el oro y la alícuota (g)."""
     sb = st.sidebar
     sb.button("Cargar ejemplo", on_click=reset_to_example, width="stretch")
@@ -180,7 +237,21 @@ def sidebar_config() -> tuple[ProtocolParams, MineralParams, GoldParams, float]:
         float(v["b"]),
     )
     gold = GoldParams(float(v["grain"]), str(v["shape"]))
-    return protocol, mineral, gold, aliquot
+    fusion_ui = FusionUIParams(
+        str(v["f_sample"]),
+        tuple((m.key, float(v["m_" + m.key])) for m in fusion.MINERALS),
+        str(v["f_sulfur"]),
+        float(v["f_button"]),
+        str(v["f_degree"]),
+        float(v["f_flour"]),
+        float(v["f_niter"]),
+        float(v["f_soda"]),
+        float(v["f_lith"]),
+        float(v["x_flour"]),
+        float(v["x_silica"]),
+        float(v["x_lith"]),
+    )
+    return protocol, mineral, gold, aliquot, fusion_ui
 
 
 def data_table(group: str | None = None) -> pd.DataFrame:

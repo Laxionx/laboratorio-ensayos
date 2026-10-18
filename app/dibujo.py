@@ -70,3 +70,25 @@ def text(x: float, y: float, s: str, size: int = 13, anchor: str = "start", cls:
         f'<text x="{x:.1f}" y="{y:.1f}" font-size="{size}" text-anchor="{anchor}" '
         f'style="fill:{color};{style}"{c}{extra}>{escape(s)}</text>'
     )
+
+
+RISE_CSS = (
+    "@keyframes lb-rise{from{transform:translateY(0)}to{transform:translateY(calc(-1*var(--d)))}}"
+    f"{R}.lb-rise{{animation:lb-rise linear infinite}}"
+)
+
+
+def rise(x: float, y: float, dist: float, duration: float, phase: float, inner: str,
+         paused: bool) -> str:  # fmt: skip
+    """Grupo que sube `dist` px desde (x, y) (baja si `dist` es negativo) y se repite cada
+    `duration` s; `phase` (0 a 1) es en qué punto del ciclo va. Quieto, queda congelado ahí."""
+    if paused:
+        return f'<g transform="translate({x:.1f} {y - phase * dist:.1f})">{inner}</g>'
+    style = (
+        f"--d:{dist:.1f}px;animation-duration:{duration:.4f}s;"
+        f"animation-delay:-{phase * duration:.4f}s"
+    )
+    return (
+        f'<g transform="translate({x:.1f} {y:.1f})">'
+        f'<g class="lb-rise" style="{style}">{inner}</g></g>'
+    )

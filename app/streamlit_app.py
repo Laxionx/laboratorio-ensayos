@@ -1,6 +1,6 @@
 """App «Laboratorio de ensayos al fuego, fase 1: preparación de muestras»: cuánto error de muestreo
 mete cada etapa de un protocolo y cuánto se acumula, el oro grueso en la alícuota y la validación
-de la ecuación de Gy contra números publicados. Pestañas: Guía, Protocolo, Oro grueso y
+de la ecuación de Gy contra números publicados. Pestañas: Guía, Protocolo, Oro grueso, Fusión y
 Validación."""
 
 from __future__ import annotations
@@ -26,6 +26,7 @@ from calculo import (  # noqa: E402
 )
 from controles import sidebar_config  # noqa: E402
 from dibujo import MOTION_CSS, as_images, es  # noqa: E402
+from fusion_tab import fusion_tab, fusion_validation_section  # noqa: E402
 from guia import MINNITT_2007_NOTE, ficha, guide_tab, markdown_table  # noqa: E402
 from nomograma import (  # noqa: E402
     granulometry_figure,
@@ -224,14 +225,19 @@ def main() -> None:
     st.title("Laboratorio de ensayos al fuego: preparación de muestras")
     st.caption(
         "Cuánto error de muestreo mete cada etapa de la preparación y cuántos granos de oro caen "
-        "en la alícuota, con la ecuación de Gy validada contra números publicados. Fase 1: sin "
-        "fusión ni química del ensayo. Empieza por la **Guía**; los datos se cambian en la "
-        "barra lateral. Códigos de preparación públicos de ALS; sin afiliación."
+        "en la alícuota, con la ecuación de Gy validada contra números publicados. Con la carga "
+        "fundente de la fusión (fase 2; sin copelación). Empieza por la **Guía**; los datos se "
+        "cambian en la barra lateral. Códigos de preparación públicos de ALS; sin afiliación."
     )
     st.html(MOTION_CSS)
-    protocol, mineral, gold, aliquot = sidebar_config()
-    tab_guide, tab_protocol, tab_gold, tab_validation = st.tabs(
-        ["Guía", "Protocolo", "Oro grueso", "Validación"]
+    protocol, mineral, gold, aliquot, fusion_ui = sidebar_config()
+    animate = st.toggle(
+        "Mover la animación", value=True,
+        help="Apaga la animación del crisol de la pestaña Fusión. También se apaga sola si el "
+        "sistema tiene activado «reducir movimiento».",
+    )  # fmt: skip
+    tab_guide, tab_protocol, tab_gold, tab_fusion, tab_validation = st.tabs(
+        ["Guía", "Protocolo", "Oro grueso", "Fusión", "Validación"]
     )
     with tab_guide:
         guide_tab()
@@ -239,8 +245,11 @@ def main() -> None:
         protocol_tab(protocol, mineral)
     with tab_gold:
         gold_tab(gold, mineral.grade_gpt, aliquot)
+    with tab_fusion:
+        fusion_tab(fusion_ui, animate)
     with tab_validation:
         validation_tab()
+        fusion_validation_section()
 
 
 main()

@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import pandas as pd
 import streamlit as st
-from controles import GOLD, MIN, PROT, data_table
+from controles import FUS, GOLD, MIN, PROT, data_table
 
 REPO = "https://github.com/Laxionx/laboratorio-ensayos"
 CONMINUCION = "https://simulador-conminucion-mtxoolyzuvvcxrq8rce3el.streamlit.app/"
@@ -62,7 +62,47 @@ FICHAS = {
     },
 }
 
-DATA_GROUPS = {"protocolo": (PROT, MIN), "oro": (GOLD, MIN)}
+
+FICHAS["fusion"] = {
+    "hace": "Calcula la carga fundente de un ensayo al fuego: litargirio, carbonato de sodio, "
+    "bórax, sílice y harina o nitro. Con ella el crisol da un botón de plomo de 25 a 30 g y una "
+    "escoria del grado de silicato elegido. También evalúa una carga cambiada: botón chico o "
+    "grande, escoria demasiado ácida o básica y riesgo de mata.",
+    "entra": "La alícuota (1 assay-ton o 30 g), la mineralogía de 9 minerales en %, el botón "
+    "pedido, el grado de silicato (mono, sesqui o bi) y dos datos del laboratorio: el poder "
+    "reductor de la harina y el poder oxidante del nitro.",
+    "sale": "La carga en g, el botón esperado, la composición y el grado de silicato de la "
+    "escoria, el balance del plomo y los avisos, cada uno con la cita de su umbral o rotulado "
+    "«umbral supuesto».",
+    "autores": "Poder reductor y oxidante, grados de silicato, factores de escoria y ejemplos "
+    "resueltos: Bugbee (1922), *A Textbook of Fire Assaying* (dominio público). Cargas por tipo "
+    "de roca, fusión preliminar a 1 050 °C y poderes de algunos minerales: Haffty, Riley y Goss "
+    "(1977), USGS Bulletin 1445, *A Manual on Fire Assaying* (dominio público). Densidad del "
+    "plomo, 11,34 g/cm³: CRC Handbook. No es la receta de ningún laboratorio.",
+    "limites": (
+        "Sin copelación ni pérdidas de oro y plata, sin termodinámica de escorias y sin ensayo de "
+        "platinoides.",
+        "El poder reductor de la harina y el oxidante del nitro son datos del laboratorio: Bugbee "
+        "da rangos (10 a 12 y 4,0 a 4,2) y el valor real se mide en una fusión de prueba.",
+        "El poder reductor de un sulfuro depende de cómo sale el azufre (SO2 o SO3); el real "
+        "queda entre los dos y se mide en una fusión preliminar.",
+        "La densidad de la escoria, 3,0 g/cm³, es un supuesto ilustrativo (Bugbee no la da); el "
+        "dibujo del crisol es ilustrativo.",
+        "Los umbrales de los avisos salen de Bugbee o del USGS con su cita; los que no tienen "
+        "cita publicada están rotulados «umbral supuesto».",
+    ),
+}
+
+DATA_GROUPS = {"protocolo": (PROT, MIN), "oro": (GOLD, MIN), "fusion": (FUS,)}
+
+FUSION_REACTIONS = (
+    "2PbO + C = 2Pb + CO₂: 1 g de carbono reduce 34,5 g de plomo; la harina, 10 a 12.",
+    "2PbO + S = 2Pb + SO₂ (sin carbonato alcalino) o 3PbO + S + Na₂CO₃ = 3Pb + Na₂SO₄ + CO₂ "
+    "(con él): el azufre reduce 12,9 o 19,4 g de plomo por gramo; los sulfuros, entre los dos.",
+    "Fe₂O₃ + Pb = 2FeO + PbO: la hematita oxida (1,3 g de plomo por gramo) y pide más harina.",
+    "4KNO₃ + 5C = 2K₂O + 5CO₂ + 2N₂: el nitro oxida 5,12 g de plomo por gramo en teoría "
+    "(4,0 a 4,2 en la práctica); se agrega cuando la muestra reduce de más.",
+)
 
 LIMITES = (
     "Solo el error fundamental de muestreo (FSE) de Gy. NO se modelan los errores de "
@@ -144,6 +184,23 @@ def guide_tab() -> None:
         "(1969) piden unas **20 partículas** por muestra para un error de unos ±50 % al 95 %; "
         "con menos conviene el **screen fire assay**: se tamiza una muestra mayor (unos 1 000 g) "
         "a 100 µm, el fino se ensaya en duplicado y el grueso, entero."
+    )
+    st.markdown("### La carga fundente (pestaña Fusión)")
+    st.markdown(
+        "La fusión funde la muestra con **litargirio** (PbO, que se reduce al plomo del botón), "
+        "**carbonato de sodio** y **bórax** (bases y fundentes), **sílice** (ácido) y un "
+        "**reductor** (harina) o un **oxidante** (nitro) según lo que ya reduzca la muestra. "
+        "Reacciones de Bugbee (1922):"
+    )
+    for line in FUSION_REACTIONS:
+        st.markdown(f"- {line}")
+    st.markdown(
+        "El **grado de silicato** es el oxígeno del ácido entre el de la base: mono 1, sesqui "
+        "1,5, bi 2. 1 g de FeO neutraliza 0,84 g de sílice y 1 g de CaCO₃, 0,60 g. 1 g de "
+        "bórax vidrio equivale a 0,6 g de sílice. **Qué dato pide cada reactivo:** la harina, "
+        "su poder reductor; el nitro, su poder oxidante; la soda y el litargirio de la escoria, "
+        "la práctica del laboratorio; la sílice y el bórax salen del balance ácido-base de la "
+        "mineralogía. El plomo se dibuja sólido con 11,34 g/cm³."
     )
     st.markdown("### Lo que dice el artículo de Minnitt (2007)")
     st.markdown(f"_{MINNITT_2007_NOTE}_ La tabla de abajo, en la pestaña **Validación**.")
