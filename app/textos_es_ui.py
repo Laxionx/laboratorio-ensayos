@@ -10,6 +10,7 @@ T = {
         "fundente de la fusión (fase 2; sin copelación). Empieza por la **Guía**; los datos se "
         "cambian en la barra lateral. Códigos de preparación públicos de ALS; sin afiliación."
     ),
+    "err.generic": "Algo falló al calcular. Prueba con otros datos o recarga la página.",
     "toggle.label": "Mover la animación",
     "toggle.help": (
         "Apaga la animación del crisol de la pestaña Fusión. También se apaga sola si el "

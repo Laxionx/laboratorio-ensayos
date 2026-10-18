@@ -5,6 +5,7 @@ T = {
     "page.title": "Fire-assay laboratory: sampling",
     "app.title": "Fire-assay laboratory: sample preparation",
     "app.caption": "How much sampling error each preparation stage adds and how many gold grains fall in the aliquot, using Gy's equation validated against published figures. Includes the fusion flux charge (phase 2; no cupellation). Start with the **Guide**; change the inputs in the sidebar. Public ALS preparation codes; no affiliation.",
+    "err.generic": "Something went wrong. Try other inputs or reload the page.",
     "toggle.label": "Animate",
     "toggle.help": 'Turns off the crucible animation in the Fusion tab. It also turns off on its own if the system has "reduce motion" enabled.',
     "tab.guide": "Guide",
