@@ -85,8 +85,7 @@ def verdict(printed: str, current: float, bugbee: float | None) -> str:
         return NO_CUADRA
     if matches_rounding(bugbee, printed):
         return CON_PESOS
-    unit = 10.0 ** (-decimals_of(printed))
-    if abs(bugbee - float(printed)) < unit and truncated_equals(bugbee, printed):
+    if truncated_equals(bugbee, printed):  # truncar da la cifra ⇒ 0 ≤ diferencia < una unidad
         return TRUNCA
     return NO_CUADRA
 

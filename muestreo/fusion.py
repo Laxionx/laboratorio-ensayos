@@ -26,11 +26,19 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field, replace
 
+from .crisol import crucible_warnings
 from .fusion_avisos import Warning, charge_warnings
 from .quimica import ATOMIC_WEIGHTS, PB, FusionError, M, molar_mass
 
 AT_G = 29.1667  # 1 assay-ton, g
-PB_DENSITY = 11.34  # g/cm³, plomo sólido (CRC Handbook)
+PB_DENSITY = 11.34  # g/cm³, plomo sólido (CRC Handbook): solo para el botón YA FRÍO
+# Plomo LÍQUIDO: ρ = 11 367 − 1,1944·T kg/m³ (T en K), ajuste lineal de los datos publicados con
+# desviación máxima de 0,7 % (OECD/NEA, Handbook on Lead-bismuth Eutectic Alloy and Lead
+# Properties, 2007, cap. 2, ec. 2.23; copia abierta). Assael et al. (2012), la correlación de
+# referencia de IUPAC, no se pudo verificar en una copia abierta; a 600,6 K esta recta da
+# 10,650 g/cm³ y la nota de revisión de Assael da 10,656 (diferencia de 0,06 %).
+PB_LIQUID_A = 11367.0  # kg/m³
+PB_LIQUID_B = 1.1944  # kg/m³ por K
 FUSION_TEMP_C = 1050.0  # USGS Bulletin 1445: fusión preliminar a 1 050 °C
 SLAG_DENSITY = 3.0  # g/cm³, SUPUESTO ilustrativo: Bugbee no da la densidad de la escoria
 BORAX_SILICA_EQUIVALENT = 0.6  # g de SiO2 por g de bórax vidrio (Bugbee, Tabla XXII)
@@ -164,6 +172,13 @@ class Reagents:
     flour_g: float
     niter_g: float
 
+    @property
+    def total_g(self) -> float:
+        return (
+            self.soda_g + self.litharge_g + self.borax_g + self.silica_g + self.flour_g
+            + self.niter_g
+        )  # fmt: skip
+
     def scaled(self, flour: float = 1.0, silica: float = 1.0, litharge: float = 1.0) -> Reagents:
         return replace(
             self,
@@ -219,8 +234,23 @@ class ChargeResult:
         return self.button_g / PB_DENSITY
 
     @property
+    def lead_hot_cm3(self) -> float:
+        """Volumen del plomo LÍQUIDO a la temperatura de fusión: el que ocupa en el crisol."""
+        return self.button_g / pb_liquid_density(FUSION_TEMP_C)
+
+    @property
     def slag_cm3(self) -> float:
         return self.slag.mass_g / SLAG_DENSITY
+
+    @property
+    def dry_charge_g(self) -> float:
+        """Masa de la carga en polvo que entra al crisol: muestra y todos los reactivos."""
+        return self.params.sample_g + self.reagents.total_g
+
+
+def pb_liquid_density(temp_c: float) -> float:
+    """Densidad del plomo líquido (g/cm³) a `temp_c` °C: 9,787 g/cm³ a 1 050 °C."""
+    return (PB_LIQUID_A - PB_LIQUID_B * (temp_c + 273.15)) / 1000.0
 
 
 def _check(p: FusionParams) -> dict[str, float]:
@@ -360,6 +390,11 @@ def evaluate_charge(p: FusionParams, r: Reagents) -> ChargeResult:
         pbo_left,
     )
     copper = ore["copper_g"] / p.sample_g * 100.0
+    warns += crucible_warnings(
+        p.sample_g + r.total_g,
+        button / pb_liquid_density(FUSION_TEMP_C),
+        slag.mass_g / SLAG_DENSITY,
+    )
     return ChargeResult(
         p,
         r,

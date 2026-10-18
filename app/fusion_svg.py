@@ -1,16 +1,18 @@
-"""Esquema animado del crisol en corte durante la fusión: gotas de plomo que bajan por la escoria,
-el botón al fondo, la capa de escoria y burbujas de gas.
+"""Esquema animado del crisol en corte durante la fusión: un crisol cónico (ancho arriba, angosto
+al fondo) con el plomo LÍQUIDO en un charco al fondo, la escoria encima, gotas de plomo que bajan
+por la escoria y burbujas de gas.
 
-Lo que sale del cálculo: la altura de la escoria (volumen = masa ÷ densidad supuesta, sobre la
-sección del crisol), el volumen del botón (masa ÷ 11,34 g/cm³, plomo sólido, dibujado como esfera),
-la cantidad de gotas (DROPS_PER_G por cada g de Pb) y el color (1 050 °C, USGS 1445). Lo
-ilustrativo, y así se rotula: el radio y la altura del crisol, la densidad de la escoria (Bugbee no
-la da), la posición de gotas y burbujas, y su rapidez.
+Lo que sale del cálculo: el volumen del plomo líquido (masa ÷ densidad del plomo líquido a
+1 050 °C, 9,79 g/cm³) y el de la escoria (masa ÷ densidad supuesta); el nivel de cada capa es el que
+tiene ese volumen dentro del cono (`muestreo.crisol`, integrando el cono), de modo que el plomo
+queda SIEMPRE debajo de la escoria. Cada capa se dibuja como el trozo del cono entre sus dos
+niveles. Lo ilustrativo, y así se rotula: las medidas del crisol (su capacidad, 190 cm³, sí es de
+Bugbee), la densidad de la escoria (Bugbee no la da), la cantidad de gotas, la posición de gotas
+y burbujas y su rapidez. El botón ya frío (g y cm³, plomo sólido) va aparte en el panel.
 """
 
 from __future__ import annotations
 
-import math
 import textwrap
 
 import numpy as np
@@ -18,13 +20,12 @@ from calculo import FusionView
 from colores import NOTE, temperature_color
 from dibujo import INK, RISE_CSS, STEEL, es, rise, svg, text
 
-from muestreo.fusion import FUSION_TEMP_C, PB_DENSITY, SLAG_DENSITY
+from muestreo.crisol import CRUCIBLE, DRY_BULK_DENSITY, Layers, layers
+from muestreo.fusion import FUSION_TEMP_C, SLAG_DENSITY, pb_liquid_density
 
 W, H = 940, 620
-PX_PER_CM = 50.0  # escala del dibujo
-CRUCIBLE_R_CM = 3.0  # radio interior, ILUSTRATIVO
-CRUCIBLE_H_CM = 5.0  # altura interior, ILUSTRATIVA
-X0, BOTTOM = 70.0, 470.0
+PX_PER_CM = 46.0  # escala del dibujo
+CX, BOTTOM = 240.0, 490.0  # eje del crisol y fondo interior, en px
 DROPS_PER_G = 0.5  # gotas de plomo por cada g de Pb reducido
 BUBBLES_PER_MOL = 60.0  # burbujas por mol de gas (CO2 y SO2); ilustrativo
 MAX_BUBBLES = 30
@@ -33,23 +34,19 @@ LEAD_COLOR, BUBBLE_COLOR = "#7A8389", "#F5F1E8"
 SEED = 2017
 
 
-def interior_px() -> tuple[float, float]:
-    """(ancho, alto) interior del crisol en px."""
-    return 2 * CRUCIBLE_R_CM * PX_PER_CM, CRUCIBLE_H_CM * PX_PER_CM
+def y_of(z_cm: float) -> float:
+    """Coordenada y (px) de la altura `z_cm` sobre el fondo del crisol."""
+    return BOTTOM - z_cm * PX_PER_CM
 
 
-def slag_height_cm(slag_g: float) -> float:
-    """Altura (cm) de la escoria en el crisol cilíndrico: volumen ÷ sección."""
-    return slag_g / SLAG_DENSITY / (math.pi * CRUCIBLE_R_CM**2)
+def half_width_px(z_cm: float) -> float:
+    """Semiancho (px) del interior del cono a la altura `z_cm`."""
+    return CRUCIBLE.radius_at(z_cm) * PX_PER_CM
 
 
-def slag_height_px(slag_g: float) -> float:
-    return min(slag_height_cm(slag_g) * PX_PER_CM, interior_px()[1])
-
-
-def button_radius_cm(button_g: float) -> float:
-    """Radio (cm) del botón como esfera de plomo sólido: V = m/ρ = 4/3 π r³."""
-    return (3.0 * (button_g / PB_DENSITY) / (4.0 * math.pi)) ** (1.0 / 3.0)
+def view_layers(view: FusionView) -> Layers:
+    """Niveles del plomo líquido y de la escoria de esta carga, dentro del cono."""
+    return layers(view.result.lead_hot_cm3, view.result.slag_cm3)
 
 
 def drop_count(button_g: float) -> int:
@@ -60,54 +57,61 @@ def bubble_count(gas_mol: dict[str, float]) -> int:
     return min(MAX_BUBBLES, round(sum(gas_mol.values()) * BUBBLES_PER_MOL))
 
 
+def _band(cls: str, z0: float, z1: float, fill: str, stroke: str = "none") -> str:
+    """Trozo del cono entre las alturas z0 y z1 (cm): un trapecio con los lados sobre la pared."""
+    pts = (
+        (CX - half_width_px(z0), y_of(z0)),
+        (CX + half_width_px(z0), y_of(z0)),
+        (CX + half_width_px(z1), y_of(z1)),
+        (CX - half_width_px(z1), y_of(z1)),
+    )
+    points = " ".join(f"{x:.3f},{y:.3f}" for x, y in pts)
+    return f'<polygon class="{cls}" points="{points}" fill="{fill}" stroke="{stroke}"/>'
+
+
 def _crucible() -> str:
-    width, height = interior_px()
+    """Pared del crisol (cono) y la línea de los 2/3 de la capacidad (por volumen)."""
+    top = CRUCIBLE.height
     wall = f'fill="none" stroke="{STEEL}" stroke-width="10" stroke-linejoin="round"'
-    two_thirds = BOTTOM - height * 2.0 / 3.0
-    return (
-        f'<path d="M {X0 - 5} {BOTTOM - height - 10} L {X0 - 5} {BOTTOM + 5} L {X0 + width + 5} '
-        f'{BOTTOM + 5} L {X0 + width + 5} {BOTTOM - height - 10}" {wall}/>'
-        f'<line x1="{X0}" y1="{two_thirds:.1f}" x2="{X0 + width}" y2="{two_thirds:.1f}" '
-        f'stroke="{STEEL}" stroke-width="1.5" stroke-dasharray="6 5"/>'
-        + text(X0 + width + 12, two_thirds + 4, "2/3 del crisol", 11, color=STEEL)
+    pts = (
+        f"M {CX - half_width_px(top) - 5:.2f} {y_of(top) - 10:.2f} "
+        f"L {CX - half_width_px(0) - 5:.2f} {BOTTOM + 5:.2f} "
+        f"L {CX + half_width_px(0) + 5:.2f} {BOTTOM + 5:.2f} "
+        f"L {CX + half_width_px(top) + 5:.2f} {y_of(top) - 10:.2f}"
     )
-
-
-def _slag(view: FusionView) -> str:
-    width, _ = interior_px()
-    h = slag_height_px(view.result.slag.mass_g)
-    color = temperature_color(FUSION_TEMP_C)
+    z23 = CRUCIBLE.level_for(CRUCIBLE.fill_limit_cm3)
+    xr = CX + half_width_px(z23)
     return (
-        f'<rect class="lb-slag" x="{X0}" y="{BOTTOM - h:.2f}" width="{width}" height="{h:.2f}" '
-        f'fill="{color}"/>'
-    )
+        f'<path class="lb-wall" d="{pts}" {wall}/>'
+        f'<line class="lb-limit" x1="{CX - half_width_px(z23):.2f}" y1="{y_of(z23):.2f}" '
+        f'x2="{xr:.2f}" y2="{y_of(z23):.2f}" stroke="{STEEL}" stroke-width="1.5" '
+        f'stroke-dasharray="6 5"/>'
+        + text(CX - half_width_px(z23) + 10, y_of(z23) - 6,
+               f"2/3 de la capacidad ({es(CRUCIBLE.fill_limit_cm3, 0)} cm³)", 11, color=STEEL)
+    )  # fmt: skip
 
 
-def _button(view: FusionView) -> str:
-    r = button_radius_cm(view.result.button_g) * PX_PER_CM
-    if r <= 0:
-        return ""
-    cx = X0 + interior_px()[0] / 2
-    return (
-        f'<circle class="lb-button" cx="{cx:.1f}" cy="{BOTTOM - r:.2f}" r="{r:.2f}" '
-        f'fill="{LEAD_COLOR}" stroke="#4A5359" stroke-width="2"/>'
-        f'<circle cx="{cx - r * 0.3:.1f}" cy="{BOTTOM - r * 1.3:.2f}" r="{r * 0.22:.2f}" '
-        f'fill="#FFFFFF" fill-opacity=".35"/>'
+def _melt(view: FusionView) -> str:
+    """Plomo líquido (charco al fondo del cono) y escoria encima."""
+    lay = view_layers(view)
+    return _band("lb-slag", lay.lead_top, lay.slag_top, temperature_color(FUSION_TEMP_C)) + _band(
+        "lb-button", 0.0, lay.lead_top, LEAD_COLOR, "#4A5359"
     )
 
 
 def _particles(view: FusionView, paused: bool) -> str:
-    width, _ = interior_px()
+    lay = view_layers(view)
     rng = np.random.default_rng(SEED)
-    slag_h = slag_height_px(view.result.slag.mass_g)
+    # la caída y las burbujas van verticales dentro del ancho del charco: no tocan la pared
+    span = max(half_width_px(lay.lead_top) - 8.0, 1.0)
     drops, out = drop_count(view.result.button_g), []
-    fall = max(slag_h - 8.0, 0.0)
+    fall = max(y_of(lay.lead_top) - y_of(lay.slag_top) - 4.0, 0.0)
     for n in range(drops):
-        x = X0 + 12 + rng.random() * (width - 24)
+        x = CX + (rng.random() * 2 - 1) * span
         out.append(
             rise(
                 x,
-                BOTTOM - slag_h + 4,
+                y_of(lay.slag_top) + 2,
                 -fall,
                 FALL_S,
                 (n / max(drops, 1)) % 1.0,
@@ -115,14 +119,13 @@ def _particles(view: FusionView, paused: bool) -> str:
                 paused,
             )
         )
-    bubbles = bubble_count(view.result.gas_mol)
-    for n in range(bubbles):
-        x = X0 + 12 + rng.random() * (width - 24)
+    for n in range(bubble_count(view.result.gas_mol)):
+        x = CX + (rng.random() * 2 - 1) * span
         out.append(
             rise(
                 x,
-                BOTTOM - 6,
-                slag_h - 8,
+                y_of(lay.lead_top) - 4,
+                max(fall - 4.0, 0.0),
                 BUBBLE_S,
                 (n * 0.37) % 1.0,
                 f'<circle class="lb-bubble" r="3" fill="{BUBBLE_COLOR}" fill-opacity=".8" '
@@ -153,49 +156,38 @@ def _panel(view: FusionView) -> str:
         out.append(text(x, y, name, 13))
         out.append(text(x + 160, y, f"{es(usedg, 1)}{mark}", 13, color=STEEL))
     y = 98 + 22 * len(rows) + 22
-    out.append(
-        text(
-            x, y, f"Botón de plomo: {es(r.button_g, 1)} g · {es(r.button_cm3, 2)} cm³", 15, cls="t"
-        )
-    )
-    out.append(
-        text(
-            x,
-            y + 24,
-            f"Escoria: {es(r.slag.mass_g, 1)} g · grado {r.slag.label} ({es(r.slag.degree, 2)})",
-            15,
-            cls="t",
-        )
-    )
-    out.append(
-        text(
-            x,
-            y + 48,
-            f"Volumen de la escoria: {es(r.slag_cm3, 1)} cm³ (densidad "
-            f"supuesta {es(SLAG_DENSITY, 1)} g/cm³)",
-            12,
-            color=STEEL,
-        )
-    )
-    out.append(
-        text(
-            x,
-            y + 68,
-            f"Gotas dibujadas: {drop_count(r.button_g)} · burbujas: {bubble_count(r.gas_mol)}",
-            12,
-            color=STEEL,
-        )
-    )
+    rho = pb_liquid_density(FUSION_TEMP_C)
+    lines = (
+        (f"Plomo líquido: {es(r.button_g, 1)} g · {es(r.lead_hot_cm3, 2)} cm³ a {es(rho, 2)} g/cm³",
+         15, INK),
+        (f"Botón ya frío: {es(r.button_g, 1)} g · {es(r.button_cm3, 2)} cm³ (sólido, 11,34 g/cm³)",
+         12, STEEL),
+        (f"Escoria: {es(r.slag.mass_g, 1)} g · grado {r.slag.label} ({es(r.slag.degree, 2)})",
+         15, INK),
+        (f"Volumen de la escoria: {es(r.slag_cm3, 1)} cm³ (densidad supuesta "
+         f"{es(SLAG_DENSITY, 1)} g/cm³)", 12, STEEL),
+        (f"Carga en polvo: {es(r.dry_charge_g, 0)} g ≈ {es(r.dry_charge_g / DRY_BULK_DENSITY, 0)} "
+         f"cm³ (supuesto {es(DRY_BULK_DENSITY, 1)} g/cm³); capacidad "
+         f"{es(CRUCIBLE.capacity_cm3, 0)} "
+         f"cm³", 12, STEEL),
+        (f"Gotas dibujadas: {drop_count(r.button_g)} · burbujas: {bubble_count(r.gas_mol)}",
+         12, STEEL),
+    )  # fmt: skip
+    for n, (line, size, color) in enumerate(lines):
+        out.append(text(x, y + 22 * n, line, size, color=color, cls="t" if color == INK else ""))
     return "".join(out)
 
 
 def _legend(view: FusionView) -> str:
     paragraphs = [
-        f"Alto de la escoria ∝ su masa: volumen = masa ÷ {es(SLAG_DENSITY, 1)} g/cm³ (densidad "
-        f"supuesta ilustrativa) sobre un crisol de {es(CRUCIBLE_R_CM, 0)} cm de radio "
-        "(ilustrativo). Botón = masa ÷ 11,34 g/cm³ (plomo sólido), dibujado como esfera. "
-        f"Gotas de plomo: {DROPS_PER_G:g} por g reducido. Burbujas de CO₂ y SO₂ y la posición de "
-        f"gotas y burbujas: ilustrativas. Color: {NOTE} a {es(FUSION_TEMP_C, 0)} °C.",
+        f"Crisol cónico ilustrativo: radio de {es(CRUCIBLE.r_bottom, 2)} cm al fondo y "
+        f"{es(CRUCIBLE.r_top, 2)} cm arriba, {es(CRUCIBLE.height, 1)} cm de alto; su capacidad, "
+        f"{es(CRUCIBLE.capacity_cm3, 0)} cm³, es la del crisol de 20 g de Bugbee (Tabla IV). "
+        "El plomo está LÍQUIDO y forma un charco al fondo: volumen = masa ÷ densidad del plomo "
+        f"líquido a {es(FUSION_TEMP_C, 0)} °C (OECD/NEA 2007). La escoria llena el cono encima: "
+        f"volumen = masa ÷ {es(SLAG_DENSITY, 1)} g/cm³ (supuesto). Gotas de plomo: "
+        f"{DROPS_PER_G:g} por g reducido; burbujas de CO₂ y SO₂ y su posición: ilustrativas. "
+        f"Escoria con el {NOTE} a {es(FUSION_TEMP_C, 0)} °C.",
     ]
     lines = [ln for para in paragraphs for ln in textwrap.wrap(para, 140)]
     lines.append("esquema, no a escala: las cantidades sí son del cálculo")
@@ -209,12 +201,9 @@ def _legend(view: FusionView) -> str:
 def crucible_svg(view: FusionView, paused: bool = False) -> str:
     title = text(24, 30, "Crisol en corte durante la fusión", 18, cls="t")
     body = (
-        title
-        + _crucible()
-        + _slag(view)
-        + _particles(view, paused)
-        + _button(view)
-        + _panel(view)
-        + _legend(view)
+        title + _melt(view) + _crucible() + _particles(view, paused) + _panel(view) + _legend(view)
     )
-    return svg(W, H, body, paused, "Crisol con escoria, gotas de plomo y botón al fondo", RISE_CSS)
+    return svg(
+        W, H, body, paused, "Crisol cónico con el plomo líquido al fondo y la escoria encima",
+        RISE_CSS,
+    )  # fmt: skip

@@ -11,7 +11,7 @@ from fusion_svg import crucible_svg
 from guia import ficha, markdown_table
 
 from muestreo import fusion_datos as fd
-from muestreo.fusion import SLAG_DENSITY, FusionError
+from muestreo.fusion import FUSION_TEMP_C, SLAG_DENSITY, FusionError, pb_liquid_density
 from muestreo.fusion_avisos import BUTTON_RANGE
 
 CODES_NOTE = (
@@ -56,13 +56,16 @@ def fusion_tab(f: FusionUIParams, animate: bool) -> None:
         if "Botón de" in w.text:
             continue  # ya está arriba
         st.warning(f"**{w.level.capitalize()}:** {w.text} _(Fuente: {w.source})_")
-    st.html(as_images(crucible_svg(view, paused=not animate), crucible_svg(view, paused=True),
-                      "Crisol en corte con escoria, gotas de plomo y botón"))  # fmt: skip
+    alt = "Crisol cónico con el plomo líquido al fondo y la escoria encima"
+    st.html(as_images(crucible_svg(view, paused=not animate), crucible_svg(view, paused=True), alt))
     st.caption(
-        f"La escoria llega a {es(r.slag_cm3, 1)} cm³ con una densidad supuesta de "
-        f"{es(SLAG_DENSITY, 1)} g/cm³ (Bugbee no la da); el botón mide {es(r.button_cm3, 2)} cm³ "
-        "(plomo sólido, 11,34 g/cm³). Las gotas, las burbujas y el tamaño del crisol son "
-        "ilustrativos."
+        f"El plomo está líquido en la fusión: {es(r.lead_hot_cm3, 2)} cm³ a "
+        f"{es(pb_liquid_density(FUSION_TEMP_C), 2)} g/cm³ (1 050 °C), un charco al fondo del "
+        f"cono; encima, la escoria con {es(r.slag_cm3, 1)} cm³ (densidad supuesta de "
+        f"{es(SLAG_DENSITY, 1)} g/cm³, Bugbee no la da). El botón ya frío mide "
+        f"{es(r.button_cm3, 2)} cm³ (sólido, 11,34 g/cm³). Las medidas del crisol son "
+        "ilustrativas; su capacidad, 190 cm³, es la del crisol de 20 g de Bugbee. Las gotas y "
+        "las burbujas también son ilustrativas."
     )
     table = pd.DataFrame({
         "Reactivo": ["Soda (Na₂CO₃)", "Litargirio (PbO)", "Bórax vidrio (Na₂B₄O₇)",

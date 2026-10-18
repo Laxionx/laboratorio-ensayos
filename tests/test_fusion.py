@@ -507,6 +507,20 @@ def test_el_veredicto_distingue_las_cuatro_categorias():
     assert fp.truncated_equals(51.271, "51.2") and not fp.truncated_equals(51.31, "51.2")
 
 
+def test_cada_truncamiento_queda_a_menos_de_una_unidad_por_arriba_de_la_cifra_publicada():
+    for c in (c for c in fd.all_checks() if c.fit == fp.TRUNCA):
+        unit = 10.0 ** (-fp.decimals_of(f"{c.published}"))
+        assert 0.0 <= c.difference_bugbee < unit, c.item
+
+
+def test_el_litargirio_del_motor_es_el_boton_de_28_g_mas_el_de_la_escoria():
+    for engine in (fp.CURRENT, fp.BUGBEE):
+        pbo = engine.mm("PbO")
+        got = engine.design({}, 0.0, 10.0)["litharge"]
+        assert got == pytest.approx(28.0 * pbo / engine.pb + 10.0, rel=1e-12)
+    assert fp.BUGBEE.pb == 207.1 and fp.CURRENT.pb == pytest.approx(207.2, abs=0.05)
+
+
 def test_conteo_exacto_por_categoria_de_las_cifras_que_dependen_de_pesos():
     weighted = [c for c in fd.all_checks() if c.bugbee is not None]
     assert len(weighted) == 55  # 67 menos las 12 que no dependen de pesos atómicos

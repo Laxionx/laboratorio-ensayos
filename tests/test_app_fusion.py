@@ -6,6 +6,7 @@ import re
 import sys
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 pytest.importorskip("streamlit")
@@ -22,6 +23,7 @@ import fusion_graficos  # noqa: E402
 import fusion_svg  # noqa: E402
 import fusion_tab  # noqa: E402
 
+from muestreo import crisol  # noqa: E402
 from muestreo import fusion as fu  # noqa: E402
 
 F = calculo.FusionUIParams
@@ -36,55 +38,136 @@ def _count(svg_text: str, cls: str) -> int:
 
 
 # ------------------------------------------------------------------ crisol
-@pytest.mark.parametrize(
-    "params", [F(), F(x_flour=0.5), F(x_silica=2.0), F(sample="30 g", degree="mono")]
-)
-def test_altura_de_la_escoria_es_su_volumen_sobre_la_seccion_del_crisol(params):
-    view = calculo.run_fusion(params)
+def _polygon(svg_text: str, cls: str) -> list[tuple[float, float]]:
+    raw = re.search(rf'class="lb-{cls}" points="([^"]+)"', svg_text).group(1)
+    return [tuple(map(float, pt.split(","))) for pt in raw.split()]
+
+
+def _drawn_volume_cm3(points: list[tuple[float, float]]) -> float:
+    """Volumen de revolución del trapecio dibujado, integrado por rebanadas (no con la fórmula
+    del tronco): suma de π·semiancho(y)²·dy, con el semiancho leído del lado derecho."""
+    y0, y1 = points[0][1], points[2][1]  # abajo y arriba del trozo, en px
+    xr0, xr1 = points[1][0], points[2][0]
+    n = 4000
+    ys = y0 + (y1 - y0) * (np.arange(n) + 0.5) / n
+    half_px = np.interp(ys, [y1, y0], [xr1, xr0]) - fusion_svg.CX
+    dy_cm = abs(y1 - y0) / n / fusion_svg.PX_PER_CM
+    return float(np.sum(math.pi * (half_px / fusion_svg.PX_PER_CM) ** 2 * dy_cm))
+
+
+def _top_y(points: list[tuple[float, float]]) -> float:
+    return min(y for _, y in points)
+
+
+FUZZ = [  # combinaciones de la pestaña, con extremos
+    F(), F(x_flour=0.5), F(x_flour=2.0), F(x_silica=0.0), F(x_silica=3.0), F(x_litharge=0.3),
+    F(x_litharge=2.0), F(sample="30 g", degree="mono"),
+    F(sample="30 g", x_silica=3.0, x_litharge=2.0),
+    F(minerals=(("cuarzo", 50.0), ("pirita", 30.0))), F(minerals=(("galena", 90.0),)),
+    F(minerals=(("cuarzo", 10.0),), x_flour=0.0), F(button_g=5.0), F(button_g=60.0),
+    F(degree="sesqui", sulfur="SO2"),
+]  # fmt: skip
+
+
+def _view_or_skip(params):
+    try:
+        return calculo.run_fusion(params)
+    except fu.FusionError:
+        pytest.skip("combinación que el modelo rechaza")
+
+
+@pytest.mark.parametrize("params", FUZZ)
+def test_el_nivel_del_plomo_queda_siempre_bajo_el_de_la_escoria(params):
+    view = _view_or_skip(params)
     svg_text = fusion_svg.crucible_svg(view)
-    mass = view.result.slag.mass_g
-    expected_cm = mass / 3.0 / (math.pi * 3.0**2)  # masa ÷ ρ supuesta ÷ π R²
-    assert fusion_svg.slag_height_cm(mass) == pytest.approx(expected_cm, rel=1e-12)
-    assert _heights(svg_text, "slag") == pytest.approx(
-        expected_cm * fusion_svg.PX_PER_CM, abs=0.006
-    )
+    lead, slag = _polygon(svg_text, "button"), _polygon(svg_text, "slag")
+    assert _top_y(lead) > _top_y(slag)  # en el SVG, y mayor = más abajo
+    lay = fusion_svg.view_layers(view)
+    assert (lay.lead_top > 0.0) == (view.result.button_g > 0.0)
+    assert 0.0 <= lay.lead_top < lay.slag_top <= crisol.CRUCIBLE.height
+    assert _top_y(slag) >= fusion_svg.y_of(crisol.CRUCIBLE.height) - 1e-3  # no pasa del borde
 
 
-def test_la_altura_de_la_escoria_es_proporcional_a_su_masa():
-    a = calculo.run_fusion(F())
-    b = calculo.run_fusion(F(x_silica=2.5))
-    ratio_mass = b.result.slag.mass_g / a.result.slag.mass_g
-    ratio_height = _heights(fusion_svg.crucible_svg(b), "slag") / _heights(
-        fusion_svg.crucible_svg(a), "slag"
-    )
-    assert ratio_mass > 1.05 and ratio_height == pytest.approx(ratio_mass, rel=1e-3)
+@pytest.mark.parametrize("params", FUZZ)
+def test_el_volumen_dibujado_de_cada_capa_es_el_calculado(params):
+    view = _view_or_skip(params)
+    r = view.result
+    if r.lead_hot_cm3 + r.slag_cm3 > crisol.CRUCIBLE.capacity_cm3:
+        pytest.skip("se derrama: el dibujo se corta en el borde")
+    svg_text = fusion_svg.crucible_svg(view)
+    lead_cm3 = _drawn_volume_cm3(_polygon(svg_text, "button"))
+    assert lead_cm3 == pytest.approx(r.lead_hot_cm3, rel=2e-3)
+    assert _drawn_volume_cm3(_polygon(svg_text, "slag")) == pytest.approx(r.slag_cm3, rel=2e-3)
 
 
-def test_la_escoria_se_corta_en_el_alto_del_crisol():
-    assert fusion_svg.slag_height_px(10_000.0) == fusion_svg.interior_px()[1]
-
-
-def test_el_boton_es_una_esfera_de_volumen_masa_sobre_11_34():
+def test_las_capas_se_dibujan_pegadas_a_la_pared_del_cono():
     view = calculo.run_fusion(F())
     svg_text = fusion_svg.crucible_svg(view)
-    volume = view.result.button_g / 11.34
-    radius_cm = (3 * volume / (4 * math.pi)) ** (1 / 3)
-    radius_px = float(re.search(r'class="lb-button" [^>]*? r="([\d.]+)"', svg_text).group(1))
-    assert radius_px == pytest.approx(radius_cm * fusion_svg.PX_PER_CM, abs=0.006)
-    assert (4 / 3) * math.pi * radius_cm**3 == pytest.approx(view.result.button_cm3, rel=1e-12)
-    assert view.result.button_cm3 == pytest.approx(28.0 / 11.34)
+    lay = fusion_svg.view_layers(view)
+    for cls, z0, z1 in (("button", 0.0, lay.lead_top), ("slag", lay.lead_top, lay.slag_top)):
+        (xl0, yb), (xr0, _), (xr1, yt), (xl1, _) = _polygon(svg_text, cls)
+        for x, y, z in ((xl0, yb, z0), (xr0, yb, z0), (xl1, yt, z1), (xr1, yt, z1)):
+            assert abs(x - fusion_svg.CX) == pytest.approx(
+                crisol.CRUCIBLE.radius_at(z) * fusion_svg.PX_PER_CM, abs=0.002
+            )
+            assert y == pytest.approx(fusion_svg.y_of(z), abs=0.002)
+    assert fusion_svg.y_of(0.0) == fusion_svg.BOTTOM
+
+
+def test_el_plomo_es_liquido_y_el_boton_frio_es_una_metrica_aparte():
+    view = calculo.run_fusion(F())
+    r = view.result
+    rho = (11367.0 - 1.1944 * (1050.0 + 273.15)) / 1000.0
+    assert fu.pb_liquid_density(1050.0) == pytest.approx(rho) == pytest.approx(9.7866, abs=5e-5)
+    assert r.lead_hot_cm3 == pytest.approx(r.button_g / rho)
+    assert r.button_cm3 == pytest.approx(r.button_g / 11.34) == pytest.approx(28.0 / 11.34)
+    assert r.lead_hot_cm3 > r.button_cm3  # el plomo líquido pesa menos por cm³ que el frío
+    svg_text = fusion_svg.crucible_svg(view)
+    assert "Plomo líquido" in svg_text and "Botón ya frío" in svg_text
+    assert f"{str(round(r.button_cm3, 2)).replace('.', ',')} cm³" in svg_text
 
 
 def test_un_boton_mas_chico_se_dibuja_mas_chico_y_con_menos_gotas():
     full = calculo.run_fusion(F())
     small = calculo.run_fusion(F(x_flour=0.5))
     assert small.result.button_g < full.result.button_g
-    r_full = fusion_svg.button_radius_cm(full.result.button_g)
-    r_small = fusion_svg.button_radius_cm(small.result.button_g)
-    assert r_small < r_full
+    assert fusion_svg.view_layers(small).lead_top < fusion_svg.view_layers(full).lead_top
     assert _count(fusion_svg.crucible_svg(small), "drop") < _count(
         fusion_svg.crucible_svg(full), "drop"
     )
+
+
+def test_mas_escoria_sube_el_nivel_de_la_escoria():
+    a, b = calculo.run_fusion(F()), calculo.run_fusion(F(x_silica=2.5))
+    assert b.result.slag_cm3 > a.result.slag_cm3
+    assert fusion_svg.view_layers(b).slag_top > fusion_svg.view_layers(a).slag_top
+
+
+def test_si_lo_fundido_pasa_del_borde_el_dibujo_se_corta_y_hay_aviso(monkeypatch):
+    monkeypatch.setitem(calculo.FUSION_SAMPLE_G, "30 g", 200.0)
+    view = calculo.run_fusion(F(sample="30 g"))
+    r = view.result
+    assert r.lead_hot_cm3 + r.slag_cm3 > crisol.CRUCIBLE.capacity_cm3
+    assert fusion_svg.view_layers(view).overflows
+    svg_text = fusion_svg.crucible_svg(view)
+    assert _top_y(_polygon(svg_text, "slag")) == pytest.approx(
+        fusion_svg.y_of(crisol.CRUCIBLE.height), abs=1e-3
+    )
+    assert _top_y(_polygon(svg_text, "button")) > _top_y(_polygon(svg_text, "slag"))
+    assert any(w.level == "riesgo" and "capacidad" in w.text for w in r.warnings)
+
+
+def test_las_gotas_y_las_burbujas_van_entre_el_plomo_y_la_escoria_en_la_version_quieta():
+    view = calculo.run_fusion(F())
+    still = fusion_svg.crucible_svg(view, paused=True)
+    lay = fusion_svg.view_layers(view)
+    y_slag, y_lead = fusion_svg.y_of(lay.slag_top), fusion_svg.y_of(lay.lead_top)
+    for cls in ("drop", "bubble"):
+        found = re.findall(rf'translate\(([\d.]+) ([\d.]+)\)"><circle class="lb-{cls}"', still)
+        assert len(found) == _count(still, cls) > 0
+        for x, y in ((float(a), float(b)) for a, b in found):
+            assert y_slag <= y <= y_lead
+            assert abs(x - fusion_svg.CX) <= fusion_svg.half_width_px(lay.lead_top)
 
 
 @pytest.mark.parametrize(
@@ -107,11 +190,12 @@ def test_las_burbujas_son_las_de_los_moles_de_gas_del_calculo():
     assert so2.result.gas_mol["SO2"] > 0
 
 
-def test_el_color_es_el_de_1050_grados_y_el_boton_es_plomo_solido():
+def test_el_color_es_el_de_1050_grados_y_se_rotula_el_plomo_liquido():
     svg_text = fusion_svg.crucible_svg(calculo.run_fusion(F()))
     assert f'fill="{colores.temperature_color(1050.0)}"' in svg_text
     assert fu.FUSION_TEMP_C == 1050.0 and fu.PB_DENSITY == 11.34
-    assert "11,34" in svg_text and "color ilustrativo de la temperatura" in svg_text
+    assert "OECD/NEA" in svg_text and "color ilustrativo de la temperatura" in svg_text
+    assert "190 cm³" in svg_text and "Bugbee" in svg_text
     assert "ilustrativ" in svg_text and "no a escala" in svg_text
 
 
@@ -119,7 +203,7 @@ def test_el_esquema_trae_la_carga_el_boton_y_la_escoria():
     view = calculo.run_fusion(F())
     svg_text = fusion_svg.crucible_svg(view)
     r = view.result
-    assert f"Botón de plomo: {str(round(r.button_g, 1)).replace('.', ',')} g" in svg_text
+    assert f"Plomo líquido: {str(round(r.button_g, 1)).replace('.', ',')} g" in svg_text
     assert f"grado {r.slag.label}" in svg_text
     for grams in (view.used.soda_g, view.used.litharge_g, view.used.flour_g):
         assert f"{grams:.1f}".replace(".", ",") in svg_text
@@ -133,7 +217,7 @@ def test_la_version_quieta_no_se_mueve_y_la_animada_si():
     assert "@keyframes lb-rise" in moving and "prefers-reduced-motion" in moving
     assert "animation" not in still and "@keyframes" not in still
     assert _count(still, "drop") == _count(moving, "drop")
-    assert _heights(still, "slag") == _heights(moving, "slag")
+    assert _polygon(still, "slag") == _polygon(moving, "slag")
     durations = {float(d) for d in re.findall(r"animation-duration:([\d.]+)s", moving)}
     assert durations == {fusion_svg.FALL_S, fusion_svg.BUBBLE_S}
     assert "<script" not in moving.lower() and "javascript:" not in moving.lower()
@@ -265,3 +349,12 @@ def test_la_guia_explica_las_reacciones_y_que_dato_pide_cada_reactivo():
     for fragment in ("2PbO + C = 2Pb + CO₂", "4KNO₃ + 5C", "Qué dato pide cada reactivo",
                      "grado de silicato"):  # fmt: skip
         assert fragment in text
+
+
+def test_la_linea_de_los_dos_tercios_es_la_del_volumen_no_la_de_la_altura():
+    svg_text = fusion_svg.crucible_svg(calculo.run_fusion(F()))
+    y = float(re.search(r'class="lb-limit" x1="[\d.]+" y1="([\d.]+)"', svg_text).group(1))
+    z = crisol.CRUCIBLE.level_for(2 / 3 * crisol.CRUCIBLE.capacity_cm3)
+    assert y == pytest.approx(fusion_svg.y_of(z), abs=0.006)
+    assert z != pytest.approx(2 / 3 * crisol.CRUCIBLE.height, abs=0.3)  # en el cono no coinciden
+    assert "2/3 de la capacidad" in svg_text

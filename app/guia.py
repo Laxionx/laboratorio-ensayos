@@ -78,7 +78,9 @@ FICHAS["fusion"] = {
     "resueltos: Bugbee (1922), *A Textbook of Fire Assaying* (dominio público). Cargas por tipo "
     "de roca, fusión preliminar a 1 050 °C y poderes de algunos minerales: Haffty, Riley y Goss "
     "(1977), USGS Bulletin 1445, *A Manual on Fire Assaying* (dominio público). Densidad del "
-    "plomo, 11,34 g/cm³: CRC Handbook. No es la receta de ningún laboratorio.",
+    "plomo líquido a 1 050 °C: OECD/NEA (2007), ec. 2.23; del sólido (botón frío), 11,34 g/cm³: "
+    "CRC Handbook. Capacidad del crisol: Bugbee, Tabla IV. No es la receta de ningún "
+    "laboratorio.",
     "limites": (
         "Sin copelación ni pérdidas de oro y plata, sin termodinámica de escorias y sin ensayo de "
         "platinoides.",
@@ -200,7 +202,8 @@ def guide_tab() -> None:
         "bórax vidrio equivale a 0,6 g de sílice. **Qué dato pide cada reactivo:** la harina, "
         "su poder reductor; el nitro, su poder oxidante; la soda y el litargirio de la escoria, "
         "la práctica del laboratorio; la sílice y el bórax salen del balance ácido-base de la "
-        "mineralogía. El plomo se dibuja sólido con 11,34 g/cm³."
+        "mineralogía. En el dibujo el plomo está líquido (9,79 g/cm³ a 1 050 °C) en un charco al "
+        "fondo del crisol cónico, con la escoria encima; el botón ya frío (11,34 g/cm³) va aparte."
     )
     st.markdown("### Lo que dice el artículo de Minnitt (2007)")
     st.markdown(f"_{MINNITT_2007_NOTE}_ La tabla de abajo, en la pestaña **Validación**.")
