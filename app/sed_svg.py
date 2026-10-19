@@ -18,7 +18,7 @@ from i18n import t
 from sed_calculo import FRAMES, SedView
 
 W, H = 940, 520
-CYL_X, CYL_W, CYL_BASE, CYL_PX = 70.0, 80.0, 410.0, 280.0  # probeta: H0 = CYL_PX px
+CYL_X, CYL_W, CYL_BASE, CYL_PX = 70.0, 80.0, 400.0, 280.0  # probeta: H0 = CYL_PX px
 TH_CX, TH_CY = 730.0, 250.0  # centro del espesador
 MAX_SCALE_PX_M, MAX_DIAMETER_PX = 5.0, 340.0  # escala del espesador (px por m) y su tope
 RAKE_PERIOD_S = 9.0  # ilustrativo

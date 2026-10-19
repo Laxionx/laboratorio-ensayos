@@ -348,3 +348,12 @@ def test_la_tabla_de_coe_clevenger_marca_cuales_cuadran():
     frame = sed_tab.coe_frame()
     assert frame.iloc[:, -1].tolist() == ["no", "sí", "sí", "no", "no"]
     assert frame["A calculada"].tolist() == [2.99, 4.29, 4.31, 4.21, 4.19]
+
+
+def test_valores_literales_de_la_escala_la_barra_y_el_factor():
+    assert (ss.MAX_SCALE_PX_M, ss.MAX_DIAMETER_PX, ss.CYL_PX) == (5.0, 340.0, 280.0)
+    assert view(tph=157.0).diametro_m == pytest.approx(43.60, abs=0.01)
+    assert ss.thickener_scale_px_per_m(43.6) == 5.0 and ss.thickener_scale_px_per_m(680.0) == 0.5
+    assert sc.FACTOR_VALOR[sc.FACTORES[1]] == 0.64 and sc.ANIM_FACTOR == 3.0
+    sin_factor = view(factor=sc.FACTORES[0])
+    assert sin_factor.factor == 1.0 and view(factor=sc.FACTORES[1]).factor == 0.64

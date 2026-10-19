@@ -284,3 +284,11 @@ def test_la_curva_de_flujo_de_kynch_de_luz_arranca_en_la_velocidad_maxima(luz):
         sd.flujo_limite([0.5], [0.1], 0.3)  # ninguna concentración bajo Cu
     with pytest.raises(sd.SedimentacionError):
         sd.kynch(luz, 0.0)
+
+
+def test_constantes_literales_del_metodo_y_de_los_cortes():
+    assert (sd.LB_POR_PIE3_AGUA, sd.LB_POR_TON_CORTA, sd.HORAS_DIA) == (62.35, 2000.0, 24.0)
+    assert (sd.FACTOR_VALE_LAMAS, sd.FACTOR_VALE_PELLET, sd.RHO_AGUA_T_M3) == (0.64, 1.3, 1.0)
+    assert (dd.VALE_FACTOR, dd.SINT_CORTE, dd.SINT_RANGO) == (0.64, 0.02, 0.8)
+    assert (dd.SINT_V0, dd.SINT_CMAX, dd.SINT_N, dd.SINT_C0) == (8.0, 0.60, 4.0, 0.30)
+    assert (dd.CC_F, dd.CC_D, dd.CC_R, dd.CC_TON_DIA) == (4.0, 1.12, 0.893, 100.0)
