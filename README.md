@@ -2,7 +2,7 @@
 
 # laboratorio-ensayos
 
-Laboratorio de ensayos al fuego. **Fase 1: preparación de muestras** y **fase 2: carga fundente**. Calcula cuánto error de muestreo mete cada etapa de un protocolo de preparación (chancar, dividir, pulverizar, tomar la alícuota de 30 o 50 g) con la ecuación del error fundamental de Gy, cuánto se acumula, y cuántos granos de oro caen en la alícuota cuando el oro es grueso. Implementado desde la literatura y validado contra números publicados.
+Laboratorio de ensayos metalúrgicos y de ensayo al fuego (muestreo, carga fundente, cianuración y sedimentación). **Fase 1: preparación de muestras** y **fase 2: carga fundente**. Calcula cuánto error de muestreo mete cada etapa de un protocolo de preparación (chancar, dividir, pulverizar, tomar la alícuota de 30 o 50 g) con la ecuación del error fundamental de Gy, cuánto se acumula, y cuántos granos de oro caen en la alícuota cuando el oro es grueso. Implementado desde la literatura y validado contra números publicados.
 
 Sin copelación ni pérdidas de oro y plata, sin termodinámica de escorias y sin ensayo de platinoides. Los códigos de preparación PREP-31 y PREP-31B son públicos de ALS (alsglobal.com); sin afiliación.
 
@@ -16,6 +16,7 @@ Sin copelación ni pérdidas de oro y plata, sin termodinámica de escorias y si
 - **Oro grueso:** granos esperados en la alícuota, simulación de 1 000 ensayos repetidos (Poisson, semilla fija), recomendación de screen fire assay si se esperan menos de 20 granos (criterio de Clifton).
 - **Fusión (fase 2):** dada la mineralogía de la muestra (9 minerales) y la alícuota (1 assay-ton o 30 g), calcula la carga fundente (litargirio, carbonato de sodio, bórax, sílice, harina o nitro) que da un botón de plomo de 25 a 30 g y una escoria del grado de silicato elegido (mono, sesqui o bi); evalúa una carga cambiada (botón chico o grande, escoria ácida o básica, riesgo de mata) y dibuja el crisol cónico en corte, con el plomo líquido al fondo y la escoria encima.
 - **Ensayo de cianuración:** recuperación y ley de cabeza por balance desde (tiempo, oro en solución, oro en residuo), términos L, M y N del núcleo sin reaccionar con sus rectas, modelo potencial y un primer orden con meseta, y un vaso de precipitados en corte con agitador y un indicador de recuperación (ver abajo).
+- **Ensayo de sedimentación:** de la curva h(t) de una probeta al diámetro de un espesador (Coe-Clevenger, Kynch, Talmage-Fitch, curva de Luz o tabla editable), el factor 0,64 de Vale y su escalamiento, la tabla de espesadores de Vale y una probeta y un espesador animados (ver abajo).
 - **Validación:** tabla y gráficos de lo calculado frente a lo publicado.
 - **Guía:** el error fundamental, los factores y qué dato pide cada uno, y qué errores de muestreo NO se modelan.
 
@@ -99,6 +100,28 @@ Datos y cifras de Roostaei, Kordparijaei y Mesroghli (2026), *Discover Applied S
 **Lo que no cuadra.** La fila M1 de la Tabla 7 no sale de los datos: con los términos M de la Tabla 6 da R² 0,9957, intercepto 0,389 y pendiente 0,018, y el artículo imprime 0,994, 0,388 y 0,019; su F impreso (171,04) implica R² 0,9942, coherente con su propio R² pero no con los datos, y las otras cinco filas sí cuadran. Parece una errata y no se maquilló. Con 30 % de sólidos se esperaría una razón de 2,33 L/kg y el factor sólido por solución que sale de la Tabla 4 es 1,935: apunta a una inconsistencia del balance del artículo.
 
 **Lo inferido** (el artículo no lo publica y se declara): la constante B del término mixto, 0,7033 hasta 7 h y 0,75 de 7 a 48 h (rangos compatibles con el redondeo: 0,7028 a 0,7039 y 0,7500 a 0,7505); la ley de cabeza, 1 070 ppb; y el factor sólido por solución, 1,935. Son nuestros: el primer orden con meseta, la regla que deja fuera el punto de 2 h (su recuperación supera la de 3 h) y la tolerancia de 5 % de la cabeza.
+
+## Ensayo de sedimentación
+
+La pestaña «Ensayo de sedimentación» convierte un ensayo de sedimentación en probeta en el diámetro de un espesador convencional y muestra por qué el área de laboratorio se corrige antes de construir. El módulo `muestreo.sedimentacion` (con `sedimentacion_datos`) calcula: Coe y Clevenger (1916), A = 2000 (F − D) / (24 · 62,35 · R) pies² por tonelada corta por día, en unidades de 1916 y SI; Kynch, con la curva h(t) de **una** probeta, por tangentes (C = C0·H0/H, v = −dh/dt, flujo G = v·C); Talmage-Fitch, con la tangente en el punto de compresión (dado o por el método de Roberts) y tu, área unitaria = tu / (C0·H0) en el modo clásico (Hu del underflow) o en el de Vale (cota a las 24 h); y el flujo límite (Yoshioka), informativo. La curva puede venir del modelo de Luz (ec. 1 de Torquato y Luz, 2011) o de una tabla editable. Una probeta en corte con la interfase bajando (tiempo comprimido, declarado) y un espesador visto desde arriba con su diámetro calculado, a escala declarada, la animan.
+
+**Escalamiento de Vale.** El ensayo de probeta que mejor representa la operación (ensayo 3 de la Tabla 3) dio 0,898 m²/(t/d); el espesador industrial de 30 m (706,86 m²) con 51,4 t/h necesitó 0,573: el factor es 0,573 / 0,898 = **0,64** (el texto del artículo lo escribe dividido al revés). Vale ese factor para las lamas de hierro de Vale, **no es universal** (1,3 para el pellet feed) y el propio artículo pide extrema cautela fuera de minerales similares.
+
+### Validación de la sedimentación
+
+Cortes fijados antes de correr ([tests/test_sedimentacion.py](tests/test_sedimentacion.py)); fuentes: Coe y Clevenger (1916, dominio público), Torquato y Luz (2011, *REM* 64(1):91-96, acceso abierto) y una curva sintética exacta.
+
+| Fuente | Qué se compara | Cuadran |
+|---|---|---|
+| Coe y Clevenger | Ejemplo de Nipissing: 4,31 pies²/(t/d), 431 pies², 23,4 pies (y sus cinco ensayos) | 3 de 3 (ejemplo); 2 de 5 ensayos |
+| Vale, Tabla 1 | 31 espesadores: diámetro al metro y área unitaria a 3 decimales, (π·D²/4)/(t/h·24) | 60 de 62 |
+| Vale, Tabla 2 | 706,86 m² y 51,4 t/h dan 0,573 | 2 de 2 |
+| Vale, Tabla 3 y factor | Diámetro de los 7 ensayos con 157 t/h, media y factor 0,573/0,898 = 0,64 | 10 de 10 |
+| Kynch sintético | v(C) = v0(1 − C/Cmax)ⁿ por características, sin compresión: las tangentes devuelven v(C) a ±2 % | 1 de 1 (error máximo 0,001 %) |
+
+**Lo que no cuadra** (sin maquillar). Dos filas de lama de Alegría: la de 59 t/h y 42 m publica 0,987 y salen 0,978 (parece una transposición de dígitos), y la de 57 t/h y 30 m publica 0,521 y salen 0,517. De los cinco ensayos de Coe y Clevenger, el 2 y el 3 cuadran; el 1 da 2,99 (no 3,00), el 4 da 4,21 (no 4,22) y el 5 da 4,19 (no 4,05) con D = 1,12 (el artículo no imprime el D de esos ensayos).
+
+**Informativo, sin corte.** Sobre la curva sintética, el área del flujo límite exacto es 0,1187 m² por t/d. El trazo de Talmage-Fitch coincide si la tangente se traza donde la interfase llega a Hu y en cualquier punto anterior da menos área (−22 % a la mitad de ese tiempo): sin compresión no es conservador. **Supuestos declarados:** z0 = 0,4 m y z∞ = 0,035 m (leídos de la Fig. 1, que solo da a = 1,591 y b = 203 s), densidad de los sólidos 4,0 t/m³ y densidad del agua 1 t/m³.
 
 ## Límites
 

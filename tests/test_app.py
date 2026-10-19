@@ -25,11 +25,12 @@ def _run() -> AppTest:
     return AppTest.from_file(APP, default_timeout=180).run()
 
 
-def test_las_seis_pestanas_cargan_sin_excepciones():
+def test_las_siete_pestanas_cargan_sin_excepciones():
     at = _run()
     assert not at.exception and not at.error
     assert [t.label for t in at.tabs] == [
-        "Guía", "Protocolo", "Oro grueso", "Fusión", "Ensayo de cianuración", "Validación"
+        "Guía", "Protocolo", "Oro grueso", "Fusión", "Ensayo de cianuración",
+        "Ensayo de sedimentación", "Validación",
     ]  # fmt: skip
     values = {m.label: m.value for m in at.metric}
     assert values["Error total del protocolo"] == "56,0 %"  # PREP-31, alícuota de 30 g, DSA

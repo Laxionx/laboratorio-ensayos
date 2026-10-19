@@ -2,7 +2,7 @@
 
 # laboratorio-ensayos (fire-assay laboratory)
 
-A fire-assay laboratory. **Phase 1: sample preparation** and **phase 2: flux charge**. It calculates how much sampling error each stage of a preparation protocol adds (crushing, splitting, pulverizing, taking the 30 or 50 g aliquot) with Gy's fundamental sampling error equation, how much accumulates, and how many gold grains fall in the aliquot when the gold is coarse. Implemented from the literature and validated against published numbers.
+A metallurgical test and fire-assay laboratory (sampling, flux charge, cyanide leaching and settling). **Phase 1: sample preparation** and **phase 2: flux charge**. It calculates how much sampling error each stage of a preparation protocol adds (crushing, splitting, pulverizing, taking the 30 or 50 g aliquot) with Gy's fundamental sampling error equation, how much accumulates, and how many gold grains fall in the aliquot when the gold is coarse. Implemented from the literature and validated against published numbers.
 
 No cupellation or gold and silver losses, no slag thermodynamics and no platinoid assay. The PREP-31 and PREP-31B preparation codes are public ALS codes (alsglobal.com); no affiliation.
 
@@ -16,6 +16,7 @@ No cupellation or gold and silver losses, no slag thermodynamics and no platinoi
 - **Coarse gold:** expected grains in the aliquot, simulation of 1,000 repeated assays (Poisson, fixed seed), screen fire assay recommendation if fewer than 20 grains are expected (Clifton's criterion).
 - **Fusion (phase 2):** given the mineralogy of the sample (9 minerals) and the aliquot (1 assay-ton or 30 g), it calculates the flux charge (litharge, sodium carbonate, borax, silica, flour or niter) that gives a lead button of 25 to 30 g and a slag of the chosen silicate degree (mono, sesqui or bi); it evaluates a changed charge (small or large button, acid or basic slag, risk of matte) and draws the conical crucible in cross-section, with the liquid lead at the bottom and the slag on top.
 - **Cyanide leach test:** recovery and head grade by balance from (time, gold in solution, gold in residue), unreacted-core terms L, M and N with their lines, a power-law model and a first order with plateau, and a beaker in section with a stirrer and a recovery gauge (see below).
+- **Settling test:** from the h(t) curve of a cylinder to the diameter of a thickener (Coe-Clevenger, Kynch, Talmage-Fitch, Luz curve or editable table), Vale's 0.64 factor and its scale-up, the table of Vale thickeners and an animated cylinder and thickener (see below).
 - **Validation:** table and charts of what is calculated against what is published.
 - **Guide:** the fundamental error, the factors and what datum each one asks for, and which sampling errors are NOT modeled.
 
@@ -99,6 +100,28 @@ Data and figures of Roostaei, Kordparijaei and Mesroghli (2026), *Discover Appli
 **What does not match.** Row M1 of Table 7 does not come out of the data: with the M terms of Table 6 it gives R² 0.9957, intercept 0.389 and slope 0.018, and the paper prints 0.994, 0.388 and 0.019; its printed F (171.04) implies R² 0.9942, which agrees with its own R² but not with the data, and the other five rows do match. It looks like a typo and was not dressed up. With 30 % solids a ratio of 2.33 L/kg would be expected and the solid-per-solution factor that comes out of Table 4 is 1.935: it points to an inconsistency in the paper's balance.
 
 **What was inferred** (the paper does not publish it and it is declared): the constant B of the mixed term, 0.7033 up to 7 h and 0.75 from 7 to 48 h (ranges compatible with the rounding: 0.7028 to 0.7039 and 0.7500 to 0.7505); the head grade, 1,070 ppb; and the solid-per-solution factor, 1.935. Ours are: the first order with plateau, the rule that leaves out the 2 h point (its recovery is above that of 3 h) and the 5 % head tolerance.
+
+## Settling test
+
+The "Settling test" tab turns a cylinder settling test into the diameter of a conventional thickener and shows why the laboratory area is corrected before building. The `muestreo.sedimentacion` module (with `sedimentacion_datos`) computes: Coe and Clevenger (1916), A = 2000 (F − D) / (24 · 62.35 · R) ft² per short ton per day, in 1916 and SI units; Kynch, from the h(t) curve of **one** cylinder, by tangents (C = C0·H0/H, v = −dh/dt, flux G = v·C); Talmage-Fitch, with the tangent at the compression point (given or by the Roberts method) and tu, unit area = tu / (C0·H0) in the classic mode (Hu from the underflow) or in Vale's (24 h height); and the limiting flux (Yoshioka), informative. The curve can come from the Luz model (eq. 1 of Torquato and Luz, 2011) or from an editable table. A cylinder in section with the interface falling (compressed time, declared) and a thickener seen from above with its calculated diameter, at a declared scale, animate it.
+
+**Vale scale-up.** The cylinder test that best represents the operation (test 3 of Table 3) gave 0.898 m²/(t/d); the 30 m industrial thickener (706.86 m²) at 51.4 t/h needed 0.573: the factor is 0.573 / 0.898 = **0.64** (the paper's text writes the division the other way round). That factor holds for Vale iron-ore slimes, it is **not universal** (1.3 for pellet feed) and the paper itself asks for extreme caution outside similar ores.
+
+### Settling validation
+
+Cuts fixed before running ([tests/test_sedimentacion.py](tests/test_sedimentacion.py)); sources: Coe and Clevenger (1916, public domain), Torquato and Luz (2011, *REM* 64(1):91-96, open access) and an exact synthetic curve.
+
+| Source | What is compared | Match |
+|---|---|---|
+| Coe and Clevenger | Nipissing example: 4.31 ft²/(t/d), 431 ft², 23.4 ft (and its five tests) | 3 of 3 (example); 2 of 5 tests |
+| Vale, Table 1 | 31 thickeners: diameter to the metre and unit area to 3 decimals, (π·D²/4)/(t/h·24) | 60 of 62 |
+| Vale, Table 2 | 706.86 m² and 51.4 t/h give 0.573 | 2 of 2 |
+| Vale, Table 3 and factor | Diameter of the 7 tests at 157 t/h, mean and factor 0.573/0.898 = 0.64 | 10 of 10 |
+| Synthetic Kynch | v(C) = v0(1 − C/Cmax)ⁿ by characteristics, no compression: tangents return v(C) within ±2 % | 1 of 1 (maximum error 0.001 %) |
+
+**What does not match** (not dressed up). Two Alegria slime rows: the 59 t/h, 42 m one prints 0.987 and 0.978 comes out (it looks like a digit transposition), and the 57 t/h, 30 m one prints 0.521 and 0.517 comes out. Of the five Coe and Clevenger tests, 2 and 3 match; 1 gives 2.99 (not 3.00), 4 gives 4.21 (not 4.22) and 5 gives 4.19 (not 4.05) with D = 1.12 (the paper does not print the D of those tests).
+
+**Informative, no cut.** On the synthetic curve, the exact limiting-flux area is 0.1187 m² per t/d. The Talmage-Fitch construction matches if the tangent is drawn where the interface reaches Hu and at any earlier point it gives less area (−22 % at half that time): without compression it is not conservative. **Declared assumptions:** z0 = 0.4 m and z∞ = 0.035 m (read from Fig. 1, which only gives a = 1.591 and b = 203 s), solids density 4.0 t/m³ and water density 1 t/m³.
 
 ## Limits
 

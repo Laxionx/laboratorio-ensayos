@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import pandas as pd
 import streamlit as st
-from controles import CIA, FUS, GOLD, MIN, PROT, data_table
+from controles import CIA, FUS, GOLD, MIN, PROT, SED, data_table
 from i18n import current, t
 
 REPO = "https://github.com/Laxionx/laboratorio-ensayos"
@@ -14,13 +14,14 @@ CONMINUCION = "https://simulador-conminucion-mtxoolyzuvvcxrq8rce3el.streamlit.ap
 PLANTA = "https://simulador-procesos-ntfmuyhlnqc9d73kkqljzk.streamlit.app/"
 
 # cuántos «límites del modelo» tiene cada ficha
-N_LIMITS = {"protocolo": 3, "oro": 2, "fusion": 5, "cianuracion": 4}
+N_LIMITS = {"protocolo": 3, "oro": 2, "fusion": 5, "cianuracion": 4, "sedimentacion": 5}
 N_REACTIONS, N_LIMITES = 4, 4
 DATA_GROUPS = {
     "protocolo": (PROT, MIN),
     "oro": (GOLD, MIN),
     "fusion": (FUS,),
     "cianuracion": (CIA,),
+    "sedimentacion": (SED,),
 }
 
 
@@ -79,6 +80,11 @@ def guide_tab() -> None:
     st.latex(r"R = \left(1 - \frac{S_t}{S_0}\right) \times 100")
     st.latex(r"L = 1 - 3(1-X)^{2/3} + 2(1-X)\qquad M = 1 - (1-X)^{1/3}")
     st.markdown(t("guide.cian.2"))
+    st.markdown(t("guide.h.sed"))
+    st.markdown(t("guide.sed.1"))
+    st.latex(r"A = \frac{2000\,(F - D)}{24 \cdot 62{,}35 \cdot R}\qquad "
+             r"A_u = \frac{t_u}{C_0 H_0}")
+    st.markdown(t("guide.sed.2"))
     st.markdown(t("guide.h.minnitt"))
     st.markdown(t("guide.minnitt", note=minnitt_2007_note()))
     st.markdown(t("guide.h.datos"))

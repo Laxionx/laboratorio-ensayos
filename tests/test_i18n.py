@@ -74,7 +74,11 @@ def test_ningun_texto_esta_vacio_y_solo_los_cognados_son_iguales_en_los_dos_idio
                     "r.soda", "v.no", "v.s3",
                     # símbolos de la cianuración (R², L, M, N, a, b)
                     "cn.m.r2", "cv.kind.L", "cv.kind.M", "cv.kind.N1", "cv.kind.N2",
-                    "cv.kind.a", "cv.kind.b", "cv.kind.r2"}  # fmt: skip
+                    "cv.kind.a", "cv.kind.b", "cv.kind.r2",
+                    # símbolos y unidades de la sedimentación
+                    "sd.app.pellet", "sd.cc.f", "sd.no", "sd.plot.c", "sd.plot.u", "sd.v.cma",
+                    "sd.v.cmu", "sd.v.tph", "sv.kind.factor", "svg.s.bar", "svg.s.cyl",
+                    "svg.s.tu"}  # fmt: skip
 
 
 def _source_files() -> list[Path]:
@@ -175,6 +179,7 @@ def test_lang_en_en_la_url_abre_en_ingles_y_el_selector_cambia_el_idioma():
         "Coarse gold",
         "Fusion",
         "Cyanide leach test",
+        "Settling test",
         "Validation",
     ]
     assert en.sidebar.radio[0].value == "en"
@@ -204,8 +209,8 @@ def test_los_datos_se_conservan_al_cambiar_de_idioma():
 def test_humo_de_todas_las_pestanas(lang):
     at = run(lang)
     assert not at.exception and not at.error
-    assert len(at.tabs) == 6 and len(at.metric) == 12
-    assert len(at.sidebar.expander) == 5
+    assert len(at.tabs) == 7 and len(at.metric) == 12
+    assert len(at.sidebar.expander) == 6
 
 
 @pytest.mark.parametrize("lang", ["es", "en"])
@@ -304,6 +309,30 @@ def test_los_numeros_de_la_pestana_de_cianuracion_cambian_de_formato_pero_no_de_
     assert any("Last row: **94.77 %**" in m.value for m in en.markdown)
     assert any("R² 0,937" in m.value for m in es_.markdown)
     assert any("R² 0.937" in m.value for m in en.markdown)
+
+
+def _sed_numbers(at: AppTest, lang: str) -> list[list[float]]:
+    """Los números de cada texto de la pestaña «Ensayo de sedimentación» (de su curva a su
+    animación)."""
+    texts = [m.value for m in at.markdown]
+    start = texts.index(TEXTS[lang]["sd.cur.h"])
+    stop = texts.index(TEXTS[lang]["sd.ani.h"])
+    return [_numbers(x, lang) for x in texts[start:stop]]
+
+
+def test_la_pestana_de_sedimentacion_tiene_las_mismas_cifras_en_los_dos_idiomas():
+    es_, en = run("es"), run("en")
+    a, b = _sed_numbers(es_, "es"), _sed_numbers(en, "en")
+    assert len(a) == len(b) > 8 and a == b
+    assert any(43.6 in x for x in a) and any(0.396 in x for x in a) and any(1.57 in x for x in a)
+
+
+def test_los_numeros_de_la_pestana_de_sedimentacion_cambian_de_formato_pero_no_de_valor():
+    es_, en = run("es"), run("en")
+    assert any("diámetro de **43,6 m**" in m.value for m in es_.markdown)
+    assert any("diameter of **43.6 m**" in m.value for m in en.markdown)
+    assert any("= **0,396 m² por t/d**" in m.value for m in es_.markdown)
+    assert any("= **0.396 m² per t/d**" in m.value for m in en.markdown)
 
 
 # ------------------------------------------------------------------ los gráficos y el esquema

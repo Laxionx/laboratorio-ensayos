@@ -7,10 +7,11 @@ from textos_en_cian import T as CIAN
 from textos_en_datos import T as DATOS
 from textos_en_fusion import T as FUSION
 from textos_en_guia import T as GUIA
+from textos_en_sed import T as SED
 from textos_en_ui import T as UI
 
 TEXTS: dict[str, str] = {}
-for _part in (UI, GUIA, DATOS, FUSION, CIAN):
+for _part in (UI, GUIA, DATOS, FUSION, CIAN, SED):
     _repeated = TEXTS.keys() & _part.keys()
     if _repeated:
         raise ValueError(f"claves repetidas en textos_en: {sorted(_repeated)}")

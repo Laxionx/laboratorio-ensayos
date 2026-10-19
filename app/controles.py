@@ -20,6 +20,7 @@ from calculo import (
 )
 from cian_calculo import MODEL_LABELS, CianParams
 from i18n import current, int_num, num_g, opt, t, tm, use
+from sed_calculo import COMPRESIONES, FACTORES, FUENTES, MODOS, SedParams
 
 from muestreo import cianuracion as cia
 from muestreo import fusion
@@ -28,6 +29,7 @@ from muestreo.protocolo import PRESETS
 PREFIX = "dato_"
 PROT, MIN, GOLD, FUS = "Protocolo", "Mineral", "Oro grueso", "Fusión"
 CIA = "Cianuración"
+SED = "Sedimentación"
 ALIQUOTS = ("30", "50")  # Au-AA23 y Au-AA24
 SHAPES = ("esfera", "cubo")
 
@@ -173,9 +175,35 @@ DATOS: tuple[Dato, ...] = (
          "dato.c_factor.meaning", "dato.c_factor.source"),
     Dato(CIA, "c_split", "dato.c_split.label", "h", 2, 30, cia.T_CORTE_H, 1,
          "dato.c_split.meaning", "dato.c_split.source"),
+    Dato(SED, "s_fuente", "dato.s_fuente.label", "", 0, 0, FUENTES[0], 0,
+         "dato.s_fuente.meaning", "dato.s_fuente.source", widget="select", options=FUENTES),
+    Dato(SED, "s_z0", "dato.s_z0.label", "m", 0.05, 2, 0.4, 0.01,
+         "dato.s_z0.meaning", "dato.s_z0.source"),
+    Dato(SED, "s_zinf", "dato.s_zinf.label", "m", 0.005, 1, 0.035, 0.005,
+         "dato.s_zinf.meaning", "dato.s_zinf.source"),
+    Dato(SED, "s_a", "dato.s_a.label", "", 0.5, 6, 1.591, 0.01,
+         "dato.s_a.meaning", "dato.s_a.source"),
+    Dato(SED, "s_b", "dato.s_b.label", "s", 10, 3600, 203, 1,
+         "dato.s_b.meaning", "dato.s_b.source"),
+    Dato(SED, "s_cma", "dato.s_cma.label", "%", 0.5, 60, 4.9, 0.1,
+         "dato.s_cma.meaning", "dato.s_cma.source"),
+    Dato(SED, "s_cmu", "dato.s_cmu.label", "%", 5, 80, 30, 1,
+         "dato.s_cmu.meaning", "dato.s_cmu.source"),
+    Dato(SED, "s_rho", "dato.s_rho.label", "t/m³", 1.5, 8, 4.0, 0.1,
+         "dato.s_rho.meaning", "dato.s_rho.source"),
+    Dato(SED, "s_comp", "dato.s_comp.label", "", 0, 0, COMPRESIONES[0], 0,
+         "dato.s_comp.meaning", "dato.s_comp.source", widget="select", options=COMPRESIONES),
+    Dato(SED, "s_tc", "dato.s_tc.label", "s", 10, 7200, 420, 10,
+         "dato.s_tc.meaning", "dato.s_tc.source"),
+    Dato(SED, "s_modo", "dato.s_modo.label", "", 0, 0, MODOS[0], 0,
+         "dato.s_modo.meaning", "dato.s_modo.source", widget="select", options=MODOS),
+    Dato(SED, "s_tph", "dato.s_tph.label", "t/h", 1, 5000, 157, 1,
+         "dato.s_tph.meaning", "dato.s_tph.source"),
+    Dato(SED, "s_factor", "dato.s_factor.label", "", 0, 0, FACTORES[0], 0,
+         "dato.s_factor.meaning", "dato.s_factor.source", widget="select", options=FACTORES),
 )  # fmt: skip
 BY_KEY = {d.key: d for d in DATOS}
-GROUPS = (PROT, MIN, GOLD, FUS, CIA)
+GROUPS = (PROT, MIN, GOLD, FUS, CIA, SED)
 
 
 def _ask(d: Dato) -> float | bool | str:
@@ -214,10 +242,10 @@ def reset_to_example() -> None:
 
 
 def sidebar_config() -> tuple[
-    ProtocolParams, MineralParams, GoldParams, float, FusionUIParams, CianParams
+    ProtocolParams, MineralParams, GoldParams, float, FusionUIParams, CianParams, SedParams
 ]:
     """Lee la barra lateral. Devuelve el protocolo, el mineral, el oro, la alícuota (g), la fusión
-    y la cianuración."""
+    la cianuración y la sedimentación."""
     sb = st.sidebar
     seen = st.session_state.get("_lang_seen")
     if seen and seen != current():
@@ -271,7 +299,13 @@ def sidebar_config() -> tuple[
         MODEL_LABELS[str(v["c_model"])], float(v["c_head"]), float(v["c_factor"]),
         float(v["c_split"]),
     )  # fmt: skip
-    return protocol, mineral, gold, aliquot, fusion_ui, cian
+    sed = SedParams(
+        str(v["s_fuente"]), float(v["s_z0"]), float(v["s_zinf"]), float(v["s_a"]),
+        float(v["s_b"]), float(v["s_cma"]), float(v["s_cmu"]), float(v["s_rho"]),
+        float(v["s_tc"]), str(v["s_comp"]), str(v["s_modo"]), float(v["s_tph"]),
+        str(v["s_factor"]),
+    )  # fmt: skip
+    return protocol, mineral, gold, aliquot, fusion_ui, cian, sed
 
 
 def data_table(group: str | None = None) -> pd.DataFrame:
