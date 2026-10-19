@@ -292,3 +292,11 @@ def test_constantes_literales_del_metodo_y_de_los_cortes():
     assert (dd.VALE_FACTOR, dd.SINT_CORTE, dd.SINT_RANGO) == (0.64, 0.02, 0.8)
     assert (dd.SINT_V0, dd.SINT_CMAX, dd.SINT_N, dd.SINT_C0) == (8.0, 0.60, 4.0, 0.30)
     assert (dd.CC_F, dd.CC_D, dd.CC_R, dd.CC_TON_DIA) == (4.0, 1.12, 0.893, 100.0)
+
+
+def test_roberts_no_acepta_un_quiebre_con_menos_de_tres_puntos_a_un_lado():
+    h_inf = 0.1
+    ts = np.arange(0.0, 800.0, 20.0)
+    y = np.where(ts <= 40.0, -ts / 10.0, -4.0 - (ts - 40.0) / 500.0)  # quiebre en el 3.er punto
+    curva = sd.CurvaSed(tuple(float(x) for x in ts), tuple(float(h_inf + math.exp(v)) for v in y))
+    assert sd.roberts_punto_compresion(curva, h_inf) >= ts[3]

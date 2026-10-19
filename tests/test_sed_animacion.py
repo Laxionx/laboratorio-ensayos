@@ -100,8 +100,10 @@ def test_los_relojes_dicen_el_tiempo_y_la_cota_de_cada_cuadro_con_el_formato_del
         with i18n.use(lang):
             texts = _strip(ss.settling_svg(v))
             expected = [es(h, 3) for h in v.alturas_animadas(96)]
+            last, mid = es(v.t_animacion_s, 0), es(v.t_animacion_s / 2, 0)
         times, heights = texts[: sc.FRAMES], texts[sc.FRAMES :]
         assert times[0] == "0" and len(times) == sc.FRAMES
+        assert times[-1] == last and times[48] == mid
         assert heights == expected and all(sep in h for h in heights)
         assert heights[0] == f"0{sep}400"
 

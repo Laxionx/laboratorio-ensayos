@@ -82,8 +82,10 @@ def guide_tab() -> None:
     st.markdown(t("guide.cian.2"))
     st.markdown(t("guide.h.sed"))
     st.markdown(t("guide.sed.1"))
-    st.latex(r"A = \frac{2000\,(F - D)}{24 \cdot 62{,}35 \cdot R}\qquad "
-             r"A_u = \frac{t_u}{C_0 H_0}")
+    st.latex(
+        r"A = \frac{2000\,(F - D)}{24 \cdot 62{,}35 \cdot R}\qquad "
+        r"A_u = \frac{t_u}{C_0 H_0}"
+    )
     st.markdown(t("guide.sed.2"))
     st.markdown(t("guide.h.minnitt"))
     st.markdown(t("guide.minnitt", note=minnitt_2007_note()))

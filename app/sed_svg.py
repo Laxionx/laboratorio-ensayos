@@ -35,11 +35,6 @@ def drawn_diameter_px(view: SedView) -> float:
     return view.diametro_m * thickener_scale_px_per_m(view.diametro_m)
 
 
-def interface_y(h: float, h0: float) -> float:
-    """Coordenada y (px) de la interfase para la cota h (m)."""
-    return CYL_BASE - CYL_PX * h / h0
-
-
 def motion_css(view: SedView) -> str:
     heights = view.alturas_animadas(FRAMES - 1)
     h0 = view.curva.h0
