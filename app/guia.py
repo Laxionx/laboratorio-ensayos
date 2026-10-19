@@ -6,16 +6,22 @@ from __future__ import annotations
 
 import pandas as pd
 import streamlit as st
-from controles import FUS, GOLD, MIN, PROT, data_table
+from controles import CIA, FUS, GOLD, MIN, PROT, data_table
 from i18n import current, t
 
 REPO = "https://github.com/Laxionx/laboratorio-ensayos"
 CONMINUCION = "https://simulador-conminucion-mtxoolyzuvvcxrq8rce3el.streamlit.app/"
 PLANTA = "https://simulador-procesos-ntfmuyhlnqc9d73kkqljzk.streamlit.app/"
 
-N_LIMITS = {"protocolo": 3, "oro": 2, "fusion": 5}  # cuántos «límites del modelo» tiene cada ficha
+# cuántos «límites del modelo» tiene cada ficha
+N_LIMITS = {"protocolo": 3, "oro": 2, "fusion": 5, "cianuracion": 4}
 N_REACTIONS, N_LIMITES = 4, 4
-DATA_GROUPS = {"protocolo": (PROT, MIN), "oro": (GOLD, MIN), "fusion": (FUS,)}
+DATA_GROUPS = {
+    "protocolo": (PROT, MIN),
+    "oro": (GOLD, MIN),
+    "fusion": (FUS,),
+    "cianuracion": (CIA,),
+}
 
 
 def minnitt_2007_note() -> str:
@@ -68,6 +74,11 @@ def guide_tab() -> None:
     for n in range(1, N_REACTIONS + 1):
         st.markdown(f"- {t(f'react.{n}')}")
     st.markdown(t("guide.fusion.2"))
+    st.markdown(t("guide.h.cian"))
+    st.markdown(t("guide.cian.1"))
+    st.latex(r"R = \left(1 - \frac{S_t}{S_0}\right) \times 100")
+    st.latex(r"L = 1 - 3(1-X)^{2/3} + 2(1-X)\qquad M = 1 - (1-X)^{1/3}")
+    st.markdown(t("guide.cian.2"))
     st.markdown(t("guide.h.minnitt"))
     st.markdown(t("guide.minnitt", note=minnitt_2007_note()))
     st.markdown(t("guide.h.datos"))

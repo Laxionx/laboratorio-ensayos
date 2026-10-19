@@ -15,6 +15,7 @@ No cupellation or gold and silver losses, no slag thermodynamics and no platinoi
 - **Protocol:** Gy variance per stage and cumulative (sum of relative variances), with a sampling nomogram in which the protocol route is walked stage by stage (reducing the size is a horizontal leg; splitting, a vertical one). Presets PREP-31, PREP-31B and the protocol of a gold mine from Minnitt (2017).
 - **Coarse gold:** expected grains in the aliquot, simulation of 1,000 repeated assays (Poisson, fixed seed), screen fire assay recommendation if fewer than 20 grains are expected (Clifton's criterion).
 - **Fusion (phase 2):** given the mineralogy of the sample (9 minerals) and the aliquot (1 assay-ton or 30 g), it calculates the flux charge (litharge, sodium carbonate, borax, silica, flour or niter) that gives a lead button of 25 to 30 g and a slag of the chosen silicate degree (mono, sesqui or bi); it evaluates a changed charge (small or large button, acid or basic slag, risk of matte) and draws the conical crucible in cross-section, with the liquid lead at the bottom and the slag on top.
+- **Bottle roll:** recovery and head grade by balance from (time, gold in solution, gold in residue), unreacted-core terms L, M and N with their lines, a power-law model and a first order with plateau, and a bottle in section turning at 30-32 rpm with a recovery gauge (see below).
 - **Validation:** table and charts of what is calculated against what is published.
 - **Guide:** the fundamental error, the factors and what datum each one asks for, and which sampling errors are NOT modeled.
 
@@ -77,6 +78,27 @@ Thresholds were fixed before running ([tests/test_fusion.py](tests/test_fusion.p
 | USGS 1445, niter for a 30 g button | 10.7 g | 10.7 g | yes |
 
 Shown alongside the theoretical ones, without being a threshold: Bugbee's **measured** reducing powers (Table XX) and the USGS charges evaluated with the calculator (button and silicate degree they would give).
+
+## Bottle-roll cyanidation
+
+The "Bottle roll" tab reads a cyanidation test (gold in solution and in the residue against time) and shows which kinetic model truly describes the dissolution and which only looks good in the fit. The `muestreo.cianuracion` module (with `cianuracion_datos`) computes the recovery R = (1 − residue/S0) and the head grade by balance (with a warning when rows are not coherent), the L (diffusion), M (reaction) and N (mixed) terms of the unreacted-core model with their regressions by stretch, the authors' power-law model and a first order with plateau (our own model). A bottle in section turns at the procedure speed (30 to 32 rpm, Cetin et al., 2017) with a recovery gauge that follows the chosen model in compressed time (48 h in 12 s, declared in the drawing).
+
+**Result.** The unreacted-core lines do not go through the origin: their first-stretch intercepts are 0.335 (diffusion), 0.389 (reaction) and 0.385 (mixed), with R² from 0.995 to 0.996 but only 3 points. With them the models would already give 77 % dissolved gold at t = 0, and the measurement gives 79 % at 1 h: they do not explain the fast dissolution of the first hour. The power-law model fits better (R² 0.937; mean error 1.6 recovery points) but is empirical, and the first order with plateau fits poorly (R∞ = 89.2 %, k = 2.13 1/h, R² 0.48).
+
+### Cyanidation validation
+
+Data and figures of Roostaei, Kordparijaei and Mesroghli (2026), *Discover Applied Sciences*, doi 10.1007/s42452-026-08420-8 (open access CC BY-NC-ND; only its quoted figures are used). Cuts fixed before running ([tests/test_cianuracion.py](tests/test_cianuracion.py)):
+
+| Source | What is compared | Match |
+|---|---|---|
+| Table 4 | Head grade of each row (S0 = residue/(1 − R), must fall in the rounding interval with S0 = 1,070 ppb) and recovery at the rounding | 14 of 14 |
+| Table 6 | L and M to 3 decimals; N with the inferred B | 22 of 22 |
+| Table 7 | R², intercept and slope of the 6 regressions, with the same points (without the 2 h one) | 15 of 18 |
+| Eq. 3 | 228.046; 0.332; R² 0.937 (ln St against ln t, 7 points) | 3 of 3 |
+
+**What does not match.** Row M1 of Table 7 does not come out of the data: with the M terms of Table 6 it gives R² 0.9957, intercept 0.389 and slope 0.018, and the paper prints 0.994, 0.388 and 0.019; its printed F (171.04) implies R² 0.9942, which agrees with its own R² but not with the data, and the other five rows do match. It looks like a typo and was not dressed up. Also, the Table 4 data come from tests in a stirred 2 L beaker, not a bottle: the bottle illustrates the test.
+
+**What was inferred** (the paper does not publish it and it is declared): the constant B of the mixed term, 0.7033 up to 7 h and 0.75 from 7 to 48 h (ranges compatible with the rounding: 0.7028 to 0.7039 and 0.7500 to 0.7505); the head grade, 1,070 ppb; and the solid-per-solution factor, 1.935. Ours are: the first order with plateau, the rule that leaves out the 2 h point (its recovery is above that of 3 h) and the 5 % head tolerance.
 
 ## Limits
 

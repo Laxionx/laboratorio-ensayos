@@ -18,13 +18,16 @@ from calculo import (
     MineralParams,
     ProtocolParams,
 )
+from cian_calculo import MODEL_LABELS, CianParams
 from i18n import current, int_num, num_g, opt, t, tm, use
 
+from muestreo import cianuracion as cia
 from muestreo import fusion
 from muestreo.protocolo import PRESETS
 
 PREFIX = "dato_"
 PROT, MIN, GOLD, FUS = "Protocolo", "Mineral", "Oro grueso", "Fusión"
+CIA = "Cianuración"
 ALIQUOTS = ("30", "50")  # Au-AA23 y Au-AA24
 SHAPES = ("esfera", "cubo")
 
@@ -161,9 +164,20 @@ DATOS: tuple[Dato, ...] = (
          "dato.x_silica.meaning", "dato.x_silica.source"),
     Dato(FUS, "x_lith", "dato.x_lith.label", "×", 0.3, 2, 1, 0.05,
          "dato.x_lith.meaning", "dato.x_lith.source"),
+    Dato(CIA, "c_model", "dato.c_model.label", "", 0, 0, next(iter(MODEL_LABELS)), 0,
+         "dato.c_model.meaning", "dato.c_model.source", widget="select",
+         options=tuple(MODEL_LABELS)),
+    Dato(CIA, "c_rpm", "dato.c_rpm.label", "rpm", 30, 32, 31, 0.5,
+         "dato.c_rpm.meaning", "dato.c_rpm.source"),
+    Dato(CIA, "c_head", "dato.c_head.label", "ppb", 100, 10000, cia.S0_PPB, 10,
+         "dato.c_head.meaning", "dato.c_head.source"),
+    Dato(CIA, "c_factor", "dato.c_factor.label", "ppb/ppb", 0.5, 5, cia.F_SOLUCION, 0.005,
+         "dato.c_factor.meaning", "dato.c_factor.source"),
+    Dato(CIA, "c_split", "dato.c_split.label", "h", 2, 30, cia.T_CORTE_H, 1,
+         "dato.c_split.meaning", "dato.c_split.source"),
 )  # fmt: skip
 BY_KEY = {d.key: d for d in DATOS}
-GROUPS = (PROT, MIN, GOLD, FUS)
+GROUPS = (PROT, MIN, GOLD, FUS, CIA)
 
 
 def _ask(d: Dato) -> float | bool | str:
@@ -201,8 +215,11 @@ def reset_to_example() -> None:
         del st.session_state[k]
 
 
-def sidebar_config() -> tuple[ProtocolParams, MineralParams, GoldParams, float, FusionUIParams]:
-    """Lee la barra lateral. Devuelve el protocolo, el mineral, el oro y la alícuota (g)."""
+def sidebar_config() -> tuple[
+    ProtocolParams, MineralParams, GoldParams, float, FusionUIParams, CianParams
+]:
+    """Lee la barra lateral. Devuelve el protocolo, el mineral, el oro, la alícuota (g), la fusión
+    y la cianuración."""
     sb = st.sidebar
     seen = st.session_state.get("_lang_seen")
     if seen and seen != current():
@@ -252,7 +269,11 @@ def sidebar_config() -> tuple[ProtocolParams, MineralParams, GoldParams, float, 
         float(v["x_silica"]),
         float(v["x_lith"]),
     )
-    return protocol, mineral, gold, aliquot, fusion_ui
+    cian = CianParams(
+        MODEL_LABELS[str(v["c_model"])], float(v["c_rpm"]), float(v["c_head"]),
+        float(v["c_factor"]), float(v["c_split"]),
+    )  # fmt: skip
+    return protocol, mineral, gold, aliquot, fusion_ui, cian
 
 
 def data_table(group: str | None = None) -> pd.DataFrame:

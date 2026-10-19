@@ -3,13 +3,14 @@ usen la misma clave."""
 
 from __future__ import annotations
 
+from textos_es_cian import T as CIAN
 from textos_es_datos import T as DATOS
 from textos_es_fusion import T as FUSION
 from textos_es_guia import T as GUIA
 from textos_es_ui import T as UI
 
 TEXTS: dict[str, str] = {}
-for _part in (UI, GUIA, DATOS, FUSION):
+for _part in (UI, GUIA, DATOS, FUSION, CIAN):
     _repeated = TEXTS.keys() & _part.keys()
     if _repeated:
         raise ValueError(f"claves repetidas en textos_es: {sorted(_repeated)}")

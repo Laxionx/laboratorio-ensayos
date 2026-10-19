@@ -71,7 +71,10 @@ def test_ningun_texto_esta_vacio_y_solo_los_cognados_son_iguales_en_los_dos_idio
     # palabras que se escriben igual (mineral, no), fórmulas, unidades y fuentes citadas
     assert same == {"f.min.mineral", "f.min.pb", "f.min.rp", "fv.m.mineral", "group.Mineral",
                     "no", "p.col.dn", "p.mineral", "plot.gran.d95", "plot.nomo.error",
-                    "r.soda", "v.no", "v.s3"}  # fmt: skip
+                    "r.soda", "v.no", "v.s3",
+                    # símbolos de la cianuración (R², L, M, N, a, b)
+                    "cn.m.r2", "cv.kind.L", "cv.kind.M", "cv.kind.N1", "cv.kind.N2",
+                    "cv.kind.a", "cv.kind.b", "cv.kind.r2"}  # fmt: skip
 
 
 def _source_files() -> list[Path]:
@@ -171,6 +174,7 @@ def test_lang_en_en_la_url_abre_en_ingles_y_el_selector_cambia_el_idioma():
         "Protocol",
         "Coarse gold",
         "Fusion",
+        "Bottle roll",
         "Validation",
     ]
     assert en.sidebar.radio[0].value == "en"
@@ -200,8 +204,8 @@ def test_los_datos_se_conservan_al_cambiar_de_idioma():
 def test_humo_de_todas_las_pestanas(lang):
     at = run(lang)
     assert not at.exception and not at.error
-    assert len(at.tabs) == 5 and len(at.metric) == 12
-    assert len(at.sidebar.expander) == 4
+    assert len(at.tabs) == 6 and len(at.metric) == 12
+    assert len(at.sidebar.expander) == 5
 
 
 @pytest.mark.parametrize("lang", ["es", "en"])
@@ -270,6 +274,36 @@ def test_las_tablas_de_validacion_tienen_las_mismas_cifras_en_los_dos_idiomas():
     pairs = [(x, y) for x, y in zip(a, b, strict=True) if len(x) == len(y)]
     assert len(pairs) > 100
     assert all(x == y for x, y in pairs)
+
+
+def _bottle_numbers(at: AppTest, lang: str) -> list[list[float]]:
+    """Los números de cada texto de la pestaña «Cianuración en botella» (de su calculadora a su
+    botella) y de la tabla de modelos."""
+    texts = [m.value for m in at.markdown]
+    start = texts.index(TEXTS[lang]["cn.cal.h"])
+    stop = texts.index(TEXTS[lang]["cn.ani.h"])
+    out = [_numbers(x, lang) for x in texts[start:stop]]
+    for df in at.dataframe:
+        for row in df.value.values.tolist():
+            out.append(
+                [_numbers(x, lang)[0] for x in row if isinstance(x, str) and re.search(r"\d", x)]
+            )
+    return out
+
+
+def test_la_pestana_de_cianuracion_tiene_las_mismas_cifras_en_los_dos_idiomas():
+    es_, en = run("es"), run("en")
+    a, b = _bottle_numbers(es_, "es"), _bottle_numbers(en, "en")
+    assert len(a) == len(b) > 10 and a == b
+    assert any(94.77 in x for x in a) and any(0.335 in x for x in a)
+
+
+def test_los_numeros_de_la_pestana_de_cianuracion_cambian_de_formato_pero_no_de_valor():
+    es_, en = run("es"), run("en")
+    assert any("Última fila: **94,77 %**" in m.value for m in es_.markdown)
+    assert any("Last row: **94.77 %**" in m.value for m in en.markdown)
+    assert any("R² 0,937" in m.value for m in es_.markdown)
+    assert any("R² 0.937" in m.value for m in en.markdown)
 
 
 # ------------------------------------------------------------------ los gráficos y el esquema

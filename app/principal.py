@@ -1,7 +1,7 @@
 """App «Laboratorio de ensayos al fuego» / "Fire-assay laboratory": cuánto error de muestreo
 mete cada etapa de un protocolo y cuánto se acumula, el oro grueso en la alícuota y la validación
-de la ecuación de Gy contra números publicados. Pestañas: Guía, Protocolo, Oro grueso, Fusión y
-Validación."""
+de la ecuación de Gy contra números publicados. Pestañas: Guía, Protocolo, Oro grueso, Fusión,
+Cianuración en botella y Validación."""
 
 from __future__ import annotations
 
@@ -24,6 +24,7 @@ from calculo import (  # noqa: E402
     run_gold,
     run_protocol,
 )
+from cian_tab import cian_tab, cian_validation_section  # noqa: E402
 from controles import sidebar_config  # noqa: E402
 from dibujo import MOTION_CSS, as_images, es  # noqa: E402
 from fusion_tab import fusion_tab, fusion_validation_section  # noqa: E402
@@ -204,11 +205,12 @@ def main() -> None:
     st.title(t("app.title"))
     st.caption(t("app.caption"))
     st.html(MOTION_CSS)
-    protocol, mineral, gold, aliquot, fusion_ui = sidebar_config()
+    protocol, mineral, gold, aliquot, fusion_ui, cian = sidebar_config()
     animate = st.toggle(t("toggle.label"), value=True, help=t("toggle.help"))
-    tab_guide, tab_protocol, tab_gold, tab_fusion, tab_validation = st.tabs(
-        [t("tab.guide"), t("tab.protocol"), t("tab.gold"), t("tab.fusion"), t("tab.validation")]
-    )
+    tab_guide, tab_protocol, tab_gold, tab_fusion, tab_cian, tab_validation = st.tabs([
+        t("tab.guide"), t("tab.protocol"), t("tab.gold"), t("tab.fusion"), t("tab.cian"),
+        t("tab.validation"),
+    ])  # fmt: skip
     with tab_guide:
         guide_tab()
     with tab_protocol:
@@ -217,9 +219,12 @@ def main() -> None:
         gold_tab(gold, mineral.grade_gpt, aliquot)
     with tab_fusion:
         fusion_tab(fusion_ui, animate)
+    with tab_cian:
+        cian_tab(cian, animate)
     with tab_validation:
         validation_tab()
         fusion_validation_section()
+        cian_validation_section()
 
 
 main()

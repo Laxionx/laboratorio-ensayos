@@ -13,7 +13,7 @@ T = {
     "err.generic": "Algo falló al calcular. Prueba con otros datos o recarga la página.",
     "toggle.label": "Mover la animación",
     "toggle.help": (
-        "Apaga la animación del crisol de la pestaña Fusión. También se apaga sola si el "
+        "Apaga la animación del crisol (pestaña Fusión) y la de la botella (pestaña Cianuración en botella). También se apaga sola si el "
         "sistema tiene activado «reducir movimiento»."
     ),
     "tab.guide": "Guía",
