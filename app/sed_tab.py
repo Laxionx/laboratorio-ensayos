@@ -171,7 +171,7 @@ def vale_frame() -> pd.DataFrame:
                 t("sd.v.qtd"): qtd,
                 t("sd.v.app"): t(APPS[app]),
                 t("sd.v.tph"): tph,
-                t("sd.v.cma"): cma,
+                t("sd.v.cma"): "–" if cma is None else es(cma, 1),
                 t("sd.v.cmu"): cmu,
                 t("sd.v.au"): au,
                 t("sd.v.auc"): round(calc_au, 3),
@@ -259,7 +259,7 @@ def sed_tab(p: SedParams, animate: bool) -> None:
 def _check_table(checks: list[dd.SedCheck]) -> str:
     df = pd.DataFrame(
         {
-            t("sv.col.concept"): [f"{t('sv.kind.' + x.kind)} {x.label}" for x in checks],
+            t("sv.col.concept"): [f"{t('sv.kind.' + x.kind)} {x.label}".strip() for x in checks],
             t("sv.col.published"): [decimal(x.published) for x in checks],
             t("sv.col.calculated"): [decimal(round(x.calculated, x.decimals)) for x in checks],
             t("sv.col.fits"): [t("v.yes") if x.ok else t("v.no") for x in checks],

@@ -77,7 +77,7 @@ def test_ningun_texto_esta_vacio_y_solo_los_cognados_son_iguales_en_los_dos_idio
                     "cv.kind.a", "cv.kind.b", "cv.kind.r2",
                     # símbolos y unidades de la sedimentación
                     "sd.app.pellet", "sd.cc.f", "sd.no", "sd.plot.c", "sd.plot.u", "sd.v.cma",
-                    "sd.v.cmu", "sd.v.tph", "sv.kind.factor", "svg.s.bar", "svg.s.cyl",
+                    "sd.v.cmu", "sd.v.tph", "svg.s.bar", "svg.s.cyl",
                     "svg.s.tu"}  # fmt: skip
 
 

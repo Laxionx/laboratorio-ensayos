@@ -135,7 +135,7 @@ def vale_t2_checks() -> list[SedCheck]:
     au = sd.area_unitaria_m2_t_dia(VALE_T2_D, VALE_T2_TPH)
     return [
         SedCheck("v2", "area", "30 m", VALE_T2_AREA, area, round(area, 2) == VALE_T2_AREA, "", 3),
-        SedCheck("v2", "au", "51,4 t/h", VALE_T2_AU, au, round(au, 3) == VALE_T2_AU, "", 4),
+        SedCheck("v2", "au_ind", "", VALE_T2_AU, au, round(au, 3) == VALE_T2_AU, "", 4),
     ]
 
 
@@ -157,7 +157,7 @@ def vale_t3_checks() -> list[SedCheck]:
     out.append(SedCheck("v3", "media_d", "7", VALE_T3_MEDIA_D, d_media,
                         round(d_media) == VALE_T3_MEDIA_D, "", 2))  # fmt: skip
     f = factor_vale()
-    out.append(SedCheck("v3", "factor", "0,573 / 0,898", VALE_FACTOR, f,
+    out.append(SedCheck("v3", "factor", "", VALE_FACTOR, f,
                         round(f, 2) == VALE_FACTOR, "v3_factor", 3))  # fmt: skip
     return out
 
