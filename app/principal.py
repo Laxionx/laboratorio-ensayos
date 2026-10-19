@@ -1,7 +1,7 @@
 """App «Laboratorio de ensayos al fuego» / "Fire-assay laboratory": cuánto error de muestreo
 mete cada etapa de un protocolo y cuánto se acumula, el oro grueso en la alícuota y la validación
 de la ecuación de Gy contra números publicados. Pestañas: Guía, Protocolo, Oro grueso, Fusión,
-Cianuración en botella y Validación."""
+Ensayo de cianuración y Validación."""
 
 from __future__ import annotations
 

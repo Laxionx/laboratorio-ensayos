@@ -7,7 +7,7 @@ T = {
     "app.caption": "How much sampling error each preparation stage adds and how many gold grains fall in the aliquot, using Gy's equation validated against published figures. Includes the fusion flux charge (phase 2; no cupellation). Start with the **Guide**; change the inputs in the sidebar. Public ALS preparation codes; no affiliation.",
     "err.generic": "Something went wrong. Try other inputs or reload the page.",
     "toggle.label": "Animate",
-    "toggle.help": 'Turns off the crucible animation (Fusion tab) and the bottle animation (Bottle roll tab). It also turns off on its own if the system has "reduce motion" enabled.',
+    "toggle.help": 'Turns off the crucible animation (Fusion tab) and the beaker animation (Cyanide leach test tab). It also turns off on its own if the system has "reduce motion" enabled.',
     "tab.guide": "Guide",
     "tab.protocol": "Protocol",
     "tab.gold": "Coarse gold",

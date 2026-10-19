@@ -1,5 +1,5 @@
-"""Cálculo de la pestaña «Cianuración en botella», sin Streamlit: valida la tabla del visitante,
-llama a `muestreo.cianuracion` y arma las vistas que dibujan los gráficos y la botella. Todo lo que
+"""Cálculo de la pestaña «Ensayo de cianuración», sin Streamlit: valida la tabla del visitante,
+llama a `muestreo.cianuracion` y arma las vistas que dibujan los gráficos y el vaso. Todo lo que
 se ve sale de estos números."""
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ from muestreo import cianuracion as c
 
 MAX_FILAS, MIN_FILAS = 30, 1
 T_MAX_H, PPB_MAX = 1000.0, 100_000.0  # límites razonables de la tabla
-CURVA_PUNTOS = 97  # puntos por curva y fotogramas del indicador de la botella
+CURVA_PUNTOS = 97  # puntos por curva y fotogramas del indicador del vaso
 TABLE_COLS = ("t", "sol", "res")
 # El valor de la lista de la barra lateral es el rótulo en español (como en el resto de la app);
 # `opt` lo traduce. El modelo que mueve el indicador es el de `muestreo.cianuracion`.
@@ -36,7 +36,6 @@ def model_name(code: str) -> str:
 @dataclass(frozen=True)
 class CianParams:
     model: str = "potencial"
-    rpm: float = 31.0  # procedimiento estándar: 30 a 32 rpm (Cetin et al., 2017)
     head: float = c.S0_PPB
     factor: float = c.F_SOLUCION
     split: float = c.T_CORTE_H
@@ -98,7 +97,7 @@ class CianView:
 
     def animada(self, modelo: str, k: int = CURVA_PUNTOS - 1) -> list[float]:
         """La recuperación (%, de 0 a 100) del modelo en k + 1 instantes parejos de 0 a tmax: lo
-        que mueve el indicador de la botella. En t = 0 el potencial no existe y se dibuja en 0;
+        que mueve el indicador del vaso. En t = 0 el potencial no existe y se dibuja en 0;
         donde el modelo no se pudo ajustar, el indicador conserva el valor anterior."""
         out: list[float] = []
         for i in range(k + 1):

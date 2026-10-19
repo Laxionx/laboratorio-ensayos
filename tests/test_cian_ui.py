@@ -1,4 +1,4 @@
-"""La pestaña «Cianuración en botella» dentro de la app: humo en los dos idiomas, edición de la
+"""La pestaña «Ensayo de cianuración» dentro de la app: humo en los dos idiomas, edición de la
 tabla, valores manipulados y un fuzz de 30 combinaciones por idioma (30 % extremas)."""
 
 import json
@@ -57,8 +57,8 @@ def balance_table(at: AppTest):
 @pytest.mark.parametrize(
     ("lang", "tab", "recovery", "model"),
     [
-        ("es", "Cianuración en botella", "94,77", "Potencial (Ec. 3 de los autores)"),
-        ("en", "Bottle roll", "94.77", "Power law (authors' Eq. 3)"),
+        ("es", "Ensayo de cianuración", "94,77", "Potencial (Ec. 3 de los autores)"),
+        ("en", "Cyanide leach test", "94.77", "Power law (authors' Eq. 3)"),
     ],
 )
 def test_humo_de_la_pestana_en_cada_idioma(lang, tab, recovery, model):
@@ -107,7 +107,7 @@ def test_el_selector_de_idioma_conserva_los_datos_de_la_cianuracion():
     sidebar(at, "c_head").set_value(1200.0).run()
     at.sidebar.radio[0].set_value("en").run()
     assert not at.exception and sidebar(at, "c_head").value == 1200.0
-    assert at.tabs[4].label == "Bottle roll"
+    assert at.tabs[4].label == "Cyanide leach test"
 
 
 def test_apagar_el_movimiento_no_rompe_la_pestana():

@@ -1,4 +1,4 @@
-"""Gráficos de la pestaña «Cianuración en botella»: recuperación contra tiempo con la curva de cada
+"""Gráficos de la pestaña «Ensayo de cianuración»: recuperación contra tiempo con la curva de cada
 modelo, y los términos linealizados del núcleo sin reaccionar con las rectas por tramo (y su
 extensión hasta t = 0, donde se ve que no pasan por el origen)."""
 
@@ -28,7 +28,7 @@ LINEAR_TITLES = {"difusion": "L", "reaccion": "M", "mixto": "N"}
 
 def recovery_figure(view: CianView) -> go.Figure:
     """Puntos medidos (con X los que las rectas dejan fuera) y la curva de cada modelo. El del
-    indicador de la botella va más grueso."""
+    indicador del vaso va más grueso."""
     bal, grid = view.balance, view.grid()
     fig = go.Figure()
     for model in c.MODELOS:

@@ -1,5 +1,5 @@
-"""Pestaña «Cianuración en botella» sin levantar Streamlit: la botella y los gráficos salen del
-cálculo (rpm, avance de la recuperación = modelo), la tabla se valida en el servidor y los
+"""Pestaña «Ensayo de cianuración» sin levantar Streamlit: el vaso y los gráficos salen del
+cálculo (avance de la recuperación = modelo), la tabla se valida en el servidor y los
 controles salen de una sola definición."""
 
 import base64
@@ -35,6 +35,12 @@ SPANISH = re.compile(
 )
 
 
+def i18n_num(x: float) -> str:
+    from dibujo import es
+
+    return es(x, 1)
+
+
 def view(**kw) -> cc.CianView:
     return cc.run_cian(cc.CianParams(**kw), T, SOL, RES)
 
@@ -57,27 +63,43 @@ def _strip(svg: str, x: int) -> list[str]:
     return re.findall(r'<text x="0.0" y="[\d.]+"[^>]*>([^<]+)</text>', svg)
 
 
-# ------------------------------------------------------------------ la botella gira a las rpm
-@pytest.mark.parametrize("rpm", [30.0, 31.0, 32.0])
-def test_la_botella_gira_con_un_periodo_de_60_sobre_rpm(rpm):
-    svg = cs.bottle_svg(view(rpm=rpm))
-    period = float(re.search(r'class="lb-spin" style="[^"]*animation-duration:([\d.]+)s', svg)[1])
-    assert period == pytest.approx(60.0 / rpm, abs=5e-4)
-    assert cs.rotation_period_s(rpm) == 60.0 / rpm
-    assert f"{rpm:.1f}".replace(".", ",") + " rpm" in svg
+# ------------------------------------------------------------------ el agitador es ilustrativo
+@pytest.mark.parametrize(
+    ("lang", "note"),
+    [
+        ("es", "velocidad no informada en el artículo; giro ilustrativo"),
+        ("en", "speed not reported in the paper; illustrative turn"),
+    ],
+)
+def test_el_giro_del_agitador_se_rotula_ilustrativo_y_no_hay_rpm_ni_cita(lang, note):
+    with i18n.use(lang):
+        svg = cs.beaker_svg(view())
+    assert note in svg
+    assert "rpm" not in svg and "Cetin" not in svg
+    duration = re.search(r'class="lb-stir" style="[^"]*animation-duration:([\d.]+)s', svg)
+    assert float(duration[1]) == cs.STIR_PERIOD_S
+    assert not hasattr(cc.CianParams(), "rpm")
+
+
+def test_ni_los_textos_ni_los_controles_hablan_de_rpm_o_de_cetin():
+    for lang in ("es", "en"):
+        blob = " ".join(v for k, v in i18n.TEXTS[lang].items() if "cian" in k or "cn." in k
+                        or "cv." in k or "svg.c" in k or "dato.c_" in k)  # fmt: skip
+        assert "Cetin" not in blob and "rpm" not in blob and "MMME" not in blob
+    assert not [d for d in controles.DATOS if d.key == "c_rpm"]
 
 
 def test_quieta_no_hay_animacion_y_con_movimiento_si():
-    moving, still = cs.bottle_svg(view()), cs.bottle_svg(view(), paused=True)
-    assert "animation:lb-spin" in moving and "@keyframes lb-bar" in moving
+    moving, still = cs.beaker_svg(view()), cs.beaker_svg(view(), paused=True)
+    assert "animation:lb-stir" in moving and "@keyframes lb-bar" in moving
     assert "animation" not in still.split("</style>")[1] and "@keyframes" not in still
-    assert "lb-spin" in still  # el grupo existe, solo que quieto
+    assert "lb-stir" in still  # el grupo existe, solo que quieto
 
 
 def test_la_pestana_entrega_las_dos_versiones_y_una_sola_sin_movimiento():
     v = view()
-    both = as_images(cs.bottle_svg(v), cs.bottle_svg(v, paused=True), "alt")
-    one = as_images(cs.bottle_svg(v, paused=True), cs.bottle_svg(v, paused=True), "alt")
+    both = as_images(cs.beaker_svg(v), cs.beaker_svg(v, paused=True), "alt")
+    one = as_images(cs.beaker_svg(v, paused=True), cs.beaker_svg(v, paused=True), "alt")
     assert both.count("<img") == 2 and "lb-anim" in both and "lb-still" in both
     assert one.count("<img") == 1
 
@@ -86,7 +108,7 @@ def test_la_pestana_entrega_las_dos_versiones_y_una_sola_sin_movimiento():
 @pytest.mark.parametrize("model", c.MODELOS)
 def test_el_indicador_avanza_siguiendo_el_modelo_elegido(model):
     v = view(model=model)
-    svg = cs.bottle_svg(v)
+    svg = cs.beaker_svg(v)
     bar = _bar_values(svg)
     assert len(bar) == cs.FRAMES
     expected = [min(max(r, 0.0), 100.0) / 100.0 for r in v.animada(model, cs.FRAMES - 1)]
@@ -104,81 +126,108 @@ def test_el_indicador_avanza_siguiendo_el_modelo_elegido(model):
 
 
 def test_cada_modelo_mueve_el_indicador_distinto_y_los_instantes_son_parejos():
-    bars = {m: _bar_values(cs.bottle_svg(view(model=m))) for m in c.MODELOS}
+    bars = {m: _bar_values(cs.beaker_svg(view(model=m))) for m in c.MODELOS}
     assert len({tuple(round(x, 3) for x in b) for b in bars.values()}) == len(c.MODELOS)
-    times = [p for p, _ in _keyframes(cs.bottle_svg(view()), "lb-bar") if p < 100.0]
+    times = [p for p, _ in _keyframes(cs.beaker_svg(view()), "lb-bar") if p < 100.0]
     run = 100.0 * cs.RUN_S / (cs.RUN_S + cs.HOLD_S)
     assert times[0] == 0.0 and times[-1] == pytest.approx(run, abs=1e-3)
     assert np.allclose(np.diff(times), run / (cs.FRAMES - 1), atol=1e-3)
 
 
 def test_el_potencial_arranca_en_cero_y_los_lineales_ya_traen_oro_disuelto_en_t_0():
-    pot = _bar_values(cs.bottle_svg(view(model="potencial")))
-    mix = _bar_values(cs.bottle_svg(view(model="mixto")))
+    pot = _bar_values(cs.beaker_svg(view(model="potencial")))
+    mix = _bar_values(cs.beaker_svg(view(model="mixto")))
     assert pot[0] == 0.0 and mix[0] == pytest.approx(0.771, abs=0.001)  # el intercepto, en el reloj
     assert all(b >= a for a, b in itertools.pairwise(pot))
 
 
-def test_los_relojes_dicen_el_tiempo_y_la_recuperacion_de_cada_cuadro():
+@pytest.mark.parametrize("lang", ["es", "en"])
+def test_los_relojes_dicen_el_tiempo_y_la_recuperacion_con_el_formato_del_idioma(lang):
     v = view(model="potencial")
-    texts = _strip(cs.bottle_svg(v), 0)
+    with i18n.use(lang):
+        texts = _strip(cs.beaker_svg(v), 0)
+        expected = [i18n_num(r) for r in v.animada("potencial", cs.FRAMES - 1)]
     hours, rec = texts[: cs.FRAMES], texts[cs.FRAMES :]
     assert hours[0] == "0" and hours[-1] == "48" and len(hours) == cs.FRAMES
     assert hours[cs.FRAMES // 2] == "24"
-    expected = [i18n_num(r) for r in v.animada("potencial", cs.FRAMES - 1)]
     assert rec == expected
+    sep, other = ("," if lang == "es" else "."), ("." if lang == "es" else ",")
+    assert all(sep in r and other not in r for r in rec)  # «93,7» en es, «93.7» en en
+    assert rec[-1] == ("94,1" if lang == "es" else "94.1")
 
 
-def i18n_num(x: float) -> str:
-    from dibujo import es
-
-    return es(x, 1)
+def test_cada_digito_se_ve_solo_dentro_de_su_ventana_recortada():
+    svg = cs.beaker_svg(view())
+    assert svg.count("<clipPath") == 2 and svg.count("clip-path=") == 2
+    heights = [
+        float(h) for h in re.findall(r'<clipPath id="[^"]+"><rect [^>]*height="([\d.]+)"', svg)
+    ]
+    assert heights == [cs.WINDOW_PX, cs.WINDOW_PX]
+    # el paso entre dígitos es mucho mayor que la ventana: de un vecino no asoma nada
+    assert cs.ROW_PX - cs.WINDOW_PX >= 10 and cs.BASE_PX + 6 <= cs.WINDOW_PX < cs.ROW_PX
+    ys = [float(y) for y in re.findall(r'<text x="0.0" y="([\d.]+)"', svg)][: cs.FRAMES]
+    assert np.allclose(np.diff(ys), cs.ROW_PX) and ys[0] == cs.BASE_PX
 
 
 def test_quieta_el_reloj_y_la_barra_quedan_en_el_ultimo_valor():
     v = view(model="mixto")
-    still = cs.bottle_svg(v, paused=True)
+    still = cs.beaker_svg(v, paused=True)
     final = v.animada("mixto", cs.FRAMES - 1)[-1]
     assert f"scaleX({final / 100:.5f})" in still
     assert "transform-origin:0 50%" in still  # sin esto la barra quieta se sale de su pista
     assert f"translateY({-(cs.FRAMES - 1) * cs.ROW_PX}px)" in still
 
 
-def test_las_marcas_medidas_estan_donde_dice_la_recuperacion_medida():
+def test_las_marcas_medidas_estan_donde_dice_la_recuperacion_medida_y_sus_rotulos_no_se_encima():
     v = view()
-    svg = cs.bottle_svg(v)
-    xs = sorted(float(x) for x in re.findall(r'<line x1="([\d.]+)" y1="[\d.]+" x2="\1"', svg))
+    svg = cs.beaker_svg(v)
+    lay = cs.mark_layout(v)
     expected = sorted(cs.GX + cs.GW * r / 100.0 for r in v.balance.recuperacion_pct)
-    np.testing.assert_allclose(xs, expected, atol=0.06)
-    assert len(xs) == 7
+    np.testing.assert_allclose([x for _, x, _ in lay], expected, atol=1e-9)
+    labels = [lx for _, _, lx in lay]
+    assert len(lay) == 7 and all(b - a >= cs.MARK_GAP - 1e-9 for a, b in itertools.pairwise(labels))
+    assert min(labels) >= cs.GX - 1 and max(labels) <= cs.W - 20
+    for tt, _, _ in lay:
+        assert svg.count(f">{tt:g} h</text>") == 1  # un rótulo por punto medido
+
+
+def test_los_rotulos_no_se_encima_ni_con_puntos_casi_iguales():
+    rec = [88.0, 88.2, 88.4, 88.6, 88.8, 94.0, 99.0]
+    res = [round(1070.0 * (1 - r / 100.0), 3) for r in rec]
+    v = cc.run_cian(cc.CianParams(), [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0], [500.0] * 7, res)
+    labels = [lx for _, _, lx in cs.mark_layout(v)]
+    assert all(b - a >= cs.MARK_GAP - 1e-9 for a, b in itertools.pairwise(labels))
+    assert max(labels) <= cs.GX + cs.GW + 40.0 + 1e-9
 
 
 def test_la_leyenda_declara_la_compresion_del_tiempo():
-    svg = cs.bottle_svg(view())
+    svg = cs.beaker_svg(view())
     assert "Tiempo comprimido: 48 h en 12 s" in svg and "las 48 h del" in svg
     assert "ilustrativos" in svg and "Esquema, no a escala" in svg
+    assert "no informa la velocidad de agitación" in svg
 
 
 def test_los_esquemas_son_xml_valido_y_en_ingles_no_llevan_espanol():
     for lang in ("es", "en"):
         with i18n.use(lang):
             for paused in (False, True):
-                svg = cs.bottle_svg(view(model="primer_orden"), paused)
+                svg = cs.beaker_svg(view(model="primer_orden"), paused)
                 ET.fromstring(svg)
                 texts = re.findall(r">([^<]+)</text>", svg)
                 texts += re.findall(r'aria-label="([^"]+)"', svg)
                 if lang == "en":
                     assert not [x for x in texts if SPANISH.search(x)], texts
-                    assert any("Cyanidation bottle" in x for x in texts)
-                    assert any("one turn every 1.94 s" in x for x in texts)
+                    assert any("2 L beaker with stirrer" in x for x in texts)
+                    assert any("Stirring: speed not reported" in x for x in texts)
 
 
 def test_los_numeros_del_esquema_cambian_de_formato_pero_no_de_valor():
     with i18n.use("es"):
-        es_svg = cs.bottle_svg(view())
+        es_svg = cs.beaker_svg(view())
     with i18n.use("en"):
-        en_svg = cs.bottle_svg(view())
-    assert "31,0 rpm" in es_svg and "31.0 rpm" in en_svg
+        en_svg = cs.beaker_svg(view())
+    assert ">94,1</text>" in es_svg and ">94.1</text>" not in es_svg
+    assert ">94.1</text>" in en_svg and ">94,1</text>" not in en_svg
     assert _bar_values(es_svg) == _bar_values(en_svg)
 
 
@@ -288,11 +337,9 @@ def test_el_indicador_conserva_el_valor_donde_el_modelo_no_se_ajusta():
 # ------------------------------------------------------------------ una sola definición
 def test_los_controles_de_la_cianuracion_salen_de_la_definicion_unica():
     group = [d for d in controles.DATOS if d.group == controles.CIA]
-    assert [d.key for d in group] == ["c_model", "c_rpm", "c_head", "c_factor", "c_split"]
+    assert [d.key for d in group] == ["c_model", "c_head", "c_factor", "c_split"]
     table = controles.data_table(controles.CIA)
     assert len(table) == len(group) and set(table["Dato"]) == {d.label for d in group}
-    rpm = controles.BY_KEY["c_rpm"]
-    assert (rpm.lo, rpm.hi, rpm.default) == (30, 32, 31)  # procedimiento estándar: 30 a 32 rpm
     model = controles.BY_KEY["c_model"]
     assert model.options == tuple(cc.MODEL_LABELS) and set(cc.MODEL_LABELS.values()) == set(
         c.MODELOS
@@ -309,13 +356,12 @@ def test_la_tabla_precargada_es_la_tabla_4():
 
 def test_los_valores_por_defecto_son_los_declarados():
     p = cc.CianParams()
-    assert (p.head, p.factor, p.split, p.rpm, p.model) == (1070.0, 1.935, 7.0, 31.0, "potencial")
+    assert (p.head, p.factor, p.split, p.model) == (1070.0, 1.935, 7.0, "potencial")
     assert (c.B_N1, c.B_N2) == (0.7033, 0.75)
-    assert 30.0 <= p.rpm <= 32.0
 
 
 def test_el_marco_del_esquema_codifica_las_imagenes_sin_html_del_visitante():
-    html = as_images(cs.bottle_svg(view()), cs.bottle_svg(view(), True), "Botella")
+    html = as_images(cs.beaker_svg(view()), cs.beaker_svg(view(), True), "Vaso")
     data = re.findall(r'src="data:image/svg\+xml;base64,([^"]+)"', html)
     assert len(data) == 2
     for blob in data:
@@ -323,10 +369,10 @@ def test_el_marco_del_esquema_codifica_las_imagenes_sin_html_del_visitante():
 
 
 def test_el_ciclo_dura_14_s_12_de_ensayo_y_2_de_pausa():
-    css = cs.bottle_svg(view()).split("</style>")[0]
+    css = cs.beaker_svg(view()).split("</style>")[0]
     assert (cs.RUN_S, cs.HOLD_S) == (12.0, 2.0)
     assert "animation:lb-bar 14s linear infinite" in css
-    assert "animation:lb-count 14s steps(96,end) infinite" in css
+    assert "animation:lb-count 14s steps(1,end) infinite" in css
     assert "animation:lb-pulp 14s linear infinite" in css
 
 
@@ -350,3 +396,16 @@ def test_los_puntos_de_los_terminos_estan_en_su_tramo_con_la_b_de_su_tramo():
     np.testing.assert_allclose(first.y, [0.410, 0.445, 0.538], atol=0.002)  # N1, B = 0,7033
     np.testing.assert_allclose(second.y, [0.562, 0.578, 0.633, 0.698], atol=0.002)  # N2, B = 0,75
     assert list(out.x) == [2.0] and out.y[0] == pytest.approx(0.491, abs=0.002)
+
+
+def test_el_reloj_salta_de_un_digito_al_siguiente_sin_pasos_intermedios():
+    svg = cs.beaker_svg(view())
+    offsets = [
+        float(re.search(r"translateY\((-?[\d.]+)px\)", v).group(1))
+        for p, v in _keyframes(svg, "lb-count")
+        if p < 100.0
+    ]
+    assert len(offsets) == cs.FRAMES
+    assert all(o == -i * cs.ROW_PX for i, o in enumerate(offsets))  # cada cuadro, un dígito entero
+    # cada tramo entre cuadros se mantiene en el valor del cuadro y salta al final (sin interpolar)
+    assert "steps(1,end)" in svg and "steps(96" not in svg

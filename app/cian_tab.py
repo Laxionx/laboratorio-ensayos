@@ -1,5 +1,5 @@
-"""Pestaña «Cianuración en botella»: la calculadora de recuperación y ley de cabeza, los modelos
-cinéticos con sus rectas y la botella animada; y su sección de validación (pestaña Validación).
+"""Pestaña «Ensayo de cianuración»: la calculadora de recuperación y ley de cabeza, los modelos
+cinéticos con sus rectas y el vaso animado; y su sección de validación (pestaña Validación).
 Nada que escriba el visitante entra al SVG ni al HTML: la tabla solo alimenta números."""
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ from cian_calculo import (
     run_cian,
 )
 from cian_graficos import recovery_figure, terms_figure
-from cian_svg import bottle_svg
+from cian_svg import beaker_svg
 from dibujo import as_images, es
 from guia import ficha, markdown_table
 from i18n import decimal, t
@@ -183,7 +183,7 @@ def animation_section(view: CianView, animate: bool) -> None:
     st.markdown(t("cn.ani.h"))
     st.html(
         as_images(
-            bottle_svg(view, paused=not animate), bottle_svg(view, paused=True), t("cn.ani.alt")
+            beaker_svg(view, paused=not animate), beaker_svg(view, paused=True), t("cn.ani.alt")
         )
     )
     st.caption(t("cn.ani.caption", model=model_name(view.params.model)))
@@ -213,7 +213,7 @@ def _check_table(checks: list[cd.CianCheck]) -> str:
 
 
 def cian_validation_section() -> None:
-    """Sección «Cianuración en botella» de la pestaña Validación."""
+    """Sección «Ensayo de cianuración» de la pestaña Validación."""
     st.markdown(t("cv.h"))
     checks = cd.all_checks()
     s = cd.summary(checks)

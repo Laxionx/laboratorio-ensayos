@@ -1,9 +1,9 @@
-"""Textos en español de la pestaña «Cianuración en botella», de sus datos, su ficha, su guía, su
+"""Textos en español de la pestaña «Ensayo de cianuración», de sus datos, su ficha, su guía, su
 esquema y su validación (claves `cn.*`, `cv.*`, `svg.c.*`, `dato.c_*`, `ficha.cianuracion.*`)."""
 
 T = {
-    "tab.cian": "Cianuración en botella",
-    "group.Cianuración": "Cianuración en botella",
+    "tab.cian": "Ensayo de cianuración",
+    "group.Cianuración": "Ensayo de cianuración",
     # ------------------------------------------------------------ datos de la barra lateral
     "opt.Potencial (Ec. 3 de los autores)": "Potencial (Ec. 3 de los autores)",
     "opt.Primer orden con meseta (nuestro)": "Primer orden con meseta (nuestro)",
@@ -11,17 +11,8 @@ T = {
     "opt.Reacción (M)": "Reacción (M)",
     "opt.Mixto (N)": "Mixto (N)",
     "dato.c_model.label": "Modelo que mueve el indicador",
-    "dato.c_model.meaning": (
-        "Qué modelo cinético mueve el indicador de recuperación de la botella animada. Las curvas "
-        "de todos los modelos se ven siempre en los gráficos."
-    ),
+    "dato.c_model.meaning": "Qué modelo cinético mueve el indicador de recuperación del vaso animado. Las curvas de todos los modelos se ven siempre en los gráficos.",
     "dato.c_model.source": "no se mide: solo elige qué curva se ve avanzar",
-    "dato.c_rpm.label": "Giro de la botella",
-    "dato.c_rpm.meaning": (
-        "Vueltas por minuto de los rodillos. El procedimiento estándar de botella usa de 30 a 32; "
-        "mueve la botella del dibujo, no cambia el cálculo."
-    ),
-    "dato.c_rpm.source": "se fija en el rodillo del laboratorio (Cetin et al., 2017: 30 a 32 rpm)",
     "dato.c_head.label": "Ley de cabeza S0",
     "dato.c_head.meaning": (
         "Oro del mineral antes de lixiviar, en ppb. Con ella la recuperación es "
@@ -47,64 +38,27 @@ T = {
     ),
     "dato.c_split.source": "se elige mirando el gráfico de recuperación (los autores cortan en 7 h)",
     # ------------------------------------------------------------ ficha y guía
-    "ficha.cianuracion.hace": (
-        "Lee un ensayo de cianuración (oro en la solución y en el residuo a distintos tiempos): "
-        "calcula la recuperación y la ley de cabeza por balance, avisa si las filas no son "
-        "coherentes y compara qué modelo cinético describe la disolución de verdad y cuál solo "
-        "ajusta bien en apariencia. Una botella animada gira a las rpm del procedimiento mientras "
-        "un indicador sigue la curva del modelo elegido."
-    ),
-    "ficha.cianuracion.entra": (
-        "La tabla de tiempos, oro en solución y oro en residuo (precargada con la Tabla 4 del "
-        "artículo), la ley de cabeza, el factor sólido por solución, el corte entre tramos, el "
-        "modelo del indicador y las rpm de la botella."
-    ),
-    "ficha.cianuracion.sale": (
-        "La recuperación de cada fila, la cabeza por balance y los avisos; los términos del "
-        "núcleo sin reaccionar (L, M, N) con sus rectas, R² e interceptos por tramo; el modelo "
-        "potencial y un primer orden con meseta; el error de cada modelo en puntos de "
-        "recuperación y el esquema de la botella."
-    ),
-    "ficha.cianuracion.autores": (
-        "Roostaei, Kordparijaei y Mesroghli (2026), «Cyanide dissolution of gold-bearing iron "
-        "oxide minerals: kinetic studies and optimization using response surface methodology», "
-        "*Discover Applied Sciences* (doi 10.1007/s42452-026-08420-8, acceso abierto CC BY-NC-ND; "
-        "aquí solo se usan sus cifras citadas y sus ecuaciones). Giro de la botella: Cetin, Altun, "
-        "Atalay y Büyüktanır (2017), «Bottle Roll Testing for Cyanidation of Gold Ores», MCM'17, "
-        "paper MMME 148, doi 10.11159/mmme17.148 (30 a 32 rpm)."
-    ),
-    "ficha.cianuracion.limit.1": (
-        "Los datos de la Tabla 4 vienen de ensayos en un vaso agitado de 2 L, no de una botella: la "
-        "botella y sus rpm ilustran el ensayo, y no se publica su tamaño ni su carga, así que el "
-        "dibujo no los inventa."
-    ),
+    "ficha.cianuracion.hace": "Lee un ensayo de cianuración (oro en la solución y en el residuo a distintos tiempos): calcula la recuperación y la ley de cabeza por balance, avisa si las filas no son coherentes y compara qué modelo cinético describe la disolución de verdad y cuál solo ajusta bien en apariencia. Un vaso de precipitados con agitador, en corte, muestra un indicador de recuperación que sigue la curva del modelo elegido. El ensayo del artículo es una lixiviación agitada en un vaso de 2 L (428 g de sólido, 30 % de sólidos, NaCN 2 200 mg/L, pH 10,5); la botella rodante es otra variante del ensayo de laboratorio y aquí no tiene datos.",
+    "ficha.cianuracion.entra": "La tabla de tiempos, oro en solución y oro en residuo (precargada con la Tabla 4 del artículo), la ley de cabeza, el factor sólido por solución, el corte entre tramos y el modelo del indicador.",
+    "ficha.cianuracion.sale": "La recuperación de cada fila, la cabeza por balance y los avisos; los términos del núcleo sin reaccionar (L, M, N) con sus rectas, R² e interceptos por tramo; el modelo potencial y un primer orden con meseta; el error de cada modelo en puntos de recuperación y el esquema del vaso.",
+    "ficha.cianuracion.autores": "Roostaei, Kordparijaei y Mesroghli (2026), «Cyanide dissolution of gold-bearing iron oxide minerals: kinetic studies and optimization using response surface methodology», *Discover Applied Sciences* (doi 10.1007/s42452-026-08420-8, acceso abierto CC BY-NC-ND; aquí solo se usan sus cifras citadas y sus ecuaciones).",
+    "ficha.cianuracion.limit.1": "La velocidad de agitación no se informa en el artículo: el giro del agitador del dibujo es ilustrativo, igual que el nivel de pulpa y el tamaño del vaso en la pantalla. La botella rodante es otra variante del ensayo y no tiene datos aquí.",
     "ficha.cianuracion.limit.2": (
         "Solo describe esta mena y estos siete puntos: no predice la recuperación de otro "
         "mineral. No incluye química del cianuro (consumo, especiación) ni carbón activado."
     ),
-    "ficha.cianuracion.limit.3": (
-        "Lo que el artículo no publica y aquí se dedujo, y se declara: la constante B del término "
-        "mixto (0,7033 y 0,75), la ley de cabeza (1 070 ppb) y el factor sólido por solución "
-        "(1,935). El primer orden con meseta, la regla que deja fuera el punto de 2 h y la "
-        "tolerancia de 5 % de la cabeza son nuestros."
-    ),
+    "ficha.cianuracion.limit.3": "Lo que el artículo no publica y aquí se dedujo, y se declara: la constante B del término mixto (0,7033 y 0,75), la ley de cabeza (1 070 ppb) y el factor sólido por solución (1,935). Con 30 % de sólidos se esperaría 2,33 L/kg, así que el 1,935 inferido apunta a una inconsistencia del balance del artículo. El primer orden con meseta, la regla que deja fuera el punto de 2 h y la tolerancia de 5 % de la cabeza son nuestros.",
     "ficha.cianuracion.limit.4": (
         "Las rectas de cada tramo usan 3 o 4 puntos (con 1 o 2 grados de libertad): un R² alto con "
         "tan pocos puntos no prueba el mecanismo."
     ),
-    "guide.h.cian": "### Cianuración en botella: qué modelo describe la disolución",
+    "guide.h.cian": "### Ensayo de cianuración: qué modelo describe la disolución",
     "guide.cian.1": (
         "En un ensayo de cianuración se muele el mineral, se mezcla con solución de cianuro y se "
         "toman muestras a distintos tiempos. La recuperación sale del oro que queda en el residuo "
         "(S_t) frente a la ley de cabeza (S_0):"
     ),
-    "guide.cian.2": (
-        "El modelo del núcleo sin reaccionar supone que la partícula se disuelve de afuera hacia "
-        "adentro y que un término (difusión L, reacción M o mixto N) crece como una recta con el "
-        "tiempo que pasa por el origen. Aquí las rectas no pasan por el origen: la disolución "
-        "rápida de la primera hora no la explica ninguno, y el modelo potencial describe mejor los "
-        "datos pero es empírico. La pestaña **Cianuración en botella** lo muestra con las cifras."
-    ),
+    "guide.cian.2": "El modelo del núcleo sin reaccionar supone que la partícula se disuelve de afuera hacia adentro y que un término (difusión L, reacción M o mixto N) crece como una recta con el tiempo que pasa por el origen. Aquí las rectas no pasan por el origen: la disolución rápida de la primera hora no la explica ninguno, y el modelo potencial describe mejor los datos pero es empírico. La pestaña **Ensayo de cianuración** lo muestra con las cifras.",
     # ------------------------------------------------------------ calculadora
     "cn.cal.h": "#### Calculadora: recuperación y ley de cabeza",
     "cn.cal.intro": (
@@ -172,11 +126,7 @@ T = {
         "primer orden con meseta ajusta mal (R² {r2o}; R∞ = {rinf} %, k = {k} 1/h): una sola "
         "constante no alcanza para una disolución en dos etapas."
     ),
-    "cn.mod.caption": (
-        "B (inferida, el artículo no la publica): {b1} para el tramo hasta el corte y {b2} para el "
-        "siguiente. En t = 0 el potencial no existe y se dibuja en 0 en la botella. Las rectas se "
-        "dibujan punteadas hasta t = 0 para ver su intercepto."
-    ),
+    "cn.mod.caption": "B (inferida, el artículo no la publica): {b1} para el tramo hasta el corte y {b2} para el siguiente. En t = 0 el potencial no existe y se dibuja en 0 en el indicador. Las rectas se dibujan punteadas hasta t = 0 para ver su intercepto.",
     "cn.plot.used": "Punto usado",
     "cn.plot.excluded": "Punto excluido",
     "cn.plot.rec.title": "Recuperación de oro contra tiempo: medido y modelos",
@@ -190,28 +140,23 @@ T = {
     "cn.plot.terms.title": "Términos linealizados contra el tiempo, con las rectas por tramo",
     "cn.plot.terms.y": "Valor del término",
     # ------------------------------------------------------------ animación
-    "cn.ani.h": "#### La botella girando",
-    "cn.ani.alt": "Botella de laboratorio en corte, girando, con un indicador de recuperación",
+    "cn.ani.h": "#### El vaso agitado",
+    "cn.ani.alt": "Vaso de precipitados en corte con un agitador y un indicador de recuperación",
     "cn.ani.caption": (
         "El indicador sigue el modelo «{model}» con el tiempo comprimido (se declara en el "
         "dibujo); las marcas rojas son las recuperaciones medidas."
     ),
-    "svg.c.title": "Botella de cianuración, en corte",
-    "svg.c.rpm": "Giro: {rpm} rpm, una vuelta cada {period} s",
+    "svg.c.title": "Vaso de 2 L con agitador, en corte",
+    "svg.c.stir": "Agitación: velocidad no informada en el artículo; giro ilustrativo",
     "svg.c.model": "Modelo: {model}",
     "svg.c.time": "Tiempo comprimido: {tmax} h en {run} s",
     "svg.c.clock": "Tiempo del ensayo:",
     "svg.c.recovery": "Recuperación del modelo:",
     "svg.c.measured": "Marcas rojas: recuperación medida (con su hora)",
-    "svg.c.legend": (
-        "Esquema, no a escala: las cantidades sí son del cálculo (giro, recuperación del modelo en "
-        "cada instante y los {n} puntos medidos). La botella, su tamaño y el nivel de pulpa son "
-        "ilustrativos: el artículo no los publica. El tiempo está comprimido: las {tmax} h del "
-        "ensayo pasan en {run} s."
-    ),
-    "svg.c.label": "Esquema animado de una botella de cianuración en corte con un indicador de recuperación",
+    "svg.c.legend": "Esquema, no a escala: las cantidades sí son del cálculo (recuperación del modelo en cada instante y los {n} puntos medidos). El vaso, el nivel de pulpa y el giro del agitador son ilustrativos: el artículo no informa la velocidad de agitación. El tiempo está comprimido: las {tmax} h del ensayo pasan en {run} s.",
+    "svg.c.label": "Esquema animado de un vaso de precipitados en corte con agitador y un indicador de recuperación",
     # ------------------------------------------------------------ validación
-    "cv.h": "### Cianuración en botella: cifras del artículo de Roostaei et al. (2026)",
+    "cv.h": "### Ensayo de cianuración: cifras del artículo de Roostaei et al. (2026)",
     "cv.intro": (
         "Cortes fijados antes de correr. Ley de cabeza de cada fila de la Tabla 4: S0 = residuo / "
         "(1 − R) debe caer en el intervalo que deja el redondeo de esa fila, con S0 = 1 070 ppb. "

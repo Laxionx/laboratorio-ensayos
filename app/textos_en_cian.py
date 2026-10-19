@@ -1,9 +1,9 @@
-"""English texts of the "Bottle roll" tab, its inputs, data sheet, guide, diagram and validation
+"""English texts of the "Cyanide leach test" tab, its inputs, data sheet, guide, diagram and validation
 (keys `cn.*`, `cv.*`, `svg.c.*`, `dato.c_*`, `ficha.cianuracion.*`)."""
 
 T = {
-    "tab.cian": "Bottle roll",
-    "group.Cianuración": "Bottle-roll cyanidation",
+    "tab.cian": "Cyanide leach test",
+    "group.Cianuración": "Cyanide leach test",
     # ------------------------------------------------------------ sidebar inputs
     "opt.Potencial (Ec. 3 de los autores)": "Power law (authors' Eq. 3)",
     "opt.Primer orden con meseta (nuestro)": "First order with plateau (ours)",
@@ -11,17 +11,8 @@ T = {
     "opt.Reacción (M)": "Reaction (M)",
     "opt.Mixto (N)": "Mixed (N)",
     "dato.c_model.label": "Model that moves the gauge",
-    "dato.c_model.meaning": (
-        "Which kinetic model moves the recovery gauge of the animated bottle. The curves of all "
-        "models are always shown in the charts."
-    ),
+    "dato.c_model.meaning": "Which kinetic model moves the recovery gauge of the animated beaker. The curves of all models are always shown in the charts.",
     "dato.c_model.source": "it is not measured: it only picks which curve is seen advancing",
-    "dato.c_rpm.label": "Bottle speed",
-    "dato.c_rpm.meaning": (
-        "Revolutions per minute of the rollers. The standard bottle-roll procedure uses 30 to 32; "
-        "it moves the bottle in the drawing and does not change the calculation."
-    ),
-    "dato.c_rpm.source": "it is set on the laboratory roller (Cetin et al., 2017: 30 to 32 rpm)",
     "dato.c_head.label": "Head grade S0",
     "dato.c_head.meaning": (
         "Gold in the ore before leaching, in ppb. With it the recovery is R = (1 − residue / S0)."
@@ -45,65 +36,28 @@ T = {
     ),
     "dato.c_split.source": "it is chosen by looking at the recovery chart (the authors cut at 7 h)",
     # ------------------------------------------------------------ data sheet and guide
-    "ficha.cianuracion.hace": (
-        "Reads a cyanidation test (gold in solution and in the residue at several times): it "
-        "computes the recovery and the head grade by balance, warns when rows are not coherent "
-        "and compares which kinetic model truly describes the dissolution and which only looks "
-        "good in the fit. An animated bottle turns at the procedure speed while a gauge follows "
-        "the curve of the chosen model."
-    ),
-    "ficha.cianuracion.entra": (
-        "The table of times, gold in solution and gold in residue (preloaded with Table 4 of the "
-        "paper), the head grade, the solid-per-solution factor, the cut between stretches, the "
-        "gauge model and the bottle rpm."
-    ),
-    "ficha.cianuracion.sale": (
-        "The recovery of each row, the head grade by balance and the warnings; the unreacted-core "
-        "terms (L, M, N) with their lines, R² and intercepts per stretch; the power-law model and "
-        "a first order with plateau; the error of each model in recovery points and the bottle "
-        "diagram."
-    ),
-    "ficha.cianuracion.autores": (
-        "Roostaei, Kordparijaei and Mesroghli (2026), “Cyanide dissolution of gold-bearing iron "
-        "oxide minerals: kinetic studies and optimization using response surface methodology”, "
-        "*Discover Applied Sciences* (doi 10.1007/s42452-026-08420-8, open access CC BY-NC-ND; "
-        "only its quoted figures and equations are used here). Bottle speed: Cetin, Altun, Atalay "
-        "and Büyüktanır (2017), “Bottle Roll Testing for Cyanidation of Gold Ores”, MCM'17, "
-        "paper MMME 148, doi 10.11159/mmme17.148 (30 to 32 rpm)."
-    ),
-    "ficha.cianuracion.limit.1": (
-        "The Table 4 data come from tests in a stirred 2 L beaker, not a bottle: the bottle and "
-        "its rpm illustrate the test, and neither its size nor its load is published, so the "
-        "drawing does not invent them."
-    ),
+    "ficha.cianuracion.hace": "Reads a cyanidation test (gold in solution and in the residue at several times): it computes the recovery and the head grade by balance, warns when rows are not coherent and compares which kinetic model truly describes the dissolution and which only looks good in the fit. A beaker with a stirrer, in section, shows a gauge that follows the curve of the chosen model. The paper's test is an agitated leach in a 2 L beaker (428 g of solid, 30 % solids, NaCN 2,200 mg/L, pH 10.5); the rolling bottle is another variant of the laboratory test and has no data here.",
+    "ficha.cianuracion.entra": "The table of times, gold in solution and gold in residue (preloaded with Table 4 of the paper), the head grade, the solid-per-solution factor, the cut between stretches and the gauge model.",
+    "ficha.cianuracion.sale": "The recovery of each row, the head grade by balance and the warnings; the unreacted-core terms (L, M, N) with their lines, R² and intercepts per stretch; the power-law model and a first order with plateau; the error of each model in recovery points and the beaker diagram.",
+    "ficha.cianuracion.autores": "Roostaei, Kordparijaei and Mesroghli (2026), “Cyanide dissolution of gold-bearing iron oxide minerals: kinetic studies and optimization using response surface methodology”, *Discover Applied Sciences* (doi 10.1007/s42452-026-08420-8, open access CC BY-NC-ND; only its quoted figures and equations are used here).",
+    "ficha.cianuracion.limit.1": "The stirring speed is not reported in the paper: the stirrer turn in the drawing is illustrative, as are the pulp level and the beaker size on screen. The rolling bottle is another variant of the test and has no data here.",
     "ficha.cianuracion.limit.2": (
         "It describes only this ore and these seven points: it does not predict the recovery of "
         "another mineral. It has no cyanide chemistry (consumption, speciation) or activated "
         "carbon."
     ),
-    "ficha.cianuracion.limit.3": (
-        "What the paper does not publish and was deduced here, and is declared: the constant B of "
-        "the mixed term (0.7033 and 0.75), the head grade (1,070 ppb) and the solid-per-solution "
-        "factor (1.935). The first order with plateau, the rule that leaves out the 2 h point and "
-        "the 5 % head tolerance are ours."
-    ),
+    "ficha.cianuracion.limit.3": "What the paper does not publish and was deduced here, and is declared: the constant B of the mixed term (0.7033 and 0.75), the head grade (1,070 ppb) and the solid-per-solution factor (1.935). With 30 % solids 2.33 L/kg would be expected, so the inferred 1.935 points to an inconsistency in the paper's balance. The first order with plateau, the rule that leaves out the 2 h point and the 5 % head tolerance are ours.",
     "ficha.cianuracion.limit.4": (
         "The line of each stretch uses 3 or 4 points (1 or 2 degrees of freedom): a high R² with "
         "so few points does not prove the mechanism."
     ),
-    "guide.h.cian": "### Bottle-roll cyanidation: which model describes the dissolution",
+    "guide.h.cian": "### Cyanide leach test: which model describes the dissolution",
     "guide.cian.1": (
         "In a cyanidation test the ore is ground, mixed with cyanide solution and sampled at "
         "several times. The recovery comes from the gold left in the residue (S_t) against the "
         "head grade (S_0):"
     ),
-    "guide.cian.2": (
-        "The unreacted-core model assumes the particle dissolves from the outside in and that a "
-        "term (diffusion L, reaction M or mixed N) grows as a straight line in time through the "
-        "origin. Here the lines miss the origin: none explains the fast dissolution of the first "
-        "hour, and the power-law model describes the data better but is empirical. The **Bottle "
-        "roll** tab shows it with the numbers."
-    ),
+    "guide.cian.2": "The unreacted-core model assumes the particle dissolves from the outside in and that a term (diffusion L, reaction M or mixed N) grows as a straight line in time through the origin. Here the lines miss the origin: none explains the fast dissolution of the first hour, and the power-law model describes the data better but is empirical. The **Cyanide leach test** tab shows it with the numbers.",
     # ------------------------------------------------------------ calculator
     "cn.cal.h": "#### Calculator: recovery and head grade",
     "cn.cal.intro": (
@@ -172,11 +126,7 @@ T = {
         "reaction. The first order with plateau fits poorly (R² {r2o}; R∞ = {rinf} %, k = {k} "
         "1/h): a single constant is not enough for a two-stage dissolution."
     ),
-    "cn.mod.caption": (
-        "B (inferred, the paper does not publish it): {b1} for the stretch up to the cut and {b2} "
-        "for the next. At t = 0 the power law does not exist and is drawn at 0 on the bottle. "
-        "Lines are drawn dotted back to t = 0 to show their intercept."
-    ),
+    "cn.mod.caption": "B (inferred, the paper does not publish it): {b1} for the stretch up to the cut and {b2} for the next. At t = 0 the power law does not exist and is drawn at 0 on the gauge. Lines are drawn dotted back to t = 0 to show their intercept.",
     "cn.plot.used": "Used point",
     "cn.plot.excluded": "Excluded point",
     "cn.plot.rec.title": "Gold recovery against time: measured and models",
@@ -190,28 +140,23 @@ T = {
     "cn.plot.terms.title": "Linearized terms against time, with the line of each stretch",
     "cn.plot.terms.y": "Term value",
     # ------------------------------------------------------------ animation
-    "cn.ani.h": "#### The bottle turning",
-    "cn.ani.alt": "Laboratory bottle in section, turning, with a recovery gauge",
+    "cn.ani.h": "#### The stirred beaker",
+    "cn.ani.alt": "Beaker in section with a stirrer and a recovery gauge",
     "cn.ani.caption": (
         "The gauge follows the “{model}” model with compressed time (declared in the "
         "drawing); the red marks are the measured recoveries."
     ),
-    "svg.c.title": "Cyanidation bottle, in section",
-    "svg.c.rpm": "Speed: {rpm} rpm, one turn every {period} s",
+    "svg.c.title": "2 L beaker with stirrer, in section",
+    "svg.c.stir": "Stirring: speed not reported in the paper; illustrative turn",
     "svg.c.model": "Model: {model}",
     "svg.c.time": "Compressed time: {tmax} h in {run} s",
     "svg.c.clock": "Test time:",
     "svg.c.recovery": "Model recovery:",
     "svg.c.measured": "Red marks: measured recovery (with its hour)",
-    "svg.c.legend": (
-        "Diagram, not to scale: the quantities are from the calculation (rotation, model recovery "
-        "at each instant and the {n} measured points). The bottle, its size and the pulp level "
-        "are illustrative: the paper does not publish them. Time is compressed: the {tmax} h of "
-        "the test pass in {run} s."
-    ),
-    "svg.c.label": "Animated diagram of a cyanidation bottle in section with a recovery gauge",
+    "svg.c.legend": "Diagram, not to scale: the quantities are from the calculation (model recovery at each instant and the {n} measured points). The beaker, the pulp level and the stirrer turn are illustrative: the paper does not report the stirring speed. Time is compressed: the {tmax} h of the test pass in {run} s.",
+    "svg.c.label": "Animated diagram of a beaker in section with a stirrer and a recovery gauge",
     # ------------------------------------------------------------ validation
-    "cv.h": "### Bottle-roll cyanidation: figures of Roostaei et al. (2026)",
+    "cv.h": "### Cyanide leach test: figures of Roostaei et al. (2026)",
     "cv.intro": (
         "Cuts fixed before running. Head grade of each Table 4 row: S0 = residue / (1 − R) must "
         "fall in the interval that the rounding of that row allows, with S0 = 1,070 ppb. Table 6: "

@@ -167,8 +167,6 @@ DATOS: tuple[Dato, ...] = (
     Dato(CIA, "c_model", "dato.c_model.label", "", 0, 0, next(iter(MODEL_LABELS)), 0,
          "dato.c_model.meaning", "dato.c_model.source", widget="select",
          options=tuple(MODEL_LABELS)),
-    Dato(CIA, "c_rpm", "dato.c_rpm.label", "rpm", 30, 32, 31, 0.5,
-         "dato.c_rpm.meaning", "dato.c_rpm.source"),
     Dato(CIA, "c_head", "dato.c_head.label", "ppb", 100, 10000, cia.S0_PPB, 10,
          "dato.c_head.meaning", "dato.c_head.source"),
     Dato(CIA, "c_factor", "dato.c_factor.label", "ppb/ppb", 0.5, 5, cia.F_SOLUCION, 0.005,
@@ -270,8 +268,8 @@ def sidebar_config() -> tuple[
         float(v["x_lith"]),
     )
     cian = CianParams(
-        MODEL_LABELS[str(v["c_model"])], float(v["c_rpm"]), float(v["c_head"]),
-        float(v["c_factor"]), float(v["c_split"]),
+        MODEL_LABELS[str(v["c_model"])], float(v["c_head"]), float(v["c_factor"]),
+        float(v["c_split"]),
     )  # fmt: skip
     return protocol, mineral, gold, aliquot, fusion_ui, cian
 

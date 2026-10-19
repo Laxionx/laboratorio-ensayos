@@ -174,7 +174,7 @@ def test_lang_en_en_la_url_abre_en_ingles_y_el_selector_cambia_el_idioma():
         "Protocol",
         "Coarse gold",
         "Fusion",
-        "Bottle roll",
+        "Cyanide leach test",
         "Validation",
     ]
     assert en.sidebar.radio[0].value == "en"
@@ -277,8 +277,8 @@ def test_las_tablas_de_validacion_tienen_las_mismas_cifras_en_los_dos_idiomas():
 
 
 def _bottle_numbers(at: AppTest, lang: str) -> list[list[float]]:
-    """Los números de cada texto de la pestaña «Cianuración en botella» (de su calculadora a su
-    botella) y de la tabla de modelos."""
+    """Los números de cada texto de la pestaña «Ensayo de cianuración» (de su calculadora a su
+    vaso) y de la tabla de modelos."""
     texts = [m.value for m in at.markdown]
     start = texts.index(TEXTS[lang]["cn.cal.h"])
     stop = texts.index(TEXTS[lang]["cn.ani.h"])
