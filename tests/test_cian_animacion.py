@@ -249,6 +249,8 @@ def test_leer_tabla_acepta_la_tabla_4_y_devuelve_floats():
         ([[2.0, 2.0, 3.0], [1.0, 2.0, 3.0]], "orden"),
         ([[1.0, 2.0, 3.0], [cc.T_MAX_H + 1, 2.0, 3.0]], "rango"),
         ([[1.0, cc.PPB_MAX * 2, 3.0]], "rango"),
+        ([[1.0, 150_000.0, 3.0]], "rango"),
+        ([[1001.0, 100.0, 50.0]], "rango"),
         ([[1.0, 2.0, cc.PPB_MAX * 2]], "rango"),
     ],
 )
