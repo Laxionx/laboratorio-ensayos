@@ -409,3 +409,25 @@ def test_el_reloj_salta_de_un_digito_al_siguiente_sin_pasos_intermedios():
     assert all(o == -i * cs.ROW_PX for i, o in enumerate(offsets))  # cada cuadro, un dígito entero
     # cada tramo entre cuadros se mantiene en el valor del cuadro y salta al final (sin interpolar)
     assert "steps(1,end)" in svg and "steps(96" not in svg
+
+
+def test_valores_literales_del_esquema_y_de_la_ventana_de_los_relojes():
+    assert cs.STIR_PERIOD_S == 1.6 and cs.MARK_GAP >= 30.0  # un rótulo «11 h» mide ~26 px
+    svg = cs.beaker_svg(view())
+    tops = [float(y) for y in re.findall(r'<clipPath id="[^"]+"><rect [^>]*y="([\d.]+)"', svg)]
+    assert tops == [180.0 - cs.BASE_PX, 220.0 - cs.BASE_PX]  # la línea base cae sobre el rótulo
+    labels = [lx for _, _, lx in cs.mark_layout(view())]
+    assert all(b - a >= 30.0 for a, b in itertools.pairwise(labels))
+
+
+def test_los_rotulos_cerca_del_borde_izquierdo_no_se_salen_y_usan_el_formato_del_idioma():
+    rec = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5]
+    res = [round(1070.0 * (1 - r / 100.0), 3) for r in rec]
+    v = cc.run_cian(cc.CianParams(), [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5], [500.0] * 7, res)
+    labels = [lx for _, _, lx in cs.mark_layout(v)]
+    assert min(labels) >= cs.GX - 1e-9
+    assert all(b - a >= 30.0 for a, b in itertools.pairwise(labels))
+    with i18n.use("es"):
+        assert ">0,5 h</text>" in cs.beaker_svg(v)
+    with i18n.use("en"):
+        assert ">0.5 h</text>" in cs.beaker_svg(v)
