@@ -140,6 +140,7 @@ def test_quieta_el_reloj_y_la_barra_quedan_en_el_ultimo_valor():
     still = cs.bottle_svg(v, paused=True)
     final = v.animada("mixto", cs.FRAMES - 1)[-1]
     assert f"scaleX({final / 100:.5f})" in still
+    assert "transform-origin:0 50%" in still  # sin esto la barra quieta se sale de su pista
     assert f"translateY({-(cs.FRAMES - 1) * cs.ROW_PX}px)" in still
 
 

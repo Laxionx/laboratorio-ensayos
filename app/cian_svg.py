@@ -118,7 +118,12 @@ def _gauge(view: CianView, paused: bool) -> str:
     model = view.params.model
     rec = view.animada(model, FRAMES - 1)
     final = rec[-1]
-    bar_style = f' style="transform:scaleX({final / 100.0:.5f})"' if paused else ""
+    bar_style = (
+        f' style="transform:scaleX({final / 100.0:.5f});transform-box:fill-box;'
+        f'transform-origin:0 50%"'
+        if paused
+        else ""
+    )
     out = [
         f'<rect x="{GX}" y="{GY}" width="{GW}" height="{GH}" fill="#E4DED2"/>',
         f'<rect class="lb-bar" x="{GX}" y="{GY}" width="{GW}" height="{GH}" fill="{GAUGE}"'
