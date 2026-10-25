@@ -113,7 +113,11 @@ def test_las_cifras_de_oreas_se_muestran_con_la_sd_sin_redondear():
     at = run()
     intro = md(at, "valor certificado **0,248 g/t**")
     assert "SD **0,00952 g/t**" in intro and "la SD publicada es 0,010" in intro
-    assert "**0,229 a 0,267 g/t**" in intro and "**0,219 a 0,277 g/t**" in intro
+    assert (
+        "**0,229 a 0,267 g/t**" in intro
+        and "**0,219 a 0,276 g/t**" in intro
+        and "impresos en el certificado" in intro
+    )
 
 
 # ------------------------------------------------------------------ los controles
@@ -183,9 +187,7 @@ def test_los_dos_elementos_de_gemas_tienen_su_rotulo_no_es_oro():
     assert any("**No es oro**" in m.value for m in at.markdown)
     widget(at, "q_dup_fuente").set_value(qcalc.DUP_FUENTES[1]).run()
     assert any("GEMAS, germanio (Ge): 104 pares" in m.value for m in at.markdown)
-    assert said(at, "13 pares con media no positiva") or any(
-        "13 pares con media no positiva" in c.value for c in at.caption
-    )
+    assert any("13 de 104 pares no se dibujan" in c.value for c in at.caption)
 
 
 # ------------------------------------------------------------------ tablas pegadas
@@ -422,3 +424,17 @@ def test_fuzz_de_30_combinaciones_no_tira_excepciones(lang):
         # un rechazo del lote es un veredicto (st.error): lo que no puede haber es una traza
         blob = json.dumps(texts(at) + alerts(at))
         assert not re.search(r"Traceback|nan g/t|inf g/t|NaN|<script", blob)
+
+
+@pytest.mark.parametrize(
+    ("lang", "aviso"),
+    [("es", "13 de 104 pares no se dibujan en la escala logarítmica"),
+     ("en", "13 of 104 pairs are not drawn on the logarithmic scale")],
+)  # fmt: skip
+def test_el_aviso_de_pares_omitidos_sale_con_germanio_y_no_con_plata(lang, aviso):
+    at = run(lang)
+    assert not any(
+        "pares no se dibujan" in c.value or "pairs are not drawn" in c.value for c in at.caption
+    )  # con plata no hay ninguno
+    widget(at, "q_dup_fuente").set_value(widget(at, "q_dup_fuente").options[1]).run()
+    assert not at.exception and any(aviso in c.value for c in at.caption)

@@ -38,13 +38,16 @@ class QaqcParams:
     pico: float = 4.0  # × LD del pico del ejemplo de blancos
 
 
-def crm_de_params(p: QaqcParams) -> tuple[str, float, float, float | None]:
-    """(nombre, certificado, SD con la que se calculan los límites, SD publicada o None). Los
-    límites de OREAS se calculan con valor × 1RSD, como en su certificado."""
+def crm_de_params(
+    p: QaqcParams,
+) -> tuple[str, float, float, float | None, tuple[float, float, float, float] | None]:
+    """(nombre, certificado, SD para el ejemplo y para z, SD publicada o None, puertas impresas
+    o None). Con un CRM de OREAS los límites son los IMPRESOS en su certificado; con uno propio,
+    valor ± k SD."""
     if p.crm == CRMS[-1]:
-        return p.crm, p.valor_propio, p.sd_propia, None
+        return p.crm, p.valor_propio, p.sd_propia, None, None
     o = dd.OREAS_BY_NAME[p.crm]
-    return o.nombre, o.valor, o.sd_sin_redondear, o.sd
+    return o.nombre, o.valor, o.sd_sin_redondear, o.sd, o.puertas
 
 
 # ------------------------------------------------------------------ CRM
@@ -54,29 +57,34 @@ class CrmView:
     certificado: float
     sd: float
     sd_publicada: float | None
+    puertas: tuple[float, float, float, float] | None
     sintetica: bool
     puntos: tuple[qc.PuntoCRM, ...]
     veredicto: qc.VeredictoCRM
 
     @property
     def lim2(self) -> tuple[float, float]:
+        if self.puertas:
+            return self.puertas[0], self.puertas[1]
         return qc.limites(self.certificado, self.sd, 2)
 
     @property
     def lim3(self) -> tuple[float, float]:
+        if self.puertas:
+            return self.puertas[2], self.puertas[3]
         return qc.limites(self.certificado, self.sd, 3)
 
 
 def run_crm(p: QaqcParams, filas: list | None = None) -> CrmView:
     """Lanza `QaqcError` si la serie o el CRM no sirven."""
-    nombre, valor, sd, sd_pub = crm_de_params(p)
+    nombre, valor, sd, sd_pub, puertas = crm_de_params(p)
     sintetica = p.crm_fuente == FUENTES[0]
     if sintetica:
         valores = dd.serie_crm_sintetica(valor, sd, p.n, p.sesgo)
     else:
         valores = qc.leer_serie(filas if filas is not None else [])
-    puntos = qc.clasificar_crm(valores, valor, sd)
-    return CrmView(nombre, valor, sd, sd_pub, sintetica, tuple(puntos),
+    puntos = qc.clasificar_crm(valores, valor, sd, puertas)
+    return CrmView(nombre, valor, sd, sd_pub, puertas, sintetica, tuple(puntos),
                    qc.veredicto_crm(puntos, valor))  # fmt: skip
 
 
@@ -156,7 +164,7 @@ def run_cert() -> CertView:
 # ------------------------------------------------------------------ tablas de partida
 def tabla_crm(p: QaqcParams) -> list[float]:
     """La serie con la que arranca la tabla editable del CRM: la de ejemplo."""
-    _, valor, sd, _ = crm_de_params(p)
+    _, valor, sd, _, _ = crm_de_params(p)
     return dd.serie_crm_sintetica(valor, sd, p.n, p.sesgo)
 
 

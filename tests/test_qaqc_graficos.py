@@ -85,7 +85,7 @@ def test_la_regla_que_se_dispara_se_rotula_en_cada_cuadro():
 
 
 def test_las_lineas_de_limite_son_las_del_cruce_de_certificado_y_sd():
-    v = crm()
+    v = crm(crm="CRM propio", valor_propio=1.0, sd_propia=0.1)
     fig = qg.crm_figure(v)
     ys = sorted({round(d.y[0], 9) for d in fig.data[5:]})
     esperado = sorted(round(x, 9) for x in (v.certificado, *v.lim2, *v.lim3))
@@ -174,12 +174,36 @@ def test_las_lineas_de_th_tienen_la_pendiente_del_calculo():
     assert fig.data[3].name == "Línea 90, P = 20 %"
 
 
-def test_los_pares_con_media_no_positiva_no_se_dibujan_y_se_dice():
-    v = dup(dup_fuente=qcalc.DUP_FUENTES[1])
-    fig = qg.th_figure(v)
-    assert v.th.sin_media == 13
-    assert sum(len(fig.data[i].x) for i in range(3)) == 91
-    assert "13 pares con media no positiva no se dibujan" in fig.layout.annotations[0].text
+def test_th_va_en_ejes_logaritmicos_y_las_lineas_son_rectas_paralelas():
+    fig = qg.th_figure(dup())
+    assert fig.layout.xaxis.type == "log" and fig.layout.yaxis.type == "log"
+    l90, l99 = fig.data[3], fig.data[4]
+    # en log-log, y = k x es una recta de pendiente 1: log y − log x es constante en cada línea
+    for tr in (l90, l99):
+        assert math.log10(tr.y[0] / tr.x[0]) == pytest.approx(math.log10(tr.y[1] / tr.x[1]))
+    assert math.log10(l99.y[0] / l99.x[0]) - math.log10(l90.y[0] / l90.x[0]) == pytest.approx(
+        math.log10(qc.Z_P99 / qc.Z_P90)
+    )
+    lo = fig.layout.xaxis.range[0]
+    assert 10**lo < min(min(fig.data[i].x, default=1e9) for i in range(3))
+
+
+def test_dibujados_mas_omitidos_son_los_pares_y_el_conteo_no_cambia():
+    for fuente, omitidos in ((0, 0), (1, 13)):
+        v = dup(dup_fuente=qcalc.DUP_FUENTES[fuente])
+        fig = qg.th_figure(v)
+        dibujados = sum(len(fig.data[i].x) for i in range(3))
+        assert qg.th_omitidos(v) == omitidos and dibujados + omitidos == v.th.n == 104
+        assert v.th.sin_media == omitidos  # el cálculo no depende del dibujo
+    ge = dup(dup_fuente=qcalc.DUP_FUENTES[1])
+    assert (ge.th.dentro90, ge.th.pct90) == (15, 100 * 15 / 104)
+
+
+def test_un_par_con_diferencia_cero_se_omite_del_dibujo_pero_cuenta_dentro():
+    v = qcalc.run_dup(
+        qcalc.QaqcParams(dup_fuente=qcalc.DUP_FUENTES[2]), [[1.0, 1.0], [2.0, 2.1], [0.0, 0.0]]
+    )
+    assert qg.th_omitidos(v) == 2 and v.th.dentro90 == 2 and v.th.sin_media == 1
 
 
 def test_la_curva_de_diferencias_es_la_ordenada_del_calculo_y_el_umbral_el_de_su_tipo():
@@ -274,3 +298,29 @@ def test_la_coincidencia_con_lo_publicado_es_al_redondeo_de_3_decimales():
     assert qcalc.coincide(c, (2.388, 0.232))
     assert not qcalc.coincide(c, (2.389, 0.232)) and not qcalc.coincide(c, (2.388, 0.233))
     assert not qcalc.coincide(c, (2.37, 0.232))
+
+
+# ------------------------------------------------------------------ puertas impresas en la carta
+@pytest.mark.parametrize("o", dd.OREAS, ids=lambda o: o.nombre)
+def test_las_lineas_de_la_carta_de_oreas_son_las_puertas_impresas(o):
+    v = crm(crm=o.nombre)
+    fig = qg.crm_figure(v)
+    ys = sorted(d.y[0] for d in fig.data[5:])
+    assert ys == pytest.approx(sorted([o.valor, *o.puertas]), abs=1e-12)
+    assert (v.lim2, v.lim3) == ((o.puertas[0], o.puertas[1]), (o.puertas[2], o.puertas[3]))
+
+
+def test_un_crm_propio_sigue_con_valor_mas_menos_k_sd():
+    v = crm(crm="CRM propio", valor_propio=1.0, sd_propia=0.1)
+    assert (
+        v.puertas is None
+        and v.lim2 == pytest.approx((0.8, 1.2))
+        and v.lim3 == pytest.approx((0.7, 1.3))
+    )
+
+
+def test_un_resultado_entre_el_limite_calculado_y_el_impreso_sale_fuera_de_3_sd_en_la_carta():
+    o = dd.OREAS[0]
+    v = qcalc.run_crm(qcalc.QaqcParams(crm_fuente=qcalc.FUENTES[1]), [0.2763])
+    assert v.puntos[0].estado == qc.FUERA_3SD and v.veredicto.veredicto == qc.RECHAZAR
+    assert list(qg.crm_figure(v).data[4].x) == [1] and o.puertas[3] == 0.276

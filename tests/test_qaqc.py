@@ -368,3 +368,51 @@ def test_los_sesgos_publicados_estan_leidos_de_la_imagen_y_cuadran_con_la_formul
     assert [r[4] for r in d.LOMA_LARGA] == [0.989, 1.805, 8.367]
     assert [r[2] for r in d.LOMA_LARGA] == [0.978, 1.748, 8.631]
     assert [r[6] for r in d.LOMA_LARGA] == [-1.11, -3.17, 3.15]
+
+
+# ---------------------------------------------------------------- puertas del certificado
+P501B = d.OREAS[0]
+
+
+def test_con_puertas_impresas_decide_la_puerta_y_no_valor_mas_menos_k_sd():
+    sd = P501B.sd_sin_redondear  # con valor ± 3 SD el límite alto sería 0,2766; el impreso, 0,276
+    assert q.limites(P501B.valor, sd, 3)[1] == pytest.approx(0.27657, abs=1e-5)
+    antes = q.clasificar_crm([0.2763], P501B.valor, sd)[0]
+    assert antes.estado == q.FUERA_2SD  # sin puertas: dentro de ±3 SD
+    con = q.clasificar_crm([0.2763], P501B.valor, sd, P501B.puertas)[0]
+    assert con.estado == q.FUERA_3SD and con.z < 3.0  # z solo se muestra
+
+
+def test_las_puertas_son_estrictas_y_pueden_ser_asimetricas():
+    g = (0.229, 0.267, 0.219, 0.276)
+    est = [p.estado for p in q.clasificar_crm([0.276, 0.267, 0.229, 0.219], 0.248, 0.0095, g)]
+    assert est == [
+        q.FUERA_2SD,
+        q.OK,
+        q.OK,
+        q.FUERA_2SD,
+    ]  # 0,267 y 0,229 (el borde) no son «más allá»
+    est = [p.estado for p in q.clasificar_crm([0.2761, 0.2189, 0.2291], 0.248, 0.0095, g)]
+    assert est == [q.FUERA_3SD, q.FUERA_3SD, q.OK]
+
+
+def test_el_veredicto_cuenta_los_fuera_de_2_sd_con_las_puertas():
+    g = P501B.puertas
+    pts = q.clasificar_crm([0.248] * 29 + [0.2663], 0.248, 0.00952, g)
+    assert q.veredicto_crm(pts, 0.248).n_fuera_2sd == 0
+    pts = q.clasificar_crm(
+        [0.248] * 9 + [0.2672], 0.248, 0.00952, g
+    )  # z = 2,02: fuera de la puerta 0,267
+    assert q.veredicto_crm(pts, 0.248).n_fuera_2sd == 1
+
+
+def test_puertas_malas_se_rechazan():
+    with pytest.raises(q.QaqcError):
+        q.clasificar_crm([1.0], 1.0, 0.1, (0.8, math.nan, 0.7, 1.3))
+
+
+def test_el_conteo_de_fuera_de_2_sd_sigue_las_puertas_y_no_z():
+    o = d.OREAS[3]  # OREAS 200: puerta baja impresa 0,316; valor − 2 SD sin redondear, 0,3152
+    pts = q.clasificar_crm([o.valor] * 9 + [0.3155], o.valor, o.sd_sin_redondear, o.puertas)
+    assert pts[-1].estado == q.FUERA_2SD and abs(pts[-1].z) < 2.0
+    assert q.veredicto_crm(pts, o.valor).n_fuera_2sd == 1

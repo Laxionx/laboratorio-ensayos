@@ -27,7 +27,14 @@ from qaqc_calculo import (
     tabla_crm,
     tabla_duplicados,
 )
-from qaqc_graficos import blk_figure, cert_figure, crm_figure, rpd_figure, th_figure
+from qaqc_graficos import (
+    blk_figure,
+    cert_figure,
+    crm_figure,
+    rpd_figure,
+    th_figure,
+    th_omitidos,
+)
 
 from muestreo import qaqc as qc
 from muestreo import qaqc_validacion as qv
@@ -241,6 +248,9 @@ def dup_section(p: QaqcParams) -> DupView | None:
     _dup_metrics(view)
     _dup_verdicts(p, view)
     st.plotly_chart(th_figure(view), width="stretch")
+    omitidos = th_omitidos(view)
+    if omitidos:
+        st.caption(t("qc.th.hidden", n=int_num(omitidos), tot=int_num(len(view.pares))))
     st.plotly_chart(rpd_figure(view), width="stretch")
     st.caption(t("qc.dup.caption"))
     st.caption(t("qc.dup.rules"))

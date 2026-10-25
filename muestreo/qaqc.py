@@ -126,23 +126,38 @@ class PuntoCRM:
     estado: str  # uno de ESTADOS
 
 
-def clasificar_crm(valores: Sequence[float], certificado: float, sd: float) -> list[PuntoCRM]:
+def clasificar_crm(
+    valores: Sequence[float],
+    certificado: float,
+    sd: float,
+    puertas: tuple[float, float, float, float] | None = None,
+) -> list[PuntoCRM]:
     """El estado de cada resultado cuando llega: fuera de ±3 SD (rechazo del lote); fuera de ±2
     SD con el anterior también fuera de ±2 SD (re-ensayo, regla de Rainy River); fuera de ±2 SD
-    solo (advertencia). «Fuera» es estrictamente más allá: |X − μ| ≤ 2 σ es aceptable."""
+    solo (advertencia). «Fuera» es estrictamente más allá: |X − μ| ≤ 2 σ es aceptable.
+
+    `puertas` = (2 SD bajo, 2 SD alto, 3 SD bajo, 3 SD alto) IMPRESAS en el certificado (pueden ser
+    asimétricas por el redondeo): si vienen, deciden ellas y z solo se muestra; si no, valor ± k
+    SD."""
     if not (_numero(certificado) and _numero(sd) and sd > 0):
         raise QaqcError("crm")
+    if puertas is not None and not all(_numero(g) for g in puertas):
+        raise QaqcError("crm")
+    l2, h2, l3, h3 = (
+        puertas if puertas else (*limites(certificado, sd, 2), *limites(certificado, sd, 3))
+    )
     puntos: list[PuntoCRM] = []
     anterior_fuera = False
     for i, x in enumerate(valores, start=1):
         z = (x - certificado) / sd
-        if abs(z) > 3.0:
+        fuera2 = x < l2 or x > h2
+        if x < l3 or x > h3:
             estado = FUERA_3SD
-        elif abs(z) > 2.0:
+        elif fuera2:
             estado = DOS_SEGUIDOS if anterior_fuera else FUERA_2SD
         else:
             estado = OK
-        anterior_fuera = abs(z) > 2.0
+        anterior_fuera = fuera2
         puntos.append(PuntoCRM(i, float(x), z, estado))
     return puntos
 
@@ -172,7 +187,7 @@ def veredicto_crm(puntos: Sequence[PuntoCRM], certificado: float) -> VeredictoCR
     n = len(puntos)
     f3 = sum(p.estado == FUERA_3SD for p in puntos)
     pares = sum(p.estado == DOS_SEGUIDOS for p in puntos)
-    f2 = sum(abs(p.z) > 2.0 for p in puntos)
+    f2 = sum(p.estado != OK for p in puntos)
     media = sum(p.valor for p in puntos) / n
     if f3:
         v = RECHAZAR

@@ -7,6 +7,8 @@ cuadro solo reemplaza los trazos que cambian (los límites quedan fijos)."""
 
 from __future__ import annotations
 
+import math
+
 import plotly.graph_objects as go
 from dibujo import INK, es
 from i18n import opt, t
@@ -137,16 +139,31 @@ def _th_class(c: float, d: float, p_pct: float) -> str:
     return "out"
 
 
-def th_figure(view: DupView) -> go.Figure:
-    """|a − b| contra la media del par, con las líneas de percentil 90 y 99 de la precisión P."""
-    groups: dict[str, list[tuple[float, float]]] = {"in90": [], "in99": [], "out": []}
-    drawn = 0
+def th_dibujables(view: DupView) -> list[tuple[float, float]]:
+    """(media, |a − b|) de los pares que se pueden dibujar en escala logarítmica: media > 0 y
+    diferencia > 0. Los demás se omiten SOLO del dibujo: siguen en los conteos y el veredicto."""
+    out = []
     for a, b in view.pares:
         c, d = (a + b) / 2.0, abs(a - b)
-        if c > 0:
-            groups[_th_class(c, d, view.p_pct)].append((c, d))
-            drawn += 1
-    xmax = max((c for g in groups.values() for c, _ in g), default=1.0) * 1.05
+        if c > 0 and d > 0:
+            out.append((c, d))
+    return out
+
+
+def th_omitidos(view: DupView) -> int:
+    """Cuántos pares no se dibujan (media ≤ 0 o diferencia 0); dibujados + omitidos = pares."""
+    return len(view.pares) - len(th_dibujables(view))
+
+
+def th_figure(view: DupView) -> go.Figure:
+    """|a − b| contra la media del par, con las líneas de percentil 90 y 99 de la precisión P,
+    en ejes logarítmicos (las líneas quedan rectas y paralelas)."""
+    groups: dict[str, list[tuple[float, float]]] = {"in90": [], "in99": [], "out": []}
+    pts_all = th_dibujables(view)
+    for c, d in pts_all:
+        groups[_th_class(c, d, view.p_pct)].append((c, d))
+    cs = [c for c, _ in pts_all]
+    x0, x1 = (min(cs) / 1.6, max(cs) * 1.6) if cs else (1e-3, 1.0)
     fig = go.Figure()
     th = view.th
     for key, color, symbol, count in (
@@ -171,19 +188,17 @@ def th_figure(view: DupView) -> go.Figure:
         coef = qc.coeficiente_th(z, view.p_pct)
         fig.add_trace(
             go.Scatter(
-                x=[0, xmax],
-                y=[0, coef * xmax],
+                x=[x0, x1],
+                y=[coef * x0, coef * x1],
                 mode="lines",
                 name=name,
                 line=dict(color=color, width=2, dash=dash),
                 hoverinfo="skip",
             )
         )
-    note = t("qc.th.hidden", n=th.n - drawn) if drawn < th.n else ""
-    if note:
-        fig.update_layout(**_note(note))
-    fig.update_xaxes(range=[0, xmax])
     _layout(fig, t("qc.th.title"), 460, x=dict(title=t("qc.th.x")), y=dict(title=t("qc.th.y")))
+    fig.update_xaxes(type="log", range=[math.log10(x0), math.log10(x1)])
+    fig.update_yaxes(type="log")
     return fig
 
 
