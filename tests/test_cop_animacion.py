@@ -321,3 +321,29 @@ def test_los_graficos_en_ingles_no_llevan_espanol():
             assert texts and not [x for x in texts if SPANISH.search(x)], texts[:6]
         else:
             assert "Pérdida contra temperatura" in blob
+
+
+def test_el_cuadro_de_la_mitad_sigue_la_formula_de_la_perdida_acumulada_escrita_aparte():
+    """Cuadro 24 de 48 (avance 0,5): la masa, con la fórmula de Rose escrita de nuevo."""
+    import math
+
+    v = view()
+    r = v.res
+    m, pb = 1.0 + r.plata_total_mg, 28000.0
+    acum = math.log((m + pb) / (m + pb * 0.5)) / math.log((m + pb) / m)
+    esperada = (
+        pb * 0.5
+        + 1.0 * (1 - r.perdida_au.frac * acum)
+        + r.plata_total_mg * (1 - r.perdida_ag.frac * acum)
+    )
+    c = v.cuadros[24]
+    assert c.avance == 0.5 and c.perdida_acum == pytest.approx(acum)
+    assert c.masa_mg == pytest.approx(esperada) and acum == pytest.approx(
+        0.0839, abs=1e-4
+    )  # convexa: con la mitad del plomo, 8 %
+
+
+def test_la_densidad_del_plomo_es_la_de_la_ecuacion_de_la_fusion_a_la_temperatura_de_copela():
+    assert view(temp_c=800.0).rho_plomo == pytest.approx(10.08522964)
+    assert view(temp_c=1000.0).rho_plomo == pytest.approx(9.84634964)
+    assert view(temp_c=800.0).escalas[-1] != view(temp_c=1000.0).escalas[-1]
