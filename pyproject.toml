@@ -17,7 +17,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest", "pytest-cov", "ruff"]
+dev = ["pytest", "pytest-cov", "pytest-xdist", "ruff"]
 app = ["streamlit==1.65.0", "plotly==7.1.0"]
 
 [tool.setuptools]
@@ -25,7 +25,7 @@ packages = ["muestreo"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-q"
+addopts = "-q -n auto"
 
 [tool.coverage.run]
 source = ["muestreo"]

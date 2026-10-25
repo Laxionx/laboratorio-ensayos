@@ -24,4 +24,6 @@ jobs:
       - name: Ruff
         run: ruff check . && ruff format --check .
       - name: Pytest con cobertura del paquete
+        env:
+          COVERAGE_CORE: sysmon  # cobertura de bajo costo (Python 3.12+): sin ella la suite tarda el doble
         run: pytest --cov=muestreo --cov-report=term-missing --cov-fail-under=90
