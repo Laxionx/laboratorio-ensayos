@@ -199,6 +199,12 @@ def test_editar_la_tabla_del_crm_cambia_el_veredicto():
     assert not at.exception and said(at, "**Rechazo del lote.** 1 de 30")
 
 
+def test_el_rechazo_cuenta_las_fallas_fuera_de_3_sd_y_no_las_de_2_sd():
+    # un resultado a 16 SD y otro a 2,3 SD: 1 de 30 fuera de ±3 SD (3,3 %), 2 de 30 fuera de ±2 SD
+    at = edit(con_tablas(), qaqc_tab.KEY_CRM, {3: {"res": 0.4}, 10: {"res": 0.27}})
+    assert said(at, "**Rechazo del lote.** 1 de 30 resultados (3,3 %)")
+
+
 def test_dos_resultados_seguidos_fuera_de_2_sd_piden_re_ensayo_desde_la_tabla():
     at = edit(con_tablas(), qaqc_tab.KEY_CRM, {5: {"res": 0.27}, 6: {"res": 0.27}})
     assert said(at, "**Re-ensayo del lote.**")

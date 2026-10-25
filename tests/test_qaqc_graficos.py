@@ -258,3 +258,19 @@ def test_los_graficos_en_espanol_siguen_en_espanol_y_las_cifras_no_cambian():
             assert list(ta.x if ta.x is not None else []) == list(tb.x if tb.x is not None else [])
             assert list(ta.y if ta.y is not None else []) == list(tb.y if tb.y is not None else [])
     assert len(es_) == len(en) == 5
+
+
+# ------------------------------------------------------------------ lo que se calcula aparte
+def test_la_diferencia_relativa_de_cada_par_es_200_por_la_diferencia_entre_la_suma():
+    v = dup()
+    for (a, b), r in zip(v.pares, v.rpd, strict=True):
+        assert r == pytest.approx(200 * abs(a - b) / (a + b))
+    figura = qg.rpd_figure(v).data[0].y
+    assert max(figura) == pytest.approx(max(200 * abs(a - b) / (a + b) for a, b in v.pares))
+
+
+def test_la_coincidencia_con_lo_publicado_es_al_redondeo_de_3_decimales():
+    c = qcalc.run_cert().cert
+    assert qcalc.coincide(c, (2.388, 0.232))
+    assert not qcalc.coincide(c, (2.389, 0.232)) and not qcalc.coincide(c, (2.388, 0.233))
+    assert not qcalc.coincide(c, (2.37, 0.232))

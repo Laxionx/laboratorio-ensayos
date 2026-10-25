@@ -357,4 +357,14 @@ def test_los_sesgos_publicados_estan_leidos_de_la_imagen_y_cuadran_con_la_formul
     nombres = [r[0] for r in d.RAINY_RIVER]
     assert nombres == [f"OREAS {n}" for n in (294, 230, 231, 233, 236, 238, 240, 242)]
     assert [r[1] for r in d.RAINY_RIVER] == [78, 127, 128, 124, 23, 100, 14, 46]
+    # las cifras de la Tabla 11-12 tal como se leen en la imagen de la página 107
+    assert [r[2] for r in d.RAINY_RIVER] == [0.207, 0.337, 0.542, 1.050, 1.850, 3.080, 5.510, 8.670]
+    assert [r[3] for r in d.RAINY_RIVER] == [0.205, 0.331, 0.533, 1.042, 1.827, 3.059, 5.377, 8.629]
+    assert [r[4] for r in d.RAINY_RIVER] == [-1.0, -1.8, -1.7, -0.8, -1.3, -0.7, -2.5, -0.5]
+    assert [r[5] for r in d.RAINY_RIVER] == [6.5, 3.2, 3.4, 4.6, 2.7, 3.3, 3.6, 4.1]
+    assert [r[6] for r in d.RAINY_RIVER] == [3, 0, 2, 5, 0, 1, 14, 4]
     assert sum(r[1] for r in d.LOMA_LARGA) == 74  # los 74 CRM de Au de 2013
+    # Tabla 11-3 de Loma Larga, página 87 del estudio
+    assert [r[4] for r in d.LOMA_LARGA] == [0.989, 1.805, 8.367]
+    assert [r[2] for r in d.LOMA_LARGA] == [0.978, 1.748, 8.631]
+    assert [r[6] for r in d.LOMA_LARGA] == [-1.11, -3.17, 3.15]

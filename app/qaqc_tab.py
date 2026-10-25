@@ -18,6 +18,7 @@ from qaqc_calculo import (
     CrmView,
     DupView,
     QaqcParams,
+    coincide,
     run_blk,
     run_cert,
     run_crm,
@@ -325,7 +326,6 @@ def cert_section() -> CertView:
         t("qc.cert.m.band.delta", pub=es(pub_2sd, 3)),
         delta_color="off",
     )
-    fits = round(c.media, 3) == pub_m and round(c.dos_sd, 3) == pub_2sd
     st.markdown(
         t(
             "qc.cert.res",
@@ -340,7 +340,7 @@ def cert_section() -> CertView:
             band=es(c.dos_sd, 3),
             pub=es(pub_m, 3),
             pubband=es(pub_2sd, 3),
-            fit=t("qc.cert.fit.yes" if fits else "qc.cert.fit.no"),
+            fit=t("qc.cert.fit.yes" if coincide(c, v.publicado) else "qc.cert.fit.no"),
         )
     )
     st.plotly_chart(cert_figure(v), width="stretch")

@@ -143,6 +143,12 @@ class CertView:
     publicado: tuple[float, float]
 
 
+def coincide(cert: qc.Certificacion, publicado: tuple[float, float]) -> bool:
+    """¿La media y las 2 SD recortadas coinciden con lo publicado, al redondeo publicado (3
+    decimales)?"""
+    return round(cert.media, 3) == publicado[0] and round(cert.dos_sd, 3) == publicado[1]
+
+
 def run_cert() -> CertView:
     return CertView(dd.CDN_RESULTADOS, qc.certificar_recorte(dd.CDN_RESULTADOS), dd.CDN_PUBLICADO)
 
