@@ -2,9 +2,9 @@
 
 # laboratorio-ensayos
 
-Laboratorio de ensayos metalúrgicos y de ensayo al fuego (muestreo, carga fundente, cianuración y sedimentación). **Fase 1: preparación de muestras** y **fase 2: carga fundente**. Calcula cuánto error de muestreo mete cada etapa de un protocolo de preparación (chancar, dividir, pulverizar, tomar la alícuota de 30 o 50 g) con la ecuación del error fundamental de Gy, cuánto se acumula, y cuántos granos de oro caen en la alícuota cuando el oro es grueso. Implementado desde la literatura y validado contra números publicados.
+Laboratorio de ensayos metalúrgicos y de ensayo al fuego (muestreo, carga fundente, cianuración y sedimentación). **Fase 1: preparación de muestras**, **fase 2: carga fundente** y **fase 3: copelación y partición**. Calcula cuánto error de muestreo mete cada etapa de un protocolo de preparación (chancar, dividir, pulverizar, tomar la alícuota de 30 o 50 g) con la ecuación del error fundamental de Gy, cuánto se acumula, y cuántos granos de oro caen en la alícuota cuando el oro es grueso. Implementado desde la literatura y validado contra números publicados.
 
-Sin copelación ni pérdidas de oro y plata, sin termodinámica de escorias y sin ensayo de platinoides. Los códigos de preparación PREP-31 y PREP-31B son públicos de ALS (alsglobal.com); sin afiliación.
+Sin termodinámica de escorias, sin ensayo de platinoides y sin copelación instrumental. Los códigos de preparación PREP-31 y PREP-31B son públicos de ALS (alsglobal.com); sin afiliación.
 
 ![El crisol durante la fusión: charco de plomo líquido al fondo del cono, escoria encima, gotas de plomo y burbujas de gas](docs/img/fusion-crisol.es.gif)
 
@@ -15,6 +15,7 @@ Sin copelación ni pérdidas de oro y plata, sin termodinámica de escorias y si
 - **Protocolo:** varianza de Gy por etapa y acumulada (suma de varianzas relativas), con un nomograma de muestreo en el que la ruta del protocolo se recorre etapa por etapa (reducir el tamaño es un tramo horizontal; dividir, uno vertical). Presets PREP-31, PREP-31B y el protocolo de una mina de oro de Minnitt (2017).
 - **Oro grueso:** granos esperados en la alícuota, simulación de 1 000 ensayos repetidos (Poisson, semilla fija), recomendación de screen fire assay si se esperan menos de 20 granos (criterio de Clifton).
 - **Fusión (fase 2):** dada la mineralogía de la muestra (9 minerales) y la alícuota (1 assay-ton o 30 g), calcula la carga fundente (litargirio, carbonato de sodio, bórax, sílice, harina o nitro) que da un botón de plomo de 25 a 30 g y una escoria del grado de silicato elegido (mono, sesqui o bi); evalúa una carga cambiada (botón chico o grande, escoria ácida o básica, riesgo de mata) y dibuja el crisol cónico en corte, con el plomo líquido al fondo y la escoria encima.
+- **Copelación (fase 3):** pérdida de plata y de oro en la copela según la temperatura, el plomo (el botón de la pestaña Fusión) y la plata presente, con las tablas de Bugbee (1922) transcritas y un modelo de tablas con su banda; ley corregida = medida / (1 − pérdida); la plata que hay que agregar (encuarte) para que la partición en ácido funcione; y una copela en corte con el botón de plomo que se achica hasta dejar la perla (ver abajo).
 - **Ensayo de cianuración:** recuperación y ley de cabeza por balance desde (tiempo, oro en solución, oro en residuo), términos L, M y N del núcleo sin reaccionar con sus rectas, modelo potencial y un primer orden con meseta, y un vaso de precipitados en corte con agitador y un indicador de recuperación (ver abajo).
 - **Ensayo de sedimentación:** de la curva h(t) de una probeta al diámetro de un espesador (Coe-Clevenger, Kynch, Talmage-Fitch, curva de Luz o tabla editable), el factor 0,64 de Vale y su escalamiento, la tabla de espesadores de Vale y una probeta y un espesador animados (ver abajo).
 - **Validación:** tabla y gráficos de lo calculado frente a lo publicado.
@@ -122,6 +123,24 @@ Cortes fijados antes de correr ([tests/test_sedimentacion.py](tests/test_sedimen
 **Lo que no cuadra** (sin maquillar). Dos filas de lama de Alegría: la de 59 t/h y 42 m publica 0,987 y salen 0,978 (parece una transposición de dígitos), y la de 57 t/h y 30 m publica 0,521 y salen 0,517. De los cinco ensayos de Coe y Clevenger, el 2 y el 3 cuadran; el 1 da 2,99 (no 3,00), el 4 da 4,21 (no 4,22) y el 5 da 4,19 (no 4,05) con D = 1,12 (el artículo no imprime el D de esos ensayos).
 
 **Informativo, sin corte.** Sobre la curva sintética, el área del flujo límite exacto es 0,1187 m² por t/d. El trazo de Talmage-Fitch coincide si la tangente se traza donde la interfase llega a Hu y en cualquier punto anterior da menos área (−22 % a la mitad de ese tiempo): sin compresión no es conservador. **Supuestos declarados:** z0 = 0,4 m y z∞ = 0,035 m (leídos de la Fig. 1, que solo da a = 1,591 y b = 203 s), densidad de los sólidos 4,0 t/m³ y densidad del agua 1 t/m³.
+
+## Copelación y partición
+
+La pestaña «Copelación» cierra la cadena del ensayo al fuego (preparación, fusión, copelación, partición). El módulo `muestreo.copelacion` (con `copelacion_datos` y `copelacion_validacion`) transcribe, cifra por cifra y verificadas contra la imagen del escaneo, las Tablas IX a XII de Bugbee (1922, pp. 100 a 103: pérdida de plata contra temperatura, plomo y plata presente; pérdida de oro contra temperatura), la razón plata:oro de Rose para partir (pp. 118 a 122) y el artículo original de Godshall (1896, *Trans. AIME* 26:473-484, p. 483). El modelo multiplica tres factores de esas tablas (temperatura de Lodge, plomo de Lodge y plata presente de Godshall: **la separabilidad es un supuesto**), no extrapola fuera de ninguna tabla (se queda en el extremo y avisa) y da la pérdida con una banda de reproducibilidad (dispersión de las tres series de Godshall, ×/÷ 1,23). La plata del encuarte se agrega antes de copelar y también pierde: se resuelve para que tras la copela quede la razón pedida. Una copela en corte, con la mufla del color de la temperatura (rampa ilustrativa), muestra el botón de plomo que se achica (masa y radio de cada cuadro, del cálculo) mientras el litargirio se absorbe; el **avance en el tiempo es ilustrativo** (Bugbee da la curva minuto a minuto solo como figura, Fig. 40, y no se digitalizó).
+
+### Validación de la copelación
+
+Cortes fijados antes de correr ([tests/test_copelacion.py](tests/test_copelacion.py)): el modelo se ajusta con las tablas de Lodge y se compara con Godshall, otro experimentador.
+
+| Qué se compara | Resultado |
+|---|---|
+| Tablas IX, X, XI, XII, Smith, Rose y Godshall transcritas (cifras literales, página) | exactas; los «Av.» impresos de Godshall son el promedio de sus cuatro plomos (4 de 4 series) |
+| Solapamiento con Godshall (temperatura sin medir, 7 cantidades de plata y 4 de plomo) | solo 2 de 28 celdas (200 mg de plata; ½ y ¾ A.T. de plomo), con T supuesta en 740 °C |
+| Pérdida de plata, corte ±25 % en esas 2 celdas | **0 de 2**: 1,15 % contra 1,77 % (−34,8 %) y 1,37 % contra 1,92 % (−28,5 %); xfail estricto |
+| Tendencias (28 celdas) | más plata, menos pérdida: 4 de 4 (no independiente); más plomo, más pérdida: 7 de 7; dentro de un factor 2: 28 de 28 |
+| Réplica de la plata (series primera y tercera, informativa) | 7 de 12 razones a ±25 %; fallan 2, 5 y 20 mg |
+
+**Lo que no cuadra** (sin maquillar). Con la temperatura de Godshall (que no midió) supuesta en el centro de 700 a 775 °C, el modelo de Lodge queda corto: Godshall se parece a Lodge a unos 833 y 853 °C. No se ajustó nada para que pase. Bugbee imprime 2,65 en la celda de 50 mg de su Tabla XI y Godshall, 2,67. **Supuestos declarados:** separabilidad de los tres factores; la pérdida de oro es la de 200 mg de oro sin plata (con menos oro es mayor y con plata presente, menor, sin cifras); el punto de 0,1 mg de Rose usa 25 (promedio de «20 o 30»); las densidades del oro y de la plata del dibujo son de manual.
 
 ## Límites
 

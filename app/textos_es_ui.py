@@ -9,13 +9,13 @@ T = {
         "carga fundente, la cianuración y la sedimentación que dimensiona un espesador. Cuánto "
         "error de muestreo mete cada etapa de la preparación y cuántos granos de oro caen "
         "en la alícuota, con la ecuación de Gy validada contra números publicados. Con la carga "
-        "fundente de la fusión (fase 2; sin copelación). Empieza por la **Guía**; los datos se "
+        "fundente de la fusión (fase 2) y la copelación con la partición (fase 3). Empieza por la **Guía**; los datos se "
         "cambian en la barra lateral. Códigos de preparación públicos de ALS; sin afiliación."
     ),
     "err.generic": "Algo falló al calcular. Prueba con otros datos o recarga la página.",
     "toggle.label": "Mover la animación",
     "toggle.help": (
-        "Apaga la animación del crisol (pestaña Fusión), la del vaso (pestaña Ensayo de cianuración) y la de la probeta y el espesador (pestaña Ensayo de sedimentación). También se apaga sola si el "
+        "Apaga la animación del crisol (pestaña Fusión), la de la copela (pestaña Copelación), la del vaso (pestaña Ensayo de cianuración) y la de la probeta y el espesador (pestaña Ensayo de sedimentación). También se apaga sola si el "
         "sistema tiene activado «reducir movimiento»."
     ),
     "tab.guide": "Guía",

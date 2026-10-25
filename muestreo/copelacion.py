@@ -209,11 +209,16 @@ def razon_objetivo(modo: str, oro_mg: float, razon_propia: float = 8.0) -> float
 
 
 def estado_particion(razon: float) -> str:
-    """«insuficiente» (menos de 3:1), «lenta» (de 3 a 8:1: parte, con más ácido y tiempo) o
-    «buena» (8:1 o más)."""
-    if razon < cd.MINIMO_PARTIR:
+    """«insuficiente» (menos de 2:1), «lamina» (de 2 a 3:1: solo parte si la aleación se lamina
+    fina, como en lingote, y queda plata sin disolver), «lenta» (de 3 a 8:1: parte, con más ácido y
+    tiempo) o «buena» (8:1 o más). Los umbrales llevan una tolerancia de 1e-9 por el redondeo del
+    solucionador del encuarte."""
+    margen = 1.0 + 1e-9
+    if razon * margen < cd.LINGOTE_RAZON[0]:
         return "insuficiente"
-    return "lenta" if razon < cd.RECOMENDADO_MIN else "buena"
+    if razon * margen < cd.MINIMO_PARTIR:
+        return "lamina"
+    return "lenta" if razon * margen < cd.RECOMENDADO_MIN else "buena"
 
 
 @dataclass(frozen=True)

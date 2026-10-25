@@ -2,9 +2,9 @@
 
 # laboratorio-ensayos (fire-assay laboratory)
 
-A metallurgical test and fire-assay laboratory (sampling, flux charge, cyanide leaching and settling). **Phase 1: sample preparation** and **phase 2: flux charge**. It calculates how much sampling error each stage of a preparation protocol adds (crushing, splitting, pulverizing, taking the 30 or 50 g aliquot) with Gy's fundamental sampling error equation, how much accumulates, and how many gold grains fall in the aliquot when the gold is coarse. Implemented from the literature and validated against published numbers.
+A metallurgical test and fire-assay laboratory (sampling, flux charge, cyanide leaching and settling). **Phase 1: sample preparation**, **phase 2: flux charge** and **phase 3: cupellation and parting**. It calculates how much sampling error each stage of a preparation protocol adds (crushing, splitting, pulverizing, taking the 30 or 50 g aliquot) with Gy's fundamental sampling error equation, how much accumulates, and how many gold grains fall in the aliquot when the gold is coarse. Implemented from the literature and validated against published numbers.
 
-No cupellation or gold and silver losses, no slag thermodynamics and no platinoid assay. The PREP-31 and PREP-31B preparation codes are public ALS codes (alsglobal.com); no affiliation.
+No slag thermodynamics, no platinoid assay and no instrumental cupellation. The PREP-31 and PREP-31B preparation codes are public ALS codes (alsglobal.com); no affiliation.
 
 ![The crucible during the fusion: liquid lead pool at the bottom of the cone, slag on top, lead drops and gas bubbles](docs/img/fusion-crucible.en.gif)
 
@@ -15,6 +15,7 @@ No cupellation or gold and silver losses, no slag thermodynamics and no platinoi
 - **Protocol:** Gy variance per stage and cumulative (sum of relative variances), with a sampling nomogram in which the protocol route is walked stage by stage (reducing the size is a horizontal leg; splitting, a vertical one). Presets PREP-31, PREP-31B and the protocol of a gold mine from Minnitt (2017).
 - **Coarse gold:** expected grains in the aliquot, simulation of 1,000 repeated assays (Poisson, fixed seed), screen fire assay recommendation if fewer than 20 grains are expected (Clifton's criterion).
 - **Fusion (phase 2):** given the mineralogy of the sample (9 minerals) and the aliquot (1 assay-ton or 30 g), it calculates the flux charge (litharge, sodium carbonate, borax, silica, flour or niter) that gives a lead button of 25 to 30 g and a slag of the chosen silicate degree (mono, sesqui or bi); it evaluates a changed charge (small or large button, acid or basic slag, risk of matte) and draws the conical crucible in cross-section, with the liquid lead at the bottom and the slag on top.
+- **Cupellation (phase 3):** silver and gold loss in the cupel as a function of temperature, lead (the Fusion tab button) and the silver present, with Bugbee's (1922) tables transcribed and a table-based model with its band; corrected grade = measured / (1 − loss); the silver to add (inquartation) so that parting in acid works; and a cupel in section with the lead button shrinking until the bead is left (see below).
 - **Cyanide leach test:** recovery and head grade by balance from (time, gold in solution, gold in residue), unreacted-core terms L, M and N with their lines, a power-law model and a first order with plateau, and a beaker in section with a stirrer and a recovery gauge (see below).
 - **Settling test:** from the h(t) curve of a cylinder to the diameter of a thickener (Coe-Clevenger, Kynch, Talmage-Fitch, Luz curve or editable table), Vale's 0.64 factor and its scale-up, the table of Vale thickeners and an animated cylinder and thickener (see below).
 - **Validation:** table and charts of what is calculated against what is published.
@@ -122,6 +123,24 @@ Cuts fixed before running ([tests/test_sedimentacion.py](tests/test_sedimentacio
 **What does not match** (not dressed up). Two Alegria slime rows: the 59 t/h, 42 m one prints 0.987 and 0.978 comes out (it looks like a digit transposition), and the 57 t/h, 30 m one prints 0.521 and 0.517 comes out. Of the five Coe and Clevenger tests, 2 and 3 match; 1 gives 2.99 (not 3.00), 4 gives 4.21 (not 4.22) and 5 gives 4.19 (not 4.05) with D = 1.12 (the paper does not print the D of those tests).
 
 **Informative, no cut.** On the synthetic curve, the exact limiting-flux area is 0.1187 m² per t/d. The Talmage-Fitch construction matches if the tangent is drawn where the interface reaches Hu and at any earlier point it gives less area (−22 % at half that time): without compression it is not conservative. **Declared assumptions:** z0 = 0.4 m and z∞ = 0.035 m (read from Fig. 1, which only gives a = 1.591 and b = 203 s), solids density 4.0 t/m³ and water density 1 t/m³.
+
+## Cupellation and parting
+
+The "Cupellation" tab closes the fire-assay chain (preparation, fusion, cupellation, parting). The `muestreo.copelacion` module (with `copelacion_datos` and `copelacion_validacion`) transcribes, figure by figure and checked against the scan image, Bugbee's (1922) Tables IX to XII (pp. 100 to 103: silver loss against temperature, lead and silver present; gold loss against temperature), Rose's silver:gold ratio for parting (pp. 118 to 122) and Godshall's original paper (1896, *Trans. AIME* 26:473-484, p. 483). The model multiplies three factors from those tables (Lodge's temperature, Lodge's lead and Godshall's silver present: **separability is an assumption**), does not extrapolate outside any table (it stays at the end value and warns) and gives the loss with a reproducibility band (the scatter of Godshall's three series, ×/÷ 1.23). The inquartation silver is added before cupelling and it also loses some: it is solved so that, after the cupel, the requested ratio is left. A cupel in section, with the muffle in the temperature color (illustrative ramp), shows the lead button shrinking (mass and radius of each frame, from the calculation) while the litharge is absorbed; the **progress in time is illustrative** (Bugbee gives the minute-by-minute curve only as a figure, Fig. 40, and it was not digitized).
+
+### Cupellation validation
+
+Cuts fixed before running ([tests/test_copelacion.py](tests/test_copelacion.py)): the model is fitted with Lodge's tables and compared with Godshall, another experimenter.
+
+| What is compared | Result |
+|---|---|
+| Tables IX, X, XI, XII, Smith, Rose and Godshall transcribed (literal figures, page) | exact; Godshall's printed "Av." are the mean of his four lead amounts (4 of 4 series) |
+| Overlap with Godshall (temperature not measured, 7 silver and 4 lead amounts) | only 2 of 28 cells (200 mg of silver; 1/2 and 3/4 A.T. of lead), with T assumed to be 740 °C |
+| Silver loss, ±25 % cut in those 2 cells | **0 of 2**: 1.15 % against 1.77 % (−34.8 %) and 1.37 % against 1.92 % (−28.5 %); strict xfail |
+| Trends (28 cells) | more silver, less loss: 4 of 4 (not independent); more lead, more loss: 7 of 7; within a factor of 2: 28 of 28 |
+| Silver replication (first and third series, informative) | 7 of 12 ratios within ±25 %; 2, 5 and 20 mg fail |
+
+**What does not match** (not dressed up). With Godshall's temperature (which he did not measure) assumed at the middle of 700 to 775 °C, Lodge's model falls short: Godshall looks like Lodge at about 833 and 853 °C. Nothing was adjusted to make it pass. Bugbee prints 2.65 in the 50 mg cell of his Table XI and Godshall, 2.67. **Declared assumptions:** separability of the three factors; the gold loss is that of 200 mg of gold without silver (with less gold it is larger and with silver present, smaller, with no figures); Rose's 0.1 mg point uses 25 (the average of "20 or 30"); the gold and silver densities in the drawing are handbook values.
 
 ## Limits
 

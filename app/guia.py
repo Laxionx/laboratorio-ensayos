@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import pandas as pd
 import streamlit as st
-from controles import CIA, FUS, GOLD, MIN, PROT, SED, data_table
+from controles import CIA, COP, FUS, GOLD, MIN, PROT, SED, data_table
 from i18n import current, t
 
 REPO = "https://github.com/Laxionx/laboratorio-ensayos"
@@ -14,7 +14,14 @@ CONMINUCION = "https://simulador-conminucion-mtxoolyzuvvcxrq8rce3el.streamlit.ap
 PLANTA = "https://simulador-procesos-ntfmuyhlnqc9d73kkqljzk.streamlit.app/"
 
 # cuántos «límites del modelo» tiene cada ficha
-N_LIMITS = {"protocolo": 3, "oro": 2, "fusion": 5, "cianuracion": 4, "sedimentacion": 5}
+N_LIMITS = {
+    "protocolo": 3,
+    "oro": 2,
+    "fusion": 5,
+    "cianuracion": 4,
+    "sedimentacion": 5,
+    "copelacion": 6,
+}
 N_REACTIONS, N_LIMITES = 4, 4
 DATA_GROUPS = {
     "protocolo": (PROT, MIN),
@@ -22,6 +29,7 @@ DATA_GROUPS = {
     "fusion": (FUS,),
     "cianuracion": (CIA,),
     "sedimentacion": (SED,),
+    "copelacion": (COP,),
 }
 
 
@@ -87,6 +95,14 @@ def guide_tab() -> None:
         r"A_u = \frac{t_u}{C_0 H_0}"
     )
     st.markdown(t("guide.sed.2"))
+    st.markdown(t("guide.h.cop"))
+    st.markdown(t("guide.cop.1"))
+    st.latex(
+        r"P_{Ag} = IX(T)\cdot\frac{X(Pb)}{X(10\,\mathrm{g})}"
+        r"\cdot\frac{XI(Ag)}{XI(200\,\mathrm{mg})}\qquad "
+        r"\text{ley corregida} = \frac{\text{ley medida}}{1 - P}"
+    )
+    st.markdown(t("guide.cop.2"))
     st.markdown(t("guide.h.minnitt"))
     st.markdown(t("guide.minnitt", note=minnitt_2007_note()))
     st.markdown(t("guide.h.datos"))

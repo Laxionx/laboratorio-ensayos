@@ -19,6 +19,8 @@ from calculo import (
     ProtocolParams,
 )
 from cian_calculo import MODEL_LABELS, CianParams
+from cop_calculo import FUENTES_PLOMO, CopParams
+from cop_calculo import MODOS as COP_MODOS
 from i18n import current, int_num, num_g, opt, t, tm, use
 from sed_calculo import COMPRESIONES, FACTORES, FUENTES, MODOS, SedParams
 
@@ -30,6 +32,7 @@ PREFIX = "dato_"
 PROT, MIN, GOLD, FUS = "Protocolo", "Mineral", "Oro grueso", "Fusión"
 CIA = "Cianuración"
 SED = "Sedimentación"
+COP = "Copelación"
 ALIQUOTS = ("30", "50")  # Au-AA23 y Au-AA24
 SHAPES = ("esfera", "cubo")
 
@@ -201,9 +204,26 @@ DATOS: tuple[Dato, ...] = (
          "dato.s_tph.meaning", "dato.s_tph.source"),
     Dato(SED, "s_factor", "dato.s_factor.label", "", 0, 0, FACTORES[0], 0,
          "dato.s_factor.meaning", "dato.s_factor.source", widget="select", options=FACTORES),
+    Dato(COP, "k_temp", "dato.k_temp.label", "°C", 700, 1075, 800, 5,
+         "dato.k_temp.meaning", "dato.k_temp.source"),
+    Dato(COP, "k_pb_src", "dato.k_pb_src.label", "", 0, 0, FUENTES_PLOMO[0], 0,
+         "dato.k_pb_src.meaning", "dato.k_pb_src.source", widget="select",
+         options=FUENTES_PLOMO),
+    Dato(COP, "k_pb", "dato.k_pb.label", "g", 5, 60, 28, 0.5,
+         "dato.k_pb.meaning", "dato.k_pb.source"),
+    Dato(COP, "k_au", "dato.k_au.label", "mg", 0.01, 200, 1.0, 0.1,
+         "dato.k_au.meaning", "dato.k_au.source"),
+    Dato(COP, "k_ag", "dato.k_ag.label", "mg", 0, 2000, 2.0, 0.5,
+         "dato.k_ag.meaning", "dato.k_ag.source"),
+    Dato(COP, "k_modo", "dato.k_modo.label", "", 0, 0, COP_MODOS[0], 0,
+         "dato.k_modo.meaning", "dato.k_modo.source", widget="select", options=COP_MODOS),
+    Dato(COP, "k_razon", "dato.k_razon.label", "Ag:Au", 1, 30, 8, 0.5,
+         "dato.k_razon.meaning", "dato.k_razon.source"),
+    Dato(COP, "k_ley", "dato.k_ley.label", "g/t", 0.01, 1000, 3.84, 0.1,
+         "dato.k_ley.meaning", "dato.k_ley.source"),
 )  # fmt: skip
 BY_KEY = {d.key: d for d in DATOS}
-GROUPS = (PROT, MIN, GOLD, FUS, CIA, SED)
+GROUPS = (PROT, MIN, GOLD, FUS, CIA, SED, COP)
 
 
 def _ask(d: Dato) -> float | bool | str:
@@ -242,10 +262,17 @@ def reset_to_example() -> None:
 
 
 def sidebar_config() -> tuple[
-    ProtocolParams, MineralParams, GoldParams, float, FusionUIParams, CianParams, SedParams
+    ProtocolParams,
+    MineralParams,
+    GoldParams,
+    float,
+    FusionUIParams,
+    CianParams,
+    SedParams,
+    CopParams,
 ]:
-    """Lee la barra lateral. Devuelve el protocolo, el mineral, el oro, la alícuota (g), la fusión
-    la cianuración y la sedimentación."""
+    """Lee la barra lateral. Devuelve el protocolo, el mineral, el oro, la alícuota (g), la fusión,
+    la cianuración, la sedimentación y la copelación."""
     sb = st.sidebar
     seen = st.session_state.get("_lang_seen")
     if seen and seen != current():
@@ -305,7 +332,11 @@ def sidebar_config() -> tuple[
         float(v["s_tc"]), str(v["s_comp"]), str(v["s_modo"]), float(v["s_tph"]),
         str(v["s_factor"]),
     )  # fmt: skip
-    return protocol, mineral, gold, aliquot, fusion_ui, cian, sed
+    cop = CopParams(
+        float(v["k_temp"]), str(v["k_pb_src"]), float(v["k_pb"]), float(v["k_au"]),
+        float(v["k_ag"]), str(v["k_modo"]), float(v["k_razon"]), float(v["k_ley"]),
+    )  # fmt: skip
+    return protocol, mineral, gold, aliquot, fusion_ui, cian, sed, cop
 
 
 def data_table(group: str | None = None) -> pd.DataFrame:
