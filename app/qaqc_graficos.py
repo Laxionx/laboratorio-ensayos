@@ -197,8 +197,9 @@ def th_figure(view: DupView) -> go.Figure:
             )
         )
     _layout(fig, t("qc.th.title"), 460, x=dict(title=t("qc.th.x")), y=dict(title=t("qc.th.y")))
-    fig.update_xaxes(type="log", range=[math.log10(x0), math.log10(x1)])
-    fig.update_yaxes(type="log")
+    # potencias de 10 en vez del prefijo SI de Plotly («100µ» se leería como micro-unidades)
+    fig.update_xaxes(type="log", range=[math.log10(x0), math.log10(x1)], exponentformat="power")
+    fig.update_yaxes(type="log", exponentformat="power")
     return fig
 
 
