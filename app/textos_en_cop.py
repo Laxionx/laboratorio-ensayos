@@ -181,7 +181,7 @@ T = {
     # ------------------------------------------------------------ charts
     "cp.plot.h": "#### Bugbee's tables and the model",
     "cp.plot.intro": "The points are the tables as printed; the dashed line is the model; the star, the calculation above. In gray, outside the table's range (there the model stays at the end value).",
-    "cp.plot.caption": "Left: Tables IX and XII (200 mg, 10 g of lead). Middle: Table X (685 °C) and, in green, Godshall's final average with 200 mg of silver (another laboratory, temperature not measured). Right: Table XI and Godshall's other two series with 1/2 A.T. of lead, relative to the 200 mg loss.",
+    "cp.plot.caption": "First: Tables IX and XII (200 mg, 10 g of lead). Second: Table X (685 °C) and, in green, Godshall's final average with 200 mg of silver (another laboratory, temperature not measured). Third: Table XI and Godshall's other two series with 1/2 A.T. of lead, relative to the 200 mg loss.",
     "cp.plot.ix": "Silver, Table IX (Lodge)",
     "cp.plot.model.ag": "Model, silver (200 mg, 10 g)",
     "cp.plot.xii": "Gold, Table XII (Lodge)",
@@ -212,6 +212,7 @@ T = {
     "cp.ani.caption": "The button shrinks according to the mass that comes from the calculation (lead, gold and silver in each frame); the muffle color follows the temperature with an illustrative ramp.",
     "svg.k.muffle": "Muffle (schematic)",
     "svg.k.cupel": "Bone-ash cupel",
+    "svg.k.bead": "bead",
     "svg.k.title": "Cupellation",
     "svg.k.cond": "{temp} °C · lead {pb} g",
     "svg.k.progress": "Progress (illustrative)",

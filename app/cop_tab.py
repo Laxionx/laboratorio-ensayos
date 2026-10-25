@@ -114,10 +114,8 @@ def inquartation_section(v: CopView) -> None:
 def charts_section(v: CopView) -> None:
     st.markdown(t("cp.plot.h"))
     st.caption(t("cp.plot.intro"))
-    a, b, c = st.columns(3)
-    a.plotly_chart(temperature_figure(v), width="stretch")
-    b.plotly_chart(lead_figure(v), width="stretch")
-    c.plotly_chart(silver_figure(v), width="stretch")
+    for figure in (temperature_figure, lead_figure, silver_figure):
+        st.plotly_chart(figure(v), width="stretch")
     st.caption(t("cp.plot.caption"))
 
 

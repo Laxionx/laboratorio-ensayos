@@ -178,7 +178,7 @@ T = {
     # ------------------------------------------------------------ gráficos
     "cp.plot.h": "#### Las tablas de Bugbee y el modelo",
     "cp.plot.intro": "Los puntos son las tablas tal como están impresas; la línea discontinua es el modelo; la estrella, el cálculo de arriba. En gris, fuera del rango de la tabla (ahí el modelo se queda en el extremo).",
-    "cp.plot.caption": "Izquierda: Tablas IX y XII (200 mg, 10 g de plomo). Centro: Tabla X (685 °C) y, en verde, el promedio final de Godshall con 200 mg de plata (otro laboratorio, sin temperatura medida). Derecha: Tabla XI y las otras dos series de Godshall con ½ A.T. de plomo, relativas a la pérdida de 200 mg.",
+    "cp.plot.caption": "Primero: Tablas IX y XII (200 mg, 10 g de plomo). Segundo: Tabla X (685 °C) y, en verde, el promedio final de Godshall con 200 mg de plata (otro laboratorio, sin temperatura medida). Tercero: Tabla XI y las otras dos series de Godshall con ½ A.T. de plomo, relativas a la pérdida de 200 mg.",
     "cp.plot.ix": "Plata, Tabla IX (Lodge)",
     "cp.plot.model.ag": "Modelo, plata (200 mg, 10 g)",
     "cp.plot.xii": "Oro, Tabla XII (Lodge)",
@@ -209,6 +209,7 @@ T = {
     "cp.ani.caption": "El botón se achica según la masa que sale del cálculo (plomo, oro y plata en cada cuadro); el color de la mufla sigue la temperatura con una rampa ilustrativa.",
     "svg.k.muffle": "Mufla (esquema)",
     "svg.k.cupel": "Copela de ceniza de hueso",
+    "svg.k.bead": "perla",
     "svg.k.title": "Copelación",
     "svg.k.cond": "{temp} °C · plomo {pb} g",
     "svg.k.progress": "Avance (ilustrativo)",

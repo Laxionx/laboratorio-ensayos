@@ -23,7 +23,7 @@ from cop_calculo import FRAMES, CopView
 from dibujo import INK, STEEL, es, svg, text
 from i18n import t
 
-W, H = 940, 480
+W, H = 940, 540
 CX, RIM_Y, POCKET_Y = 230.0, 222.0, 276.0  # eje de la copela, borde y fondo de su hueco
 R0, RY0 = 62.0, 42.0  # semiancho y alto del botón entero (px): fijos, no dependen del plomo
 TEXT_X = 470.0
@@ -74,6 +74,20 @@ def motion_css(view: CopView) -> str:
     )
 
 
+def _pearl_marker(view: CopView) -> str:
+    """Una cúpula a trazos del tamaño de la perla final (radio = el del cálculo) con su rótulo:
+    queda tapada por el botón mientras es grande y aparece cuando se achica hasta ella."""
+    r = R0 * view.escalas[-1] + 3.0
+    ry = r * RY0 / R0
+    return (
+        f'<path d="M {CX - r:.1f} {POCKET_Y} A {r:.1f} {ry:.1f} 0 0 1 {CX + r:.1f} {POCKET_Y} Z" '
+        f'fill="none" stroke="{INK}" stroke-width="1" stroke-dasharray="3 2"/>'
+        f'<line x1="{CX}" y1="{RIM_Y + 22}" x2="{CX}" y2="{POCKET_Y - ry - 2:.1f}" '
+        f'stroke="{INK}" stroke-width="1"/>'
+        + text(CX, RIM_Y + 18, t("svg.k.bead"), 12, anchor="middle", color=INK)
+    )
+
+
 def _cupel(view: CopView, paused: bool) -> str:
     """La mufla (color de la temperatura), la copela con su hueco, la parte absorbida y el botón."""
     last = view.cuadros[-1]
@@ -107,10 +121,11 @@ def _cupel(view: CopView, paused: bool) -> str:
         f'fill="{BONE}" stroke="{INK}" stroke-width="2"/>'
         f'<path d="{soak}" fill="{LITHARGE}" class="lb-soak"{soak_style}/>'
         f'<path d="{pocket}" fill="#CDBF9C" fill-opacity="0.55" stroke="{INK}" stroke-width="1.5"/>'
-        f'<g transform="translate({CX} {POCKET_Y})"><g class="lb-btn"{btn_style}>'
+        + _pearl_marker(view)
+        + f'<g transform="translate({CX} {POCKET_Y})"><g class="lb-btn"{btn_style}>'
         f'<path d="{dome}" class="lb-btnc" fill="{LEAD}" stroke="{INK}" stroke-width="2"'
         f"{fill_style}/>"
-        f"</g></g>" + text(CX, 424, t("svg.k.cupel"), 12, anchor="middle", color=STEEL)
+        f"</g></g>" + text(CX, 432, t("svg.k.cupel"), 12, anchor="middle", color=STEEL)
     )
 
 
