@@ -22,6 +22,15 @@ from cian_calculo import MODEL_LABELS, CianParams
 from cop_calculo import FUENTES_PLOMO, CopParams
 from cop_calculo import MODOS as COP_MODOS
 from i18n import current, int_num, num_g, opt, t, tm, use
+from qaqc_calculo import (
+    CRMS,
+    DUP_FUENTES,
+    DUP_TIPOS,
+    N_RANGO,
+    PRECISIONES,
+    QaqcParams,
+)
+from qaqc_calculo import FUENTES as QC_FUENTES
 from sed_calculo import COMPRESIONES, FACTORES, FUENTES, MODOS, SedParams
 
 from muestreo import cianuracion as cia
@@ -33,6 +42,7 @@ PROT, MIN, GOLD, FUS = "Protocolo", "Mineral", "Oro grueso", "Fusión"
 CIA = "Cianuración"
 SED = "Sedimentación"
 COP = "Copelación"
+QC = "Control de calidad"
 ALIQUOTS = ("30", "50")  # Au-AA23 y Au-AA24
 SHAPES = ("esfera", "cubo")
 
@@ -221,9 +231,37 @@ DATOS: tuple[Dato, ...] = (
          "dato.k_razon.meaning", "dato.k_razon.source"),
     Dato(COP, "k_ley", "dato.k_ley.label", "g/t", 0.01, 1000, 3.84, 0.1,
          "dato.k_ley.meaning", "dato.k_ley.source"),
+    Dato(QC, "q_crm", "dato.q_crm.label", "", 0, 0, CRMS[0], 0,
+         "dato.q_crm.meaning", "dato.q_crm.source", widget="select", options=CRMS),
+    Dato(QC, "q_val", "dato.q_val.label", "g/t", 0.01, 100, 1.0, 0.01,
+         "dato.q_val.meaning", "dato.q_val.source"),
+    Dato(QC, "q_sd", "dato.q_sd.label", "g/t", 0.0005, 10, 0.04, 0.001,
+         "dato.q_sd.meaning", "dato.q_sd.source"),
+    Dato(QC, "q_crm_fuente", "dato.q_crm_fuente.label", "", 0, 0, QC_FUENTES[0], 0,
+         "dato.q_crm_fuente.meaning", "dato.q_crm_fuente.source", widget="select",
+         options=QC_FUENTES),
+    Dato(QC, "q_n", "dato.q_n.label", "", N_RANGO[0], N_RANGO[1], 30, 5,
+         "dato.q_n.meaning", "dato.q_n.source"),
+    Dato(QC, "q_sesgo", "dato.q_sesgo.label", "%", -4, 4, 0.0, 0.5,
+         "dato.q_sesgo.meaning", "dato.q_sesgo.source"),
+    Dato(QC, "q_dup_fuente", "dato.q_dup_fuente.label", "", 0, 0, DUP_FUENTES[0], 0,
+         "dato.q_dup_fuente.meaning", "dato.q_dup_fuente.source", widget="select",
+         options=DUP_FUENTES),
+    Dato(QC, "q_dup_tipo", "dato.q_dup_tipo.label", "", 0, 0, DUP_TIPOS[0], 0,
+         "dato.q_dup_tipo.meaning", "dato.q_dup_tipo.source", widget="select",
+         options=DUP_TIPOS),
+    Dato(QC, "q_dup_p", "dato.q_dup_p.label", "%", 0, 0, PRECISIONES[0], 0,
+         "dato.q_dup_p.meaning", "dato.q_dup_p.source", widget="select", options=PRECISIONES),
+    Dato(QC, "q_blk_fuente", "dato.q_blk_fuente.label", "", 0, 0, QC_FUENTES[0], 0,
+         "dato.q_blk_fuente.meaning", "dato.q_blk_fuente.source", widget="select",
+         options=QC_FUENTES),
+    Dato(QC, "q_ld", "dato.q_ld.label", "g/t", 0.001, 1, 0.005, 0.001,
+         "dato.q_ld.meaning", "dato.q_ld.source"),
+    Dato(QC, "q_pico", "dato.q_pico.label", "× LD", 0, 30, 4.0, 0.5,
+         "dato.q_pico.meaning", "dato.q_pico.source"),
 )  # fmt: skip
 BY_KEY = {d.key: d for d in DATOS}
-GROUPS = (PROT, MIN, GOLD, FUS, CIA, SED, COP)
+GROUPS = (PROT, MIN, GOLD, FUS, CIA, SED, COP, QC)
 
 
 def _ask(d: Dato) -> float | bool | str:
@@ -270,9 +308,10 @@ def sidebar_config() -> tuple[
     CianParams,
     SedParams,
     CopParams,
+    QaqcParams,
 ]:
     """Lee la barra lateral. Devuelve el protocolo, el mineral, el oro, la alícuota (g), la fusión,
-    la cianuración, la sedimentación y la copelación."""
+    la cianuración, la sedimentación, la copelación y el control de calidad."""
     sb = st.sidebar
     seen = st.session_state.get("_lang_seen")
     if seen and seen != current():
@@ -336,7 +375,12 @@ def sidebar_config() -> tuple[
         float(v["k_temp"]), str(v["k_pb_src"]), float(v["k_pb"]), float(v["k_au"]),
         float(v["k_ag"]), str(v["k_modo"]), float(v["k_razon"]), float(v["k_ley"]),
     )  # fmt: skip
-    return protocol, mineral, gold, aliquot, fusion_ui, cian, sed, cop
+    qaqc = QaqcParams(
+        str(v["q_crm"]), float(v["q_val"]), float(v["q_sd"]), str(v["q_crm_fuente"]),
+        int(v["q_n"]), float(v["q_sesgo"]), str(v["q_dup_fuente"]), str(v["q_dup_tipo"]),
+        str(v["q_dup_p"]), str(v["q_blk_fuente"]), float(v["q_ld"]), float(v["q_pico"]),
+    )  # fmt: skip
+    return protocol, mineral, gold, aliquot, fusion_ui, cian, sed, cop, qaqc
 
 
 def data_table(group: str | None = None) -> pd.DataFrame:

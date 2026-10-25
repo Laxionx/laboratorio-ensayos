@@ -18,6 +18,7 @@ Sin termodinámica de escorias, sin ensayo de platinoides y sin copelación inst
 - **Copelación (fase 3):** pérdida de plata y de oro en la copela según la temperatura, el plomo (el botón de la pestaña Fusión) y la plata presente, con las tablas de Bugbee (1922) transcritas y un modelo de tablas con su banda; ley corregida = medida / (1 − pérdida); la plata que hay que agregar (encuarte) para que la partición en ácido funcione; y una copela en corte con el botón de plomo que se achica hasta dejar la perla (ver abajo).
 - **Ensayo de cianuración:** recuperación y ley de cabeza por balance desde (tiempo, oro en solución, oro en residuo), términos L, M y N del núcleo sin reaccionar con sus rectas, modelo potencial y un primer orden con meseta, y un vaso de precipitados en corte con agitador y un indicador de recuperación (ver abajo).
 - **Ensayo de sedimentación:** de la curva h(t) de una probeta al diámetro de un espesador (Coe-Clevenger, Kynch, Talmage-Fitch, curva de Luz o tabla editable), el factor 0,64 de Vale y su escalamiento, la tabla de espesadores de Vale y una probeta y un espesador animados (ver abajo).
+- **Control de calidad:** la carta de control de un CRM con ±2 SD y ±3 SD que se arma punto a punto, los duplicados (Thompson-Howarth y diferencia relativa), los blancos contra 3 y 10 veces el límite de detección y cómo se certifica un estándar (CDN-GS-2X), con cada regla citada y un veredicto del lote (ver abajo).
 - **Validación:** tabla y gráficos de lo calculado frente a lo publicado.
 - **Guía:** el error fundamental, los factores y qué dato pide cada uno, y qué errores de muestreo NO se modelan.
 
@@ -141,6 +142,27 @@ Cortes fijados antes de correr ([tests/test_copelacion.py](tests/test_copelacion
 | Réplica de la plata (series primera y tercera, informativa) | 7 de 12 razones a ±25 %; fallan 2, 5 y 20 mg |
 
 **Lo que no cuadra** (sin maquillar). Con la temperatura de Godshall (que no midió) supuesta en el centro de 700 a 775 °C, el modelo de Lodge queda corto: Godshall se parece a Lodge a unos 833 y 853 °C. No se ajustó nada para que pase. Bugbee imprime 2,65 en la celda de 50 mg de su Tabla XI y Godshall, 2,67. **Supuestos declarados:** separabilidad de los tres factores; la pérdida de oro es la de 200 mg de oro sin plata (con menos oro es mayor y con plata presente, menor, sin cifras); el punto de 0,1 mg de Rose usa 25 (promedio de «20 o 30»); las densidades del oro y de la plata del dibujo son de manual.
+
+## Control de calidad
+
+La pestaña «Control de calidad» califica un lote de ensayos con las reglas que publican los informes técnicos NI 43-101 y los fabricantes de materiales de referencia. El módulo `muestreo.qaqc` (con `qaqc_datos`, `qaqc_gemas` y `qaqc_validacion`) implementa, cada una con su cita en el código: la carta de control de un CRM (un resultado fuera de ±3 SD rechaza el lote; dos seguidos fuera de ±2 SD piden re-ensayo, Rainy River; tasa de fallas menor de 5 %; |X − μ| ≤ 2σ, Abzalov 2011), el gráfico de Thompson-Howarth y el HARD de los duplicados, los blancos contra 3 y 10 veces el límite de detección y la certificación de un estándar por recorte a ±2 SD (CDN-GS-2X). La carta se arma resultado por resultado con el reproductor y rotula la regla que dispara cada uno. Las series de ejemplo son **sintéticas** (semilla fija, rotuladas) o se pegan en una tabla editable (validada en el servidor, hasta 2 000 filas, sin guardar nada). Los 104 pares de GEMAS (plata y germanio de suelos, CC BY 4.0) **no son oro**: prueban el algoritmo. No hay LIMS, y la app no dice que un lote «cumple la norma»: dice qué reglas citadas se disparan.
+
+### Validación del control de calidad
+
+Cortes fijados antes de correr ([tests/test_qaqc.py](tests/test_qaqc.py)).
+
+| Qué se compara | Publicado | Calculado | ¿Cuadra? |
+|---|---|---|---|
+| CDN-GS-2X, recorte a ±2 SD de los 150 resultados (143 quedan) | 2,388 ± 0,232 g/t | 2,3879 ± 0,2316 g/t | sí |
+| OREAS 501b, 501c, 503c y 200: límites de ±2 SD y ±3 SD (16) | tablas de los certificados | a ±0,001 ppm con valor × 1RSD | 16 de 16 (con la SD redondeada, 12 de 16) |
+| GEMAS (Thompson-Howarth, 104 pares): Ag al 20 %, bajo p99 y p90 | 99 y 95 | 99 y 94 | sí (±2 pares) |
+| GEMAS: Ag al 10 % | 88 y 68 | 86 y 67 | sí (±2 pares) |
+| GEMAS: Ge al 10 %, bajo p90 | 15 | 15 | sí |
+| Coeficientes de las líneas (P = 10 % y 20 %) | hoja de Excel del tutorial | a 1e-4 relativo | 4 de 4 |
+| Sesgos de Rainy River (Tabla 11-12, 8 CRM) | −0,5 % a −2,5 % | a menos de 0,1 punto | 8 de 8 |
+| Sesgos de Loma Larga (Tabla 11-3, 3 CRM) | −1,11 %, −3,17 %, +3,15 % | a menos de 0,1 punto | 3 de 3 |
+
+**Lo que no cuadra o no se valida** (sin maquillar). La extracción de texto de la tabla de Rainy River salía desordenada: se leyó de la imagen de la página y la lectura anterior estaba mal (nombres y valores esperados descolocados). La Tabla 11-9 de Rainy River y la de Aranzazu no se pudieron verificar contra la imagen y quedan fuera. Las reglas de serie, de duplicados y de blancos no tienen una cifra publicada que reproducir: son pruebas unitarias contra la regla citada. Los PDF de OREAS y CDN no tienen licencia explícita: solo se usan sus cifras, citadas. **Supuestos declarados:** la diferencia relativa (RPD) de Rainy River se toma como |a − b| / media del par (el informe no da la fórmula); de 80-85 % se exige 80 %; los pares de germanio con media no positiva cuentan fuera, como en el recuento publicado.
 
 ## Límites
 

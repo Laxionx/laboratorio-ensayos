@@ -18,6 +18,7 @@ No slag thermodynamics, no platinoid assay and no instrumental cupellation. The 
 - **Cupellation (phase 3):** silver and gold loss in the cupel as a function of temperature, lead (the Fusion tab button) and the silver present, with Bugbee's (1922) tables transcribed and a table-based model with its band; corrected grade = measured / (1 − loss); the silver to add (inquartation) so that parting in acid works; and a cupel in section with the lead button shrinking until the bead is left (see below).
 - **Cyanide leach test:** recovery and head grade by balance from (time, gold in solution, gold in residue), unreacted-core terms L, M and N with their lines, a power-law model and a first order with plateau, and a beaker in section with a stirrer and a recovery gauge (see below).
 - **Settling test:** from the h(t) curve of a cylinder to the diameter of a thickener (Coe-Clevenger, Kynch, Talmage-Fitch, Luz curve or editable table), Vale's 0.64 factor and its scale-up, the table of Vale thickeners and an animated cylinder and thickener (see below).
+- **Quality control:** a CRM control chart with ±2 SD and ±3 SD built point by point, duplicates (Thompson-Howarth and relative difference), blanks against 3 and 10 times the detection limit and how a standard is certified (CDN-GS-2X), with every rule cited and a batch verdict (see below).
 - **Validation:** table and charts of what is calculated against what is published.
 - **Guide:** the fundamental error, the factors and what datum each one asks for, and which sampling errors are NOT modeled.
 
@@ -141,6 +142,27 @@ Cuts fixed before running ([tests/test_copelacion.py](tests/test_copelacion.py))
 | Silver replication (first and third series, informative) | 7 of 12 ratios within ±25 %; 2, 5 and 20 mg fail |
 
 **What does not match** (not dressed up). With Godshall's temperature (which he did not measure) assumed at the middle of 700 to 775 °C, Lodge's model falls short: Godshall looks like Lodge at about 833 and 853 °C. Nothing was adjusted to make it pass. Bugbee prints 2.65 in the 50 mg cell of his Table XI and Godshall, 2.67. **Declared assumptions:** separability of the three factors; the gold loss is that of 200 mg of gold without silver (with less gold it is larger and with silver present, smaller, with no figures); Rose's 0.1 mg point uses 25 (the average of "20 or 30"); the gold and silver densities in the drawing are handbook values.
+
+## Quality control
+
+The "Quality control" tab grades an assay batch with the rules published in NI 43-101 technical reports and by reference-material makers. The `muestreo.qaqc` module (with `qaqc_datos`, `qaqc_gemas` and `qaqc_validacion`) implements, each with its citation in the code: a CRM control chart (one result outside ±3 SD rejects the batch; two in a row outside ±2 SD call for a re-assay, Rainy River; failure rate under 5 %; |X − μ| ≤ 2σ, Abzalov 2011), the Thompson-Howarth plot and the HARD of duplicates, blanks against 3 and 10 times the detection limit, and certifying a standard by trimming at ±2 SD (CDN-GS-2X). The chart is built result by result with the player and labels the rule each one fires. The example series are **synthetic** (fixed seed, labeled) or are pasted into an editable table (validated on the server, up to 2,000 rows, nothing saved). The 104 GEMAS pairs (silver and germanium in soil, CC BY 4.0) are **not gold**: they test the algorithm. There is no LIMS, and the app never says a batch "meets the standard": it says which cited rules fire.
+
+### Quality-control validation
+
+Cuts fixed before running ([tests/test_qaqc.py](tests/test_qaqc.py)).
+
+| What is compared | Published | Calculated | Fits? |
+|---|---|---|---|
+| CDN-GS-2X, ±2 SD trimming of the 150 results (143 remain) | 2.388 ± 0.232 g/t | 2.3879 ± 0.2316 g/t | yes |
+| OREAS 501b, 501c, 503c and 200: ±2 SD and ±3 SD limits (16) | the certificates' tables | within ±0.001 ppm with value × 1RSD | 16 of 16 (with the rounded SD, 12 of 16) |
+| GEMAS (Thompson-Howarth, 104 pairs): Ag at 20 %, under p99 and p90 | 99 and 95 | 99 and 94 | yes (±2 pairs) |
+| GEMAS: Ag at 10 % | 88 and 68 | 86 and 67 | yes (±2 pairs) |
+| GEMAS: Ge at 10 %, under p90 | 15 | 15 | yes |
+| Line coefficients (P = 10 % and 20 %) | the tutorial's Excel sheet | within 1e-4 relative | 4 of 4 |
+| Rainy River biases (Table 11-12, 8 CRMs) | −0.5 % to −2.5 % | within 0.1 points | 8 of 8 |
+| Loma Larga biases (Table 11-3, 3 CRMs) | −1.11 %, −3.17 %, +3.15 % | within 0.1 points | 3 of 3 |
+
+**What does not match or is not validated** (not dressed up). The text extraction of the Rainy River table came out scrambled: it was read from the page image, and the earlier reading was wrong (names and expected values out of place). Rainy River's Table 11-9 and Aranzazu's could not be checked against the image and stay out. The series, duplicate and blank rules have no published figure to reproduce: they are unit tests against the cited rule. The OREAS and CDN PDFs have no explicit license: only their figures are used, cited. **Declared assumptions:** Rainy River's relative difference (RPD) is taken as |a − b| / pair mean (the report does not give the formula); of 80-85 %, 80 % is required; germanium pairs with a non-positive mean count outside, as in the published count.
 
 ## Limits
 

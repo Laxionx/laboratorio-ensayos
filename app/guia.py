@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import pandas as pd
 import streamlit as st
-from controles import CIA, COP, FUS, GOLD, MIN, PROT, SED, data_table
+from controles import CIA, COP, FUS, GOLD, MIN, PROT, QC, SED, data_table
 from i18n import current, t
 
 REPO = "https://github.com/Laxionx/laboratorio-ensayos"
@@ -21,6 +21,7 @@ N_LIMITS = {
     "cianuracion": 4,
     "sedimentacion": 5,
     "copelacion": 6,
+    "qaqc": 7,
 }
 N_REACTIONS, N_LIMITES = 4, 4
 DATA_GROUPS = {
@@ -30,6 +31,7 @@ DATA_GROUPS = {
     "cianuracion": (CIA,),
     "sedimentacion": (SED,),
     "copelacion": (COP,),
+    "qaqc": (QC,),
 }
 
 
@@ -103,6 +105,14 @@ def guide_tab() -> None:
         r"\text{ley corregida} = \frac{\text{ley medida}}{1 - P}"
     )
     st.markdown(t("guide.cop.2"))
+    st.markdown(t("guide.h.qaqc"))
+    st.markdown(t("guide.qaqc.1"))
+    st.latex(
+        r"\mathrm{HARD} = \frac{|a-b|}{a+b}\qquad "
+        r"|a-b| \le z\,\sqrt{2}\,\frac{P}{2}\,C\qquad "
+        r"\text{sesgo} = \left(\frac{\bar{x}}{\mu} - 1\right) \times 100"
+    )
+    st.markdown(t("guide.qaqc.2"))
     st.markdown(t("guide.h.minnitt"))
     st.markdown(t("guide.minnitt", note=minnitt_2007_note()))
     st.markdown(t("guide.h.datos"))
