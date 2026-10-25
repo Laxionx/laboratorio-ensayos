@@ -76,7 +76,7 @@ def test_humo_de_la_pestana_en_cada_idioma(lang, ag, add, pearl, text):
     assert values[ag] == (f"4{sep}51 %", values[ag][1])
     assert values[add][0] == f"4{sep}27 mg" and values[pearl][0] == f"6{sep}99 mg"
     assert any(text in m.value for m in at.markdown)
-    assert len(at.metric) == 16 and len(at.sidebar.expander) == 7
+    assert len(at.metric) == 30 and len(at.sidebar.expander) == 8
 
 
 def values_label(lang: str, key: str) -> str:

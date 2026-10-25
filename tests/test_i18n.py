@@ -78,7 +78,11 @@ def test_ningun_texto_esta_vacio_y_solo_los_cognados_son_iguales_en_los_dos_idio
                     # símbolos y unidades de la sedimentación
                     "sd.app.pellet", "sd.cc.f", "sd.no", "sd.plot.c", "sd.plot.u", "sd.v.cma",
                     "sd.v.cmu", "sd.v.tph", "svg.s.bar", "svg.s.cyl",
-                    "svg.s.tu"}  # fmt: skip
+                    "svg.s.tu",
+                    # símbolos, unidades y cognados del control de calidad
+                    "qc.blk.l10", "qc.blk.l3", "qc.blk.ld", "qc.blk.y", "qc.cert.m.band",
+                    "qc.cert.x", "qc.col.a", "qc.crm.2sd", "qc.crm.3sd", "qc.crm.y",
+                    "qc.dup.m.pct.delta", "qc.rpd.y", "qv.kind.dos_sd"}  # fmt: skip
 
 
 def _source_files() -> list[Path]:
@@ -181,6 +185,7 @@ def test_lang_en_en_la_url_abre_en_ingles_y_el_selector_cambia_el_idioma():
         "Cupellation",
         "Cyanide leach test",
         "Settling test",
+        "Quality control",
         "Validation",
     ]
     assert en.sidebar.radio[0].value == "en"
@@ -210,8 +215,8 @@ def test_los_datos_se_conservan_al_cambiar_de_idioma():
 def test_humo_de_todas_las_pestanas(lang):
     at = run(lang)
     assert not at.exception and not at.error
-    assert len(at.tabs) == 8 and len(at.metric) == 16
-    assert len(at.sidebar.expander) == 7
+    assert len(at.tabs) == 9 and len(at.metric) == 30
+    assert len(at.sidebar.expander) == 8
 
 
 @pytest.mark.parametrize("lang", ["es", "en"])
@@ -260,7 +265,7 @@ def test_las_cifras_son_identicas_en_los_dos_idiomas(values):
     es_, en = run("es", **values), run("en", **values)
     assert not es_.exception and not en.exception
     assert _figures(es_, "es") == _figures(en, "en")
-    assert len(es_.metric) == len(en.metric) == 16
+    assert len(es_.metric) == len(en.metric) == 30
 
 
 def test_las_tablas_de_validacion_tienen_las_mismas_cifras_en_los_dos_idiomas():

@@ -65,9 +65,7 @@ def test_humo_de_la_pestana_en_cada_idioma(lang, tab, recovery, model):
     at = run(lang)
     assert not at.exception and not at.error
     assert [t.label for t in at.tabs][5] == tab
-    assert (
-        len(at.metric) == 16
-    )  # la pestaña no agrega métricas a las de siempre (4 son de Copelación)
+    assert len(at.metric) == 30  # 16 de siempre más 14 del control de calidad
     frame = balance_table(at)
     assert len(frame) == 7 and frame.iloc[:, 3].round(2).tolist()[-1] == 94.77
     assert any(recovery in m.value for m in at.markdown)
