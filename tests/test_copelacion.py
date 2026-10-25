@@ -165,8 +165,10 @@ def test_rose_en_sus_filas_entre_ellas_y_en_los_extremos():
 
 
 def test_estado_de_la_particion_en_los_umbrales_de_bugbee():
-    assert cp.estado_particion(2.99) == "insuficiente"
+    assert cp.estado_particion(1.99) == "insuficiente" and cp.estado_particion(2.0) == "lamina"
+    assert cp.estado_particion(2.99) == "lamina"
     assert cp.estado_particion(3.0) == "lenta" and cp.estado_particion(7.99) == "lenta"
+    assert cp.estado_particion(3.0 - 1e-12) == "lenta"  # redondeo del solucionador
     assert cp.estado_particion(8.0) == "buena" and cp.estado_particion(30.0) == "buena"
 
 

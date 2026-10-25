@@ -178,6 +178,7 @@ def test_lang_en_en_la_url_abre_en_ingles_y_el_selector_cambia_el_idioma():
         "Protocol",
         "Coarse gold",
         "Fusion",
+        "Cupellation",
         "Cyanide leach test",
         "Settling test",
         "Validation",
@@ -209,8 +210,8 @@ def test_los_datos_se_conservan_al_cambiar_de_idioma():
 def test_humo_de_todas_las_pestanas(lang):
     at = run(lang)
     assert not at.exception and not at.error
-    assert len(at.tabs) == 7 and len(at.metric) == 12
-    assert len(at.sidebar.expander) == 6
+    assert len(at.tabs) == 8 and len(at.metric) == 16
+    assert len(at.sidebar.expander) == 7
 
 
 @pytest.mark.parametrize("lang", ["es", "en"])
@@ -259,7 +260,7 @@ def test_las_cifras_son_identicas_en_los_dos_idiomas(values):
     es_, en = run("es", **values), run("en", **values)
     assert not es_.exception and not en.exception
     assert _figures(es_, "es") == _figures(en, "en")
-    assert len(es_.metric) == len(en.metric) == 12
+    assert len(es_.metric) == len(en.metric) == 16
 
 
 def test_las_tablas_de_validacion_tienen_las_mismas_cifras_en_los_dos_idiomas():

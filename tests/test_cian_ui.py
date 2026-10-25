@@ -64,8 +64,10 @@ def balance_table(at: AppTest):
 def test_humo_de_la_pestana_en_cada_idioma(lang, tab, recovery, model):
     at = run(lang)
     assert not at.exception and not at.error
-    assert [t.label for t in at.tabs][4] == tab
-    assert len(at.metric) == 12  # la pestaña no agrega métricas a las de siempre
+    assert [t.label for t in at.tabs][5] == tab
+    assert (
+        len(at.metric) == 16
+    )  # la pestaña no agrega métricas a las de siempre (4 son de Copelación)
     frame = balance_table(at)
     assert len(frame) == 7 and frame.iloc[:, 3].round(2).tolist()[-1] == 94.77
     assert any(recovery in m.value for m in at.markdown)
@@ -107,7 +109,7 @@ def test_el_selector_de_idioma_conserva_los_datos_de_la_cianuracion():
     sidebar(at, "c_head").set_value(1200.0).run()
     at.sidebar.radio[0].set_value("en").run()
     assert not at.exception and sidebar(at, "c_head").value == 1200.0
-    assert at.tabs[4].label == "Cyanide leach test"
+    assert at.tabs[5].label == "Cyanide leach test"
 
 
 def test_apagar_el_movimiento_no_rompe_la_pestana():

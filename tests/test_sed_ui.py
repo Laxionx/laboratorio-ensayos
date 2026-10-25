@@ -73,8 +73,10 @@ def warned(at: AppTest, needle: str) -> bool:
 def test_humo_de_la_pestana_en_cada_idioma(lang, tab, dim, area):
     at = run(lang)
     assert not at.exception and not at.error
-    assert [t.label for t in at.tabs][5] == tab
-    assert len(at.metric) == 12  # la pestaña no agrega métricas a las de siempre
+    assert [t.label for t in at.tabs][6] == tab
+    assert (
+        len(at.metric) == 16
+    )  # la pestaña no agrega métricas a las de siempre (4 son de Copelación)
     assert any(dim in m.value for m in at.markdown) and any(area in m.value for m in at.markdown)
     assert max(len(d.value) for d in at.dataframe) == 31  # la tabla de Vale
     assert not [w for w in at.warning if "tangente" in w.value.lower() or "tangent" in w.value]
@@ -138,7 +140,7 @@ def test_el_selector_de_idioma_conserva_los_datos_de_la_sedimentacion():
     at.sidebar.radio[0].set_value("en").run()
     assert not at.exception and widget(at, "s_tph").value == 300.0
     assert widget(at, "s_factor").value == "Vale iron-ore slimes (0.64)"
-    assert at.tabs[5].label == "Settling test"
+    assert at.tabs[6].label == "Settling test"
 
 
 def test_apagar_el_movimiento_no_rompe_la_pestana():
