@@ -6,7 +6,8 @@ T = {
     "app.title": "Laboratorio de ensayos metalúrgicos y de ensayo al fuego",
     "app.caption": (
         "Ensayos metalúrgicos de laboratorio, además del ensayo al fuego: el error de muestreo, la "
-        "carga fundente, la cianuración y la sedimentación que dimensiona un espesador. Cuánto "
+        "carga fundente, la cianuración, la sedimentación que dimensiona un espesador y el control "
+        "de calidad del laboratorio (CRM, duplicados y blancos). Cuánto "
         "error de muestreo mete cada etapa de la preparación y cuántos granos de oro caen "
         "en la alícuota, con la ecuación de Gy validada contra números publicados. Con la carga "
         "fundente de la fusión (fase 2) y la copelación con la partición (fase 3). Empieza por la **Guía**; los datos se "

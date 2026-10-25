@@ -4,7 +4,7 @@ of the aliquot diagram."""
 T = {
     "page.title": "Metallurgical test and fire-assay laboratory",
     "app.title": "Metallurgical test and fire-assay laboratory",
-    "app.caption": "Laboratory metallurgical tests besides the fire assay: sampling error, the flux charge, cyanide leaching and the settling test that sizes a thickener. How much sampling error each preparation stage adds and how many gold grains fall in the aliquot, using Gy's equation validated against published figures. Includes the fusion flux charge (phase 2) and cupellation with parting (phase 3). Start with the **Guide**; change the inputs in the sidebar. Public ALS preparation codes; no affiliation.",
+    "app.caption": "Laboratory metallurgical tests besides the fire assay: sampling error, the flux charge, cyanide leaching, the settling test that sizes a thickener and the laboratory's quality control (CRMs, duplicates and blanks). How much sampling error each preparation stage adds and how many gold grains fall in the aliquot, using Gy's equation validated against published figures. Includes the fusion flux charge (phase 2) and cupellation with parting (phase 3). Start with the **Guide**; change the inputs in the sidebar. Public ALS preparation codes; no affiliation.",
     "err.generic": "Something went wrong. Try other inputs or reload the page.",
     "toggle.label": "Animate",
     "toggle.help": 'Turns off the crucible animation (Fusion tab) and the cupel animation (Cupellation tab), the beaker animation (Cyanide leach test tab) and the cylinder and thickener animation (Settling test tab). It also turns off on its own if the system has "reduce motion" enabled.',
