@@ -95,8 +95,8 @@ T = {
         "receta de ningún laboratorio."
     ),
     "ficha.fusion.limit.1": (
-        "Sin copelación ni pérdidas de oro y plata, sin termodinámica de escorias y sin ensayo "
-        "de platinoides."
+        "La copelación y las pérdidas de oro y plata están en la pestaña Copelación; aquí no hay "
+        "termodinámica de escorias ni ensayo de platinoides."
     ),
     "ficha.fusion.limit.2": (
         "El poder reductor de la harina y el oxidante del nitro son datos del laboratorio: "
