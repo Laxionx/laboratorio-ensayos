@@ -120,7 +120,7 @@ T = {
     "qc.crm.rules": '**Rules applied.** (1) One result outside ±3 SD rejects the batch, and two consecutive results outside ±2 SD call for re-assaying it: Rainy River Mine NI 43-101 report (New Gold, 2025), sec. 11. OREAS reads its intervals the same way: warning or rejection if several results fall outside 2 SD, rejection if one falls outside 3 SD. (2) Failure rate under 5 % per CRM, counting failures outside ±3 SD: Rainy River. (3) At good quality, 95 % of points fall within ±2 SD, |X − μ| ≤ 2σ: Abzalov (2011), Eq. 21. (4) Bias = measured mean / certified value − 1: Rainy River and Loma Larga. "Outside" is strictly beyond the limit.',
     # ------------------------------------------------------------ duplicates
     "qc.dup.h": "#### Duplicates: Thompson-Howarth and relative difference",
-    "qc.dup.intro.gemas": "**{el}, 104 GEMAS field-duplicate pairs** (agricultural soils of Europe, aqua regia and ICP, in mg/kg; data from the tutorial of Demetriades and Argyraki, 2025, CC BY 4.0). **It is not gold**: it tests the algorithm, and the verdicts below are a demonstration, not a grade for any gold laboratory.",
+    "qc.dup.intro.gemas": "**GEMAS, {el}: 104 field-duplicate pairs** (agricultural soils of Europe, aqua regia and ICP, in mg/kg; data from the tutorial of Demetriades and Argyraki, 2025, CC BY 4.0). **It is not gold**: it tests the algorithm, and the verdicts below are a demonstration, not a grade for any gold laboratory.",
     "qc.dup.intro.table": "**{n} pairs pasted by the user.** Type: {tipo}; precision P of {p} %.",
     "qc.dup.m.pairs": "Pairs",
     "qc.dup.m.in90": "Under the 90 line",

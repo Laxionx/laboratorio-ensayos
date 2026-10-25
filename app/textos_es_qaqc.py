@@ -119,7 +119,7 @@ T = {
     "qc.crm.rules": "**Reglas aplicadas.** (1) Un resultado fuera de ±3 SD rechaza el lote, y dos resultados seguidos fuera de ±2 SD piden re-ensayarlo: Rainy River Mine, informe NI 43-101 (New Gold, 2025), sec. 11. OREAS lee igual sus intervalos: advertencia o rechazo si varios resultados caen fuera de 2 SD, rechazo si uno cae fuera de 3 SD. (2) Tasa de fallas menor de 5 % por CRM, contando fallas fuera de ±3 SD: Rainy River. (3) Con buena calidad, 95 % de los puntos cae dentro de ±2 SD, |X − μ| ≤ 2σ: Abzalov (2011), Eq. 21. (4) Sesgo = media medida / valor certificado − 1: Rainy River y Loma Larga. «Fuera» es estrictamente más allá del límite.",
     # ------------------------------------------------------------ duplicados
     "qc.dup.h": "#### Duplicados: Thompson-Howarth y diferencia relativa",
-    "qc.dup.intro.gemas": "**{el}, 104 pares de duplicados de campo de GEMAS** (suelos agrícolas de Europa, agua regia e ICP, en mg/kg; datos del tutorial de Demetriades y Argyraki, 2025, CC BY 4.0). **No es oro**: sirve para probar el algoritmo, y los veredictos de abajo son una demostración, no una calificación de ningún laboratorio de oro.",
+    "qc.dup.intro.gemas": "**GEMAS, {el}: 104 pares de duplicados de campo** (suelos agrícolas de Europa, agua regia e ICP, en mg/kg; datos del tutorial de Demetriades y Argyraki, 2025, CC BY 4.0). **No es oro**: sirve para probar el algoritmo, y los veredictos de abajo son una demostración, no una calificación de ningún laboratorio de oro.",
     "qc.dup.intro.table": "**{n} pares pegados por el usuario.** Tipo: {tipo}; precisión P de {p} %.",
     "qc.dup.m.pairs": "Pares",
     "qc.dup.m.in90": "Bajo la línea 90",

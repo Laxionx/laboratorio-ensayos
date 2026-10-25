@@ -24,7 +24,7 @@ STATE_SYMBOL = {
     qc.FUERA_3SD: "x",
 }
 CERT_C, LINE_C, MUTED = "#3B82A6", "#8E979C", "#B7B0A0"
-PAD = 0.08  # holgura vertical de la carta, como fracción del alto de los datos
+PAD = 0.22  # holgura vertical de la carta (deja lugar a la nota de la regla)
 
 
 def _marker(state: str) -> dict:

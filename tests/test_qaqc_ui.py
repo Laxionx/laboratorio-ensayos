@@ -177,10 +177,12 @@ def test_el_tipo_de_duplicado_y_la_precision_cambian_el_veredicto():
 
 def test_los_dos_elementos_de_gemas_tienen_su_rotulo_no_es_oro():
     at = run()
-    assert any("104 pares de duplicados de campo de GEMAS" in m.value for m in at.markdown)
+    assert any(
+        "GEMAS, plata (Ag): 104 pares de duplicados de campo" in m.value for m in at.markdown
+    )
     assert any("**No es oro**" in m.value for m in at.markdown)
     widget(at, "q_dup_fuente").set_value(qcalc.DUP_FUENTES[1]).run()
-    assert any("germanio (Ge), 104 pares" in m.value for m in at.markdown)
+    assert any("GEMAS, germanio (Ge): 104 pares" in m.value for m in at.markdown)
     assert said(at, "13 pares con media no positiva") or any(
         "13 pares con media no positiva" in c.value for c in at.caption
     )
