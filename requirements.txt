@@ -1,5 +1,6 @@
 numpy==2.5.4
 scipy==1.18.1
-streamlit==1.65.0
+streamlit==1.66.1
+pillow==13.0.0
 plotly==7.1.0
 conminucion @ git+https://github.com/Laxionx/simulador-conminucion.git@96a4fa468377bce2f839b04960dae4f76f5d625f
