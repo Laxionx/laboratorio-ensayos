@@ -18,7 +18,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest", "pytest-cov", "pytest-xdist", "basedpyright", "ruff"]
-app = ["streamlit==1.65.0", "plotly==7.1.0"]
+app = ["streamlit==1.66.1", "pillow==13.0.0", "plotly==7.1.0"]
 
 [tool.setuptools]
 packages = ["muestreo"]
