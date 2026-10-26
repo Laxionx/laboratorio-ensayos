@@ -25,6 +25,7 @@ def _run() -> AppTest:
     return AppTest.from_file(APP, default_timeout=180).run()
 
 
+@pytest.mark.app
 def test_las_nueve_pestanas_cargan_sin_excepciones():
     at = _run()
     assert not at.exception and not at.error
@@ -38,12 +39,14 @@ def test_las_nueve_pestanas_cargan_sin_excepciones():
     assert values["Mediana de los 1 000 ensayos"] == "3,41 g/t"
 
 
+@pytest.mark.app
 def test_la_pestana_de_oro_recomienda_screen_fire_assay_con_pocos_granos():
     at = _run()
     assert any("screen fire assay" in w.value for w in at.warning)
     assert any("errata" not in w.value and "ℓ = 0,000035" in w.value for w in at.warning)
 
 
+@pytest.mark.app
 def test_los_controles_salen_de_la_misma_definicion_que_la_tabla():
     at = _run()
     widgets = {w.key: w for w in _widgets(at)}
@@ -69,6 +72,7 @@ def test_la_tabla_recoge_un_dato_nuevo_sola(monkeypatch):
     assert "Dato nuevo" in list(controles.data_table()["Dato"])
 
 
+@pytest.mark.app
 def test_el_mineral_por_defecto_es_el_calibrado_de_minnitt_2017_con_su_fuente():
     from calculo import DSA_ALPHA, DSA_K, MINERALS, SOURCE_NOTE
 
@@ -79,6 +83,7 @@ def test_el_mineral_por_defecto_es_el_calibrado_de_minnitt_2017_con_su_fuente():
     assert any("Minnitt (2017)" in c.value for c in at.caption)
 
 
+@pytest.mark.app
 @pytest.mark.parametrize("preset", ["PREP-31", "PREP-31B", "Minnitt 2017, Tabla VIII"])
 @pytest.mark.parametrize("aliquot", ["30", "50"])
 def test_los_tres_protocolos_con_las_dos_alicuotas_cargan(preset, aliquot):
@@ -88,6 +93,7 @@ def test_los_tres_protocolos_con_las_dos_alicuotas_cargan(preset, aliquot):
     assert not at.exception and not at.error
 
 
+@pytest.mark.app
 @pytest.mark.parametrize("form_index", [0, 1, 2, 3])
 def test_las_cuatro_formas_de_mineral_cargan(form_index):
     from calculo import MINERALS
@@ -98,6 +104,7 @@ def test_las_cuatro_formas_de_mineral_cargan(form_index):
     assert not at.exception and not at.error
 
 
+@pytest.mark.app
 @pytest.mark.parametrize("extreme", ["min", "max"])
 @pytest.mark.parametrize("lot_correction", [False, True])
 def test_controles_en_los_extremos_no_tumban_la_app(extreme, lot_correction):
@@ -110,6 +117,7 @@ def test_controles_en_los_extremos_no_tumban_la_app(extreme, lot_correction):
     assert not at.exception
 
 
+@pytest.mark.app
 @pytest.mark.parametrize("value", [10_000_000, -5, float("inf"), float("nan")])
 def test_el_servidor_rechaza_valores_fuera_de_rango(value):
     # Un cliente puede mandar valores sin pasar por el navegador: Streamlit (versión fijada en
@@ -124,6 +132,7 @@ def test_el_servidor_rechaza_valores_fuera_de_rango(value):
     ]
 
 
+@pytest.mark.app
 def test_un_protocolo_imposible_se_muestra_sin_traza():
     at = _run()
     lot = next(w for w in at.sidebar.number_input if w.key == controles.PREFIX + "lot")
@@ -133,6 +142,7 @@ def test_un_protocolo_imposible_se_muestra_sin_traza():
     assert any("menor que" in e.value for e in at.error)
 
 
+@pytest.mark.app
 def test_un_fallo_del_modelo_se_muestra_sin_traza(monkeypatch):
     import calculo
 

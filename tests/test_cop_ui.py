@@ -15,6 +15,7 @@ from streamlit.testing.v1 import AppTest
 
 ROOT = Path(__file__).resolve().parents[1]
 APP = str(ROOT / "app" / "streamlit_app.py")
+pytestmark = pytest.mark.app  # corren la app entera con AppTest: son las lentas
 sys.path.insert(0, str(ROOT / "app"))
 
 import controles  # noqa: E402

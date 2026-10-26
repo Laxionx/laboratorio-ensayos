@@ -266,6 +266,7 @@ def _run() -> AppTest:
     return AppTest.from_file(APP, default_timeout=180).run()
 
 
+@pytest.mark.app
 def test_los_controles_de_fusion_salen_de_la_misma_definicion():
     keys = {d.key for d in controles.DATOS if d.group == controles.FUS}
     assert {"m_" + m.key for m in fu.MINERALS} <= keys  # los 9 minerales vienen de fusion.MINERALS
@@ -283,6 +284,7 @@ def test_los_controles_de_fusion_salen_de_la_misma_definicion():
     assert "Bugbee" in controles.BY_KEY["f_niter"].help
 
 
+@pytest.mark.app
 def test_la_pestana_de_fusion_carga_con_la_carga_calculada_sin_avisos_de_boton():
     at = _run()
     assert not at.exception and not at.error
@@ -292,6 +294,7 @@ def test_la_pestana_de_fusion_carga_con_la_carga_calculada_sin_avisos_de_boton()
     assert not any("Botón de" in w.value or "fuera de" in w.value for w in at.warning)
 
 
+@pytest.mark.app
 def test_una_carga_con_la_harina_a_la_mitad_avisa_boton_chico():
     at = _run()
     flour = next(w for w in at.sidebar.number_input if w.key == controles.PREFIX + "x_flour")
@@ -301,6 +304,7 @@ def test_una_carga_con_la_harina_a_la_mitad_avisa_boton_chico():
     assert any("carga cambiada" in i.value for i in at.info)
 
 
+@pytest.mark.app
 def test_mucha_sílice_avisa_escoria_acida_y_riesgo_de_mata_con_sulfuros():
     at = _run()
     sets = {"m_pirita": 25.0, "m_cuarzo": 50.0, "x_silica": 3.0}
@@ -314,6 +318,7 @@ def test_mucha_sílice_avisa_escoria_acida_y_riesgo_de_mata_con_sulfuros():
     assert "Riesgo" in texts and "Fuente:" in texts
 
 
+@pytest.mark.app
 def test_los_minerales_que_suman_mas_de_100_se_avisan_sin_traza():
     at = _run()
     for w in at.sidebar.number_input:
@@ -324,6 +329,7 @@ def test_los_minerales_que_suman_mas_de_100_se_avisan_sin_traza():
     assert any("no pueden pasar de 100 %" in e.value for e in at.error)
 
 
+@pytest.mark.app
 def test_un_fallo_del_modelo_de_fusion_se_muestra_sin_traza(monkeypatch):
     def fails(params):
         raise fu.FusionError("la masa de la muestra debe ser positiva")
@@ -334,6 +340,7 @@ def test_un_fallo_del_modelo_de_fusion_se_muestra_sin_traza(monkeypatch):
     assert any("debe ser positiva" in e.value for e in at.error)
 
 
+@pytest.mark.app
 def test_la_validacion_incluye_la_seccion_de_fusion_con_el_resumen():
     at = _run()
     text = " ".join(m.value for m in at.markdown)
@@ -343,6 +350,7 @@ def test_la_validacion_incluye_la_seccion_de_fusion_con_el_resumen():
     assert "Cargas del USGS 1445" in text
 
 
+@pytest.mark.app
 def test_la_guia_explica_las_reacciones_y_que_dato_pide_cada_reactivo():
     at = _run()
     text = " ".join(m.value for m in at.markdown)

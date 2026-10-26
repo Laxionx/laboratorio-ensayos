@@ -63,6 +63,7 @@ def warned(at: AppTest, needle: str) -> bool:
 
 
 # ------------------------------------------------------------------ humo
+@pytest.mark.app
 @pytest.mark.parametrize(
     ("lang", "tab", "dim", "area"),
     [
@@ -80,6 +81,7 @@ def test_humo_de_la_pestana_en_cada_idioma(lang, tab, dim, area):
     assert not [w for w in at.warning if "tangente" in w.value.lower() or "tangent" in w.value]
 
 
+@pytest.mark.app
 def test_el_escalamiento_dice_0_898_0_573_y_0_64_con_la_division_al_reves():
     es_ = md(run(), "El factor es")
     assert "0,573 / 0,898 = **0,64**" in es_ and "1,57" in es_ and "0,573 m² por t/d" in es_
@@ -87,6 +89,7 @@ def test_el_escalamiento_dice_0_898_0_573_y_0_64_con_la_division_al_reves():
     assert "0.573 / 0.898 = **0.64**" in en and "1.57" in en
 
 
+@pytest.mark.app
 def test_el_ejemplo_de_coe_clevenger_se_muestra_en_pies_y_en_si():
     es_ = md(run(), "pies² por tonelada corta por día")
     assert "**4,31 pies² por tonelada corta por día**" in es_ and "431 pies²" in es_
@@ -95,6 +98,7 @@ def test_el_ejemplo_de_coe_clevenger_se_muestra_en_pies_y_en_si():
     assert "**4.31 ft² per short ton per day**" in en and "**23.4 ft**" in en
 
 
+@pytest.mark.app
 def test_la_validacion_incluye_la_seccion_de_sedimentacion_con_sus_hallazgos():
     at = run()
     resumen = md(at, "Cuadran: Coe y Clevenger")
@@ -103,6 +107,7 @@ def test_la_validacion_incluye_la_seccion_de_sedimentacion_con_sus_hallazgos():
     assert "0,987" in md(at, "Hallazgos, sin maquillar")
 
 
+@pytest.mark.app
 def test_los_controles_de_la_barra_lateral_son_los_de_la_definicion():
     at = run()
     for d in GROUP:
@@ -113,6 +118,7 @@ def test_los_controles_de_la_barra_lateral_son_los_de_la_definicion():
             assert w.options[0] == d.options[0] and w.value == d.default
 
 
+@pytest.mark.app
 def test_cada_opcion_de_las_listas_carga_sin_errores():
     at = run()
     for key in ("s_fuente", "s_comp", "s_modo", "s_factor"):
@@ -122,6 +128,7 @@ def test_cada_opcion_de_las_listas_carga_sin_errores():
             assert not at.exception and not at.error, (key, option)
 
 
+@pytest.mark.app
 def test_el_factor_de_vale_cambia_el_diametro_y_se_rotula_no_universal():
     at = run()
     widget(at, "s_factor").set_value(sc.FACTORES[1]).run()
@@ -131,6 +138,7 @@ def test_el_factor_de_vale_cambia_el_diametro_y_se_rotula_no_universal():
     assert warned(at, "no es universal")
 
 
+@pytest.mark.app
 def test_el_selector_de_idioma_conserva_los_datos_de_la_sedimentacion():
     at = run()
     widget(at, "s_tph").set_value(300.0).run()
@@ -141,12 +149,14 @@ def test_el_selector_de_idioma_conserva_los_datos_de_la_sedimentacion():
     assert at.tabs[6].label == "Settling test"
 
 
+@pytest.mark.app
 def test_apagar_el_movimiento_no_rompe_la_pestana():
     at = run()
     at.toggle[0].set_value(False).run()
     assert not at.exception
 
 
+@pytest.mark.app
 def test_el_titulo_de_la_app_cubre_los_ensayos_metalurgicos_en_los_dos_idiomas():
     assert run().title[0].value == "Laboratorio de ensayos metalúrgicos y de ensayo al fuego"
     assert run("en").title[0].value == "Metallurgical test and fire-assay laboratory"
@@ -155,6 +165,7 @@ def test_el_titulo_de_la_app_cubre_los_ensayos_metalurgicos_en_los_dos_idiomas()
 
 
 # ------------------------------------------------------------------ la tabla editable
+@pytest.mark.app
 def test_con_la_tabla_precargada_el_resultado_es_el_del_modelo_de_luz():
     at = con_tabla()
     assert not at.exception and not at.warning[-1].value.startswith("La interfase")
@@ -162,6 +173,7 @@ def test_con_la_tabla_precargada_el_resultado_es_el_del_modelo_de_luz():
     assert any("**0,405 m² por t/d**" in m.value for m in at.markdown)
 
 
+@pytest.mark.app
 def test_editar_la_tabla_cambia_el_dimensionamiento():
     antes = md(con_tabla(), "Para 157 t/h")
     at = edit(con_tabla(), {7: {"h": 0.15}})  # la cota de los 420 s sube de 0,1223 a 0,15
@@ -169,6 +181,7 @@ def test_editar_la_tabla_cambia_el_dimensionamiento():
     assert md(at, "Para 157 t/h") != antes
 
 
+@pytest.mark.app
 @pytest.mark.parametrize("col", ["t", "h"])
 @pytest.mark.parametrize(
     "bad", [None, float("nan"), float("inf"), -5.0, 0.0, 1e12, "texto", "<script>x</script>"]
@@ -180,6 +193,7 @@ def test_una_celda_manipulada_avisa_sin_caerse_ni_llegar_al_html(col, bad):
     assert "<script" not in blob.lower()
 
 
+@pytest.mark.app
 def test_alturas_que_suben_o_tiempos_desordenados_avisan():
     assert warned(edit(con_tabla(), {3: {"h": 0.5}}), "no puede subir")
     assert warned(edit(con_tabla(), {3: {"t": 30.0}}), "orden creciente")
@@ -187,6 +201,7 @@ def test_alturas_que_suben_o_tiempos_desordenados_avisan():
     assert warned(edit(con_tabla(), {0: {"t": 10.0}}), "tiempo 0")
 
 
+@pytest.mark.app
 def test_una_tabla_vacia_corta_o_muy_larga_avisa():
     assert warned(edit(con_tabla(), deleted=list(range(16))), "entre 4 y 60 filas")
     assert warned(edit(con_tabla(), deleted=list(range(14))), "entre 4 y 60 filas")
@@ -194,17 +209,20 @@ def test_una_tabla_vacia_corta_o_muy_larga_avisa():
     assert warned(edit(con_tabla(), added=rows), "entre 4 y 60 filas")
 
 
+@pytest.mark.app
 def test_agregar_filas_a_la_curva_sigue_funcionando():
     at = edit(con_tabla(), added=[{"t": 100000.0, "h": 0.0349}])
     assert not at.exception and not warned(at, "no puede subir")
 
 
+@pytest.mark.app
 def test_volver_a_la_curva_de_luz_restaura_la_tabla():
     at = edit(con_tabla(), {3: {"h": 0.5}})
     next(b for b in at.button if "curva de Luz" in b.label).click().run()
     assert not at.exception and not warned(at, "no puede subir")
 
 
+@pytest.mark.app
 def test_los_datos_imposibles_se_muestran_como_aviso_en_los_dos_idiomas():
     at = run()
     widget(at, "s_cma").set_value(60.0)
@@ -223,6 +241,7 @@ FUERA_DE_RANGO = [(d.key, 1e12) for d in NUMBERS] + [
 ]  # fmt: skip
 
 
+@pytest.mark.app
 @pytest.mark.parametrize(("key", "value"), FUERA_DE_RANGO)
 def test_el_servidor_devuelve_al_valor_por_defecto_un_campo_fuera_de_rango(key, value):
     at = run()
@@ -258,6 +277,7 @@ def _fuzz_cases(rng: random.Random):
     return cases
 
 
+@pytest.mark.app
 @pytest.mark.parametrize("lang", ["es", "en"])
 def test_fuzz_de_30_combinaciones_no_tira_excepciones(lang):
     at = run(lang)

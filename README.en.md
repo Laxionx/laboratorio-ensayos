@@ -40,6 +40,19 @@ pytest --cov=muestreo
 
 For the cloud, `requirements.txt` is enough (pinned versions; `conminucion` pinned to a commit). The size distribution uses `conminucion.sizes` from [simulador-conminucion](https://github.com/Laxionx/simulador-conminucion).
 
+### When changing code: cheap checks first
+
+The full suite takes about 21 min, and almost all of it is the tests that open the app with AppTest (marker `app`). Every change goes through the cheap steps first:
+
+| Step | Command | Time | What it catches |
+|---|---|---|---|
+| 1. Check without running | `ruff check . && basedpyright` | ~15 s | names and types; basedpyright reports only **new** errors (the 65 earlier ones are in `.basedpyright/baseline.json`) |
+| 2. Tests without the app | `pytest -m "not app" -x` | ~30 s | 626 tests: calculations, charts, diagrams and the keys of both languages |
+| 3. Full suite | `pytest` | ~21 min | everything; required before every commit |
+| 4. CI | on push | | Python 3.12 and 3.13 with a clean install |
+
+A new test that opens the app gets `@pytest.mark.app`; otherwise step 2 stops being fast. The ladder was tested with 7 planted bugs (package and app calculations, a tab key, a text key and a misspelled attribute): steps 1 and 2 caught all 7, in 35 to 60 s. `pytest-testmon` (running only the affected tests) was tried and dropped: every app test renders all the tabs, so almost any change pulls in about 300 tests, and its tracing makes them 2.3 times slower (one round took 41 min).
+
 ## Validation
 
 Thresholds were fixed before running ([tests/test_validacion.py](tests/test_validacion.py)). What does not match is shown as it is, with no `xfail` or touch-ups.

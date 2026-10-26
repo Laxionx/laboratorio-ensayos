@@ -40,6 +40,19 @@ pytest --cov=muestreo
 
 Para la nube basta `requirements.txt` (versiones fijas; `conminucion` fijado a un commit). La granulometría usa `conminucion.sizes` de [simulador-conminucion](https://github.com/Laxionx/simulador-conminucion).
 
+### Al cambiar código: de lo barato a lo caro
+
+La suite completa tarda unos 21 min, y casi todo es de las pruebas que abren la app con AppTest (etiqueta `app`). Cada cambio pasa primero por lo barato:
+
+| Paso | Comando | Tarda | Qué atrapa |
+|---|---|---|---|
+| 1. Revisar sin ejecutar | `ruff check . && basedpyright` | ~15 s | nombres y tipos; basedpyright avisa solo los errores **nuevos** (los 65 previos están en `.basedpyright/baseline.json`) |
+| 2. Pruebas sin la app | `pytest -m "not app" -x` | ~30 s | 626 pruebas: cálculos, gráficos, esquemas y las claves de los dos idiomas |
+| 3. Suite completa | `pytest` | ~21 min | todo; obligatoria antes de cada commit |
+| 4. CI | al hacer push | | Python 3.12 y 3.13 con instalación limpia |
+
+Una prueba nueva que abre la app lleva `@pytest.mark.app`; si no, el paso 2 deja de ser rápido. La escalera se probó con 7 errores plantados (cálculos del paquete y de la app, una clave de pestaña, una clave de texto y un atributo mal escrito): los pasos 1 y 2 atraparon los 7, en 35 a 60 s. `pytest-testmon` (correr solo las pruebas afectadas) se probó y se descartó: cada prueba de la app dibuja todas las pestañas, así que casi cualquier cambio arrastra unas 300 pruebas, y su rastreo las hace 2,3 veces más lentas (una vuelta tardó 41 min).
+
 ## Validación
 
 Cortes fijados antes de correr ([tests/test_validacion.py](tests/test_validacion.py)). Lo que no cuadra se muestra tal cual, sin `xfail` ni retoques.

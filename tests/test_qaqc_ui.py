@@ -77,6 +77,7 @@ def said(at: AppTest, needle: str) -> bool:
 
 
 # ------------------------------------------------------------------ humo
+@pytest.mark.app
 @pytest.mark.parametrize(
     ("lang", "tab", "crm", "cdn"),
     [
@@ -94,6 +95,7 @@ def test_humo_de_la_pestana_en_cada_idioma(lang, tab, crm, cdn):
     assert len(at.sidebar.expander) == 8
 
 
+@pytest.mark.app
 def test_los_veredictos_de_la_serie_de_ejemplo_son_los_del_calculo():
     at = run()
     assert said(at, "Ninguna regla de rechazo ni de re-ensayo se dispara. 1 de 30 resultados")
@@ -102,6 +104,7 @@ def test_los_veredictos_de_la_serie_de_ejemplo_son_los_del_calculo():
     assert said(at, "**Alerta.** 1 blanco(s) superan 3 × LD (3,3 %)")
 
 
+@pytest.mark.app
 def test_el_valor_certificado_de_cdn_gs_2x_sale_de_los_150_resultados():
     at = run()
     res = md(at, "Con los 150 resultados")
@@ -109,6 +112,7 @@ def test_el_valor_certificado_de_cdn_gs_2x_sale_de_los_150_resultados():
     assert "**2,388 ± 0,232 g/t**" in res and "coinciden al redondeo publicado" in res
 
 
+@pytest.mark.app
 def test_las_cifras_de_oreas_se_muestran_con_la_sd_sin_redondear():
     at = run()
     intro = md(at, "valor certificado **0,248 g/t**")
@@ -121,6 +125,7 @@ def test_las_cifras_de_oreas_se_muestran_con_la_sd_sin_redondear():
 
 
 # ------------------------------------------------------------------ los controles
+@pytest.mark.app
 def test_los_controles_de_la_barra_lateral_son_los_de_la_definicion():
     at = run()
     for d in GROUP:
@@ -131,6 +136,7 @@ def test_los_controles_de_la_barra_lateral_son_los_de_la_definicion():
             assert list(w.options) == list(d.options) and w.value == d.default
 
 
+@pytest.mark.app
 def test_cada_opcion_de_las_listas_carga_sin_errores():
     at = run()
     for d in GROUP:
@@ -142,6 +148,7 @@ def test_cada_opcion_de_las_listas_carga_sin_errores():
             assert not at.exception and not at.error, (d.key, option)
 
 
+@pytest.mark.app
 @pytest.mark.parametrize(
     ("crm", "esperado"),
     [("OREAS 501b", "0,248"), ("OREAS 501c", "0,221"), ("OREAS 503c", "0,698"),
@@ -154,6 +161,7 @@ def test_el_crm_elegido_cambia_el_valor_certificado(crm, esperado):
     assert any(f"valor certificado **{esperado} g/t**" in m.value for m in at.markdown)
 
 
+@pytest.mark.app
 def test_un_sesgo_grande_dispara_el_rechazo_del_lote_y_se_lee_en_la_carta():
     at = run()
     widget(at, "q_sesgo").set_value(4.0).run()
@@ -163,6 +171,7 @@ def test_un_sesgo_grande_dispara_el_rechazo_del_lote_y_se_lee_en_la_carta():
     assert said(at, "**Rechazo del lote.**") or said(at, "**Re-ensayo del lote.**")
 
 
+@pytest.mark.app
 def test_un_pico_de_blancos_sobre_10_ld_es_falla():
     at = run()
     widget(at, "q_pico").set_value(12.0).run()
@@ -171,6 +180,7 @@ def test_un_pico_de_blancos_sobre_10_ld_es_falla():
     assert said(at, "Ningún blanco supera 3 veces el límite de detección")
 
 
+@pytest.mark.app
 def test_el_tipo_de_duplicado_y_la_precision_cambian_el_veredicto():
     at = run()
     widget(at, "q_dup_tipo").set_value("Pulpa").run()
@@ -179,6 +189,7 @@ def test_el_tipo_de_duplicado_y_la_precision_cambian_el_veredicto():
     assert said(at, "Thompson-Howarth con P = 20 %")
 
 
+@pytest.mark.app
 def test_los_dos_elementos_de_gemas_tienen_su_rotulo_no_es_oro():
     at = run()
     assert any(
@@ -191,6 +202,7 @@ def test_los_dos_elementos_de_gemas_tienen_su_rotulo_no_es_oro():
 
 
 # ------------------------------------------------------------------ tablas pegadas
+@pytest.mark.app
 def test_con_las_tablas_precargadas_el_resultado_es_el_de_la_serie_de_ejemplo():
     at = con_tablas()
     assert not at.exception and not at.error
@@ -198,17 +210,20 @@ def test_con_las_tablas_precargadas_el_resultado_es_el_de_la_serie_de_ejemplo():
     assert any("tabla del usuario" in m.value for m in at.markdown)
 
 
+@pytest.mark.app
 def test_editar_la_tabla_del_crm_cambia_el_veredicto():
     at = edit(con_tablas(), qaqc_tab.KEY_CRM, {3: {"res": 0.4}})  # muy por encima de 3 SD
     assert not at.exception and said(at, "**Rechazo del lote.** 1 de 30")
 
 
+@pytest.mark.app
 def test_el_rechazo_cuenta_las_fallas_fuera_de_3_sd_y_no_las_de_2_sd():
     # un resultado a 16 SD y otro a 2,3 SD: 1 de 30 fuera de ±3 SD (3,3 %), 2 de 30 fuera de ±2 SD
     at = edit(con_tablas(), qaqc_tab.KEY_CRM, {3: {"res": 0.4}, 10: {"res": 0.27}})
     assert said(at, "**Rechazo del lote.** 1 de 30 resultados (3,3 %)")
 
 
+@pytest.mark.app
 def test_dos_resultados_seguidos_fuera_de_2_sd_piden_re_ensayo_desde_la_tabla():
     at = edit(con_tablas(), qaqc_tab.KEY_CRM, {5: {"res": 0.27}, 6: {"res": 0.27}})
     assert said(at, "**Re-ensayo del lote.**")
@@ -217,6 +232,7 @@ def test_dos_resultados_seguidos_fuera_de_2_sd_piden_re_ensayo_desde_la_tabla():
 MALAS = [None, float("nan"), float("inf"), -5.0, 1e12, "texto", "<script>alert(1)</script>"]
 
 
+@pytest.mark.app
 @pytest.mark.parametrize("key", [qaqc_tab.KEY_CRM, qaqc_tab.KEY_BLK])
 @pytest.mark.parametrize("bad", MALAS)
 def test_una_celda_mala_de_una_serie_avisa_sin_caerse_ni_llegar_al_html(key, bad):
@@ -226,6 +242,7 @@ def test_una_celda_mala_de_una_serie_avisa_sin_caerse_ni_llegar_al_html(key, bad
     assert "<script" not in blob.lower() and "alert(1)" not in blob
 
 
+@pytest.mark.app
 @pytest.mark.parametrize("col", ["a", "b"])
 @pytest.mark.parametrize("bad", MALAS)
 def test_una_celda_mala_de_los_duplicados_avisa_sin_caerse_ni_llegar_al_html(col, bad):
@@ -235,22 +252,26 @@ def test_una_celda_mala_de_los_duplicados_avisa_sin_caerse_ni_llegar_al_html(col
     assert "<script" not in blob.lower() and "alert(1)" not in blob
 
 
+@pytest.mark.app
 def test_las_celdas_que_no_son_numeros_se_avisan_y_las_negativas_tambien():
     for bad, needle in ((float("inf"), "números finitos"), (-5.0, "no puede ser negativo")):
         at = edit(con_tablas(), qaqc_tab.KEY_CRM, {3: {"res": bad}})
         assert said(at, needle), (bad, alerts(at)[:3])
 
 
+@pytest.mark.app
 def test_un_texto_en_una_columna_numerica_lo_descarta_streamlit_y_la_fila_queda_vacia():
     at = edit(con_tablas(), qaqc_tab.KEY_CRM, {3: {"res": "texto"}})
     assert not at.exception and said(at, "1 de 29 resultados")  # la celda vacía no cuenta
 
 
+@pytest.mark.app
 def test_una_fila_con_una_sola_celda_llena_en_los_duplicados_se_avisa():
     at = edit(con_tablas(), qaqc_tab.KEY_DUP, {2: {"b": None}})
     assert said(at, "una sola celda llena")
 
 
+@pytest.mark.app
 def test_las_filas_vacias_se_ignoran_y_la_tabla_sin_filas_avisa():
     vacias = [{"res": None}] * 5
     at = edit(con_tablas(), qaqc_tab.KEY_CRM, added=vacias)
@@ -261,6 +282,7 @@ def test_las_filas_vacias_se_ignoran_y_la_tabla_sin_filas_avisa():
     assert said(at, "entre 1 y 2 000 filas")
 
 
+@pytest.mark.app
 def test_el_tope_de_2000_filas_se_declara_y_se_aplica():
     ok = [{"res": 0.248}] * (qc.MAX_FILAS - 30)
     at = edit(con_tablas(), qaqc_tab.KEY_CRM, added=ok)
@@ -273,6 +295,7 @@ def test_el_tope_de_2000_filas_se_declara_y_se_aplica():
     assert not at.exception and said(at, "entre 1 y 2 000 filas")
 
 
+@pytest.mark.app
 def test_volver_a_la_serie_de_ejemplo_restaura_la_tabla():
     at = edit(con_tablas(), qaqc_tab.KEY_CRM, {3: {"res": 0.4}})
     assert said(at, "**Rechazo del lote.**")
@@ -280,6 +303,7 @@ def test_volver_a_la_serie_de_ejemplo_restaura_la_tabla():
     assert not at.exception and not said(at, "**Rechazo del lote.**")
 
 
+@pytest.mark.app
 def test_un_crm_propio_sin_sd_valida_se_avisa_en_vez_de_caerse():
     at = run()
     widget(at, "q_crm").set_value("CRM propio")
@@ -311,6 +335,7 @@ def _qc_numbers(at: AppTest, lang: str) -> list[list[float]]:
     return [_numbers(x, lang) for x in seq[start:stop]] + [_numbers(x, lang) for x in cap]
 
 
+@pytest.mark.app
 def test_la_pestana_tiene_las_mismas_cifras_en_los_dos_idiomas():
     es_, en = run("es"), run("en")
     a, b = _qc_numbers(es_, "es"), _qc_numbers(en, "en")
@@ -325,12 +350,14 @@ def test_la_pestana_tiene_las_mismas_cifras_en_los_dos_idiomas():
     ]
 
 
+@pytest.mark.app
 def test_los_numeros_cambian_de_formato_pero_no_de_valor():
     es_, en = run("es"), run("en")
     assert any("Con los 150 resultados: media 2,3868 g/t" in m.value for m in es_.markdown)
     assert any("With the 150 results: mean 2.3868 g/t" in m.value for m in en.markdown)
 
 
+@pytest.mark.app
 def test_el_selector_de_idioma_conserva_los_datos_del_control_de_calidad():
     at = run()
     widget(at, "q_sesgo").set_value(2.0).run()
@@ -348,6 +375,7 @@ def test_los_textos_de_error_de_la_interfaz_existen_en_los_dos_idiomas():
         assert f"qc.err.{code}" in TEXTS["es"] and f"qc.err.{code}" in TEXTS["en"]
 
 
+@pytest.mark.app
 def test_apagar_el_movimiento_no_rompe_la_pestana():
     at = run()
     at.toggle[0].set_value(False).run()
@@ -360,6 +388,7 @@ FUERA_DE_RANGO = [(d.key, 1e12) for d in NUMBERS] + [
 ]  # fmt: skip
 
 
+@pytest.mark.app
 @pytest.mark.parametrize(("key", "value"), FUERA_DE_RANGO)
 def test_el_servidor_devuelve_al_valor_por_defecto_un_campo_fuera_de_rango(key, value):
     at = run()
@@ -407,6 +436,7 @@ def _fuzz_cases(rng: random.Random):
     return cases
 
 
+@pytest.mark.app
 @pytest.mark.parametrize("lang", ["es", "en"])
 def test_fuzz_de_30_combinaciones_no_tira_excepciones(lang):
     at = run(lang)
@@ -426,6 +456,7 @@ def test_fuzz_de_30_combinaciones_no_tira_excepciones(lang):
         assert not re.search(r"Traceback|nan g/t|inf g/t|NaN|<script", blob)
 
 
+@pytest.mark.app
 @pytest.mark.parametrize(
     ("lang", "aviso"),
     [("es", "13 de 104 pares no se dibujan en la escala logarítmica"),

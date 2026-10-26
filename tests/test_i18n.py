@@ -161,6 +161,7 @@ def test_los_textos_en_ingles_no_llevan_palabras_en_espanol():
 
 
 # ------------------------------------------------------------------ el idioma y la URL
+@pytest.mark.app
 @pytest.mark.parametrize("value", ["fr", "EN", "es ", "", "en;alert(1)", "<script>", "../en"])
 def test_un_parametro_lang_invalido_es_espanol_sin_error(value):
     at = run(value)
@@ -175,6 +176,7 @@ def test_parse_lang_solo_acepta_es_y_en():
     assert {i18n.parse_lang(v) for v in ("fr", None, 3, ["en"], "EN", " en")} == {"es"}
 
 
+@pytest.mark.app
 def test_lang_en_en_la_url_abre_en_ingles_y_el_selector_cambia_el_idioma():
     en = run("en")
     assert [t.label for t in en.tabs] == [
@@ -197,12 +199,14 @@ def test_lang_en_en_la_url_abre_en_ingles_y_el_selector_cambia_el_idioma():
     assert es_.tabs[0].label == "Guide" and not es_.exception
 
 
+@pytest.mark.app
 def test_el_valor_de_lang_nunca_llega_al_html_ni_al_svg():
     at = run("en<script>alert(1)</script>")
     blob = json.dumps([m.value for m in at.markdown] + [c.value for c in at.caption])
     assert "alert(1)" not in blob and "<script" not in blob.lower()
 
 
+@pytest.mark.app
 def test_los_datos_se_conservan_al_cambiar_de_idioma():
     at = run("es", lot=5000.0)
     at.sidebar.radio[0].set_value("en").run()
@@ -211,6 +215,7 @@ def test_los_datos_se_conservan_al_cambiar_de_idioma():
 
 
 # ------------------------------------------------------------------ humo de todas las pestañas
+@pytest.mark.app
 @pytest.mark.parametrize("lang", ["es", "en"])
 def test_humo_de_todas_las_pestanas(lang):
     at = run(lang)
@@ -219,6 +224,7 @@ def test_humo_de_todas_las_pestanas(lang):
     assert len(at.sidebar.expander) == 8
 
 
+@pytest.mark.app
 @pytest.mark.parametrize("lang", ["es", "en"])
 def test_humo_con_cambios_que_disparan_avisos(lang):
     at = run(lang, x_flour=0.5, x_silica=3.0, f_sulfur="SO2", m_pirita=30.0, m_cuarzo=50.0)
@@ -252,6 +258,7 @@ def _figures(at: AppTest, lang: str) -> list[list[float]]:
     return out
 
 
+@pytest.mark.app
 @pytest.mark.parametrize(
     "values",
     [
@@ -268,6 +275,7 @@ def test_las_cifras_son_identicas_en_los_dos_idiomas(values):
     assert len(es_.metric) == len(en.metric) == 30
 
 
+@pytest.mark.app
 def test_las_tablas_de_validacion_tienen_las_mismas_cifras_en_los_dos_idiomas():
     def table_numbers(at, lang):
         rows = []
@@ -302,6 +310,7 @@ def _bottle_numbers(at: AppTest, lang: str) -> list[list[float]]:
     return out
 
 
+@pytest.mark.app
 def test_la_pestana_de_cianuracion_tiene_las_mismas_cifras_en_los_dos_idiomas():
     es_, en = run("es"), run("en")
     a, b = _bottle_numbers(es_, "es"), _bottle_numbers(en, "en")
@@ -309,6 +318,7 @@ def test_la_pestana_de_cianuracion_tiene_las_mismas_cifras_en_los_dos_idiomas():
     assert any(94.77 in x for x in a) and any(0.335 in x for x in a)
 
 
+@pytest.mark.app
 def test_los_numeros_de_la_pestana_de_cianuracion_cambian_de_formato_pero_no_de_valor():
     es_, en = run("es"), run("en")
     assert any("Última fila: **94,77 %**" in m.value for m in es_.markdown)
@@ -326,6 +336,7 @@ def _sed_numbers(at: AppTest, lang: str) -> list[list[float]]:
     return [_numbers(x, lang) for x in texts[start:stop]]
 
 
+@pytest.mark.app
 def test_la_pestana_de_sedimentacion_tiene_las_mismas_cifras_en_los_dos_idiomas():
     es_, en = run("es"), run("en")
     a, b = _sed_numbers(es_, "es"), _sed_numbers(en, "en")
@@ -333,6 +344,7 @@ def test_la_pestana_de_sedimentacion_tiene_las_mismas_cifras_en_los_dos_idiomas(
     assert any(43.6 in x for x in a) and any(0.396 in x for x in a) and any(1.57 in x for x in a)
 
 
+@pytest.mark.app
 def test_los_numeros_de_la_pestana_de_sedimentacion_cambian_de_formato_pero_no_de_valor():
     es_, en = run("es"), run("en")
     assert any("diámetro de **43,6 m**" in m.value for m in es_.markdown)
@@ -480,6 +492,7 @@ def test_los_errores_conocidos_del_modelo_se_traducen():
         )
 
 
+@pytest.mark.app
 def test_un_error_del_modelo_se_muestra_en_ingles_sin_traza():
     at = run("en", preset="PREP-31B", lot=500.0)
     assert not at.exception
