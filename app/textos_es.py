@@ -3,6 +3,7 @@ usen la misma clave."""
 
 from __future__ import annotations
 
+from textos_es_carga import T as CARGA
 from textos_es_cian import T as CIAN
 from textos_es_cop import T as COP
 from textos_es_datos import T as DATOS
@@ -14,7 +15,7 @@ from textos_es_sed import T as SED
 from textos_es_ui import T as UI
 
 TEXTS: dict[str, str] = {}
-for _part in (UI, GUIA, DATOS, FUSION, CIAN, SED, COP, QAQC, QAQC_VAL):
+for _part in (UI, GUIA, DATOS, FUSION, CIAN, SED, COP, QAQC, QAQC_VAL, CARGA):
     _repeated = TEXTS.keys() & _part.keys()
     if _repeated:
         raise ValueError(f"claves repetidas en textos_es: {sorted(_repeated)}")

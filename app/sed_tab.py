@@ -6,6 +6,7 @@ SVG ni al HTML: la tabla solo alimenta números."""
 
 from __future__ import annotations
 
+import carga
 import pandas as pd
 import streamlit as st
 from dibujo import as_images, es
@@ -29,6 +30,7 @@ from muestreo import sedimentacion_datos as dd
 
 TABLE_KEY = "sed_tabla"
 ROW_PX = 35  # alto de una fila de st.dataframe
+COLUMNAS = (carga.Columna("t", "sd.col.t"), carga.Columna("h", "sd.col.h"))
 FT = 0.3048  # m por pie
 SHORT_TON = 0.90718474  # t por tonelada corta
 APPS = {"lama": "sd.app.lama", "pellet feed": "sd.app.pellet", "alim. flotación": "sd.app.flot"}
@@ -37,10 +39,6 @@ APPS = {"lama": "sd.app.lama", "pellet feed": "sd.app.pellet", "alim. flotación
 def example_table() -> pd.DataFrame:
     rows = tabla_de_luz()
     return pd.DataFrame({"t": [a for a, _ in rows], "h": [b for _, b in rows]})
-
-
-def _reset() -> None:
-    st.session_state.pop(TABLE_KEY, None)
 
 
 def _error_text(exc: sd.SedimentacionError) -> str:
@@ -67,14 +65,14 @@ def curve_section(p: SedParams) -> SedView | None:
         ),
     }
     edited = st.data_editor(
-        example_table(),
+        carga.panel(TABLE_KEY, COLUMNAS, example_table(), "plantilla_sedimentacion.csv"),
         key=TABLE_KEY,
         num_rows="dynamic",
         hide_index=True,
         column_config=config,
         width="stretch",
     )
-    st.button(t("sd.reset"), on_click=_reset)
+    st.button(t("sd.reset"), on_click=carga.reiniciar, args=(TABLE_KEY,))
     rows = _rows(edited) if p.fuente != FUENTES[0] else None
     st.caption(t("sd.cur.source", fuente=t("opt." + p.fuente)))
     try:

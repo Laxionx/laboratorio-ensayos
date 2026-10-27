@@ -4,6 +4,7 @@ Nada que escriba el visitante entra al SVG ni al HTML: la tabla solo alimenta nÃ
 
 from __future__ import annotations
 
+import carga
 import pandas as pd
 import streamlit as st
 from cian_calculo import (
@@ -27,16 +28,17 @@ from muestreo import cianuracion_datos as cd
 
 TABLE_KEY = "cian_tabla"
 ROW_PX = 35  # alto de una fila de st.dataframe, para que la tabla se vea entera
+COLUMNAS = (
+    carga.Columna("t", "cn.col.t"),
+    carga.Columna("sol", "cn.col.sol"),
+    carga.Columna("res", "cn.col.res"),
+)
 
 
 def example_table() -> pd.DataFrame:
     return pd.DataFrame(
         {"t": list(cd.T_H), "sol": list(cd.SOLUCION_PPB), "res": list(cd.RESIDUO_PPB)}
     )
-
-
-def _reset() -> None:
-    st.session_state.pop(TABLE_KEY, None)
 
 
 def _error_text(exc: c.SerieInvalida) -> str:
@@ -73,14 +75,14 @@ def calculator(p: CianParams) -> CianView | None:
         "res": number(t("cn.col.res"), min_value=0.0, max_value=PPB_MAX, step=1.0, required=True),
     }
     edited = st.data_editor(
-        example_table(),
+        carga.panel(TABLE_KEY, COLUMNAS, example_table(), "plantilla_cianuracion.csv"),
         key=TABLE_KEY,
         num_rows="dynamic",
         hide_index=True,
         column_config=config,
         width="stretch",
     )
-    st.button(t("cn.reset"), on_click=_reset)
+    st.button(t("cn.reset"), on_click=carga.reiniciar, args=(TABLE_KEY,))
     rows = [
         [None if pd.isna(x) else x for x in r] for r in edited[["t", "sol", "res"]].values.tolist()
     ]

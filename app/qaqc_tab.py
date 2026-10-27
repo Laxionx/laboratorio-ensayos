@@ -5,6 +5,7 @@ el visitante en una tabla solo alimenta números y nunca entra al HTML ni a un g
 
 from __future__ import annotations
 
+import carga
 import pandas as pd
 import streamlit as st
 from dibujo import es
@@ -41,16 +42,13 @@ from muestreo import qaqc as qc
 from muestreo import qaqc_validacion as qv
 
 KEY_CRM, KEY_DUP, KEY_BLK = "qaqc_tabla_crm", "qaqc_tabla_dup", "qaqc_tabla_blk"
+COL_RES = (carga.Columna("res", "qc.col.res"),)
+COL_DUP = (carga.Columna("a", "qc.col.a"), carga.Columna("b", "qc.col.b"))
 VALOR_MAX = 1_000_000.0  # tope de una celda de la tabla editable
 
 
 def _error_text(exc: qc.QaqcError) -> str:
     return t(f"qc.err.{exc.code}", **{k: es(v, 0) for k, v in exc.args_.items()})
-
-
-def _reset(*keys: str) -> None:
-    for key in keys:
-        st.session_state.pop(key, None)
 
 
 def _cell(x: object) -> object:
@@ -67,19 +65,31 @@ def _number_column(label_key: str) -> object:
     )
 
 
-def _editor(key: str, frame: pd.DataFrame, columns: dict) -> pd.DataFrame:
+def _editor(
+    key: str, frame: pd.DataFrame, columns: dict, spec: tuple[carga.Columna, ...], archivo: str
+) -> pd.DataFrame:
     edited = st.data_editor(
-        frame, key=key, num_rows="dynamic", hide_index=True, column_config=columns, width="stretch"
+        carga.panel(key, spec, frame, archivo),
+        key=key,
+        num_rows="dynamic",
+        hide_index=True,
+        column_config=columns,
+        width="stretch",
     )
-    st.button(t("qc.reset"), key=key + "_reset", on_click=_reset, args=(key,))
+    st.button(t("qc.reset"), key=key + "_reset", on_click=carga.reiniciar, args=(key,))
     return edited
 
 
 def _table_or_hint(
-    use_table: bool, key: str, frame: pd.DataFrame, columns: dict
+    use_table: bool,
+    key: str,
+    frame: pd.DataFrame,
+    columns: dict,
+    spec: tuple[carga.Columna, ...],
+    archivo: str,
 ) -> pd.DataFrame | None:
     if use_table:
-        return _editor(key, frame, columns)
+        return _editor(key, frame, columns, spec, archivo)
     st.caption(t("qc.table.hint", max=int_num(qc.MAX_FILAS)))
     return None
 
@@ -135,7 +145,8 @@ def crm_section(p: QaqcParams) -> CrmView | None:
     st.markdown(t("qc.crm.h"))
     own = p.crm_fuente != FUENTES[0]
     frame = pd.DataFrame({"res": tabla_crm(p)})
-    edited = _table_or_hint(own, KEY_CRM, frame, {"res": _number_column("qc.col.res")})
+    cols = {"res": _number_column("qc.col.res")}
+    edited = _table_or_hint(own, KEY_CRM, frame, cols, COL_RES, "plantilla_crm.csv")
     try:
         view = run_crm(p, None if edited is None else _column(edited, "res"))
     except qc.QaqcError as exc:
@@ -194,7 +205,7 @@ def dup_section(p: QaqcParams) -> DupView | None:
     own = p.dup_fuente == DUP_FUENTES[-1]
     frame = pd.DataFrame(tabla_duplicados(), columns=["a", "b"])
     cols = {"a": _number_column("qc.col.a"), "b": _number_column("qc.col.b")}
-    edited = _table_or_hint(own, KEY_DUP, frame, cols)
+    edited = _table_or_hint(own, KEY_DUP, frame, cols, COL_DUP, "plantilla_duplicados.csv")
     rows = (
         None
         if edited is None
@@ -223,7 +234,8 @@ def blk_section(p: QaqcParams) -> BlkView | None:
     st.markdown(t("qc.blk.h"))
     own = p.blk_fuente != FUENTES[0]
     frame = pd.DataFrame({"res": tabla_blancos(p)})
-    edited = _table_or_hint(own, KEY_BLK, frame, {"res": _number_column("qc.col.res")})
+    cols = {"res": _number_column("qc.col.res")}
+    edited = _table_or_hint(own, KEY_BLK, frame, cols, COL_RES, "plantilla_blancos.csv")
     try:
         view = run_blk(p, None if edited is None else _column(edited, "res"))
     except qc.QaqcError as exc:

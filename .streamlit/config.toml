@@ -1,5 +1,5 @@
-# Configuración para la app pública (Streamlit Community Cloud). La app no sube archivos, no usa
-# secretos y todos sus controles tienen límites.
+# Configuración para la app pública (Streamlit Community Cloud). La app solo recibe CSV y .xlsx para
+# las tablas (nunca se guardan), no usa secretos y todos sus controles tienen límites.
 
 [client]
 # Sin trazas ni rutas internas en el navegador: solo un mensaje genérico.
@@ -8,7 +8,7 @@ showErrorDetails = "none"
 toolbarMode = "viewer"
 
 [server]
-# La app no recibe archivos.
+# Tope de lo que se sube a una tabla (MB); `app/carga.py` lo verifica también en el código.
 maxUploadSize = 1
 enableXsrfProtection = true
 runOnSave = false
