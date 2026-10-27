@@ -9,6 +9,7 @@ import pandas as pd
 import streamlit as st
 from calculo import FusionUIParams
 from cop_calculo import FUENTES_PLOMO, CopParams, CopView, boton_de_fusion, run_cop
+from cop_estado import estado_cop, prueba_cop
 from cop_graficos import lead_figure, silver_figure, temperature_figure
 from cop_svg import copelacion_svg
 from dibujo import as_images, es
@@ -19,24 +20,14 @@ from muestreo import copelacion as cp
 from muestreo import copelacion_datos as cd
 from muestreo import copelacion_validacion as cv
 
-STATE_CALL = {"buena": st.success, "lenta": st.info, "lamina": st.warning, "insuficiente": st.error}
-
 
 def _error_text(exc: cp.CopelacionError) -> str:
     return t(f"cp.err.{exc.code}", **{k: es(v, 0) for k, v in exc.args_.items()})
 
 
-def _range_text(code: str) -> str:
-    """El texto del aviso de rango, con el rango de la tabla que se salió."""
-    rango = {"temp": cp.T_AG_RANGO, "plomo": cp.PB_RANGO, "plata": cp.AG_RANGO}.get(code)
-    if rango is None:
-        return t(f"cp.warn.{code}", t0=es(cd.CONGELADO_C, 0), t1=es(cp.T_AU_RANGO[0], 0))
-    return t(f"cp.warn.{code}", lo=es(rango[0], 0), hi=es(rango[1], 0))
-
-
 def _metrics(v: CopView) -> None:
     r = v.res
-    c1, c2, c3, c4 = st.columns(4)
+    (c1, c2), (c3, c4) = st.columns(2), st.columns(2)  # en 4 columnas, a 1 000 px se cortan
     band = t("cp.m.band", lo=es(100 * r.perdida_ag.bajo, 2), hi=es(100 * r.perdida_ag.alto, 2))
     c1.metric(t("cp.m.ag"), f"{es(r.perdida_ag.pct, 2)} %", band, delta_color="off")
     c2.metric(t("cp.m.au"), f"{es(r.perdida_au.pct, 2)} %", t("cp.m.au.delta"), delta_color="off")
@@ -44,13 +35,6 @@ def _metrics(v: CopView) -> None:
               t("cp.m.add.delta", ratio=es(r.razon_objetivo, 1)), delta_color="off")  # fmt: skip
     c4.metric(t("cp.m.pearl"), f"{es(r.perla_mg, 2)} mg",
               t("cp.m.pearl.delta", au=es(100 * r.oro_en_perla, 1)), delta_color="off")  # fmt: skip
-
-
-def _warnings(v: CopView) -> None:
-    if v.fusion_no_sirve:
-        st.warning(t("cp.warn.fusion", pb=es(v.plomo_g, 1)))
-    for code in v.res.avisos:
-        st.warning(_range_text(code))
 
 
 def calculator_section(v: CopView) -> None:
@@ -93,9 +77,6 @@ def inquartation_section(v: CopView) -> None:
                                      r.perla_mg)],
     })  # fmt: skip
     st.dataframe(table, hide_index=True)
-    STATE_CALL[r.estado](t(f"cp.enc.state.{r.estado}", ratio=es(r.razon_final, 1),
-                           min=es(cd.MINIMO_PARTIR, 0), rec=es(cd.RECOMENDADO_MIN, 0),
-                           low=es(cd.LINGOTE_RAZON[0], 0)))  # fmt: skip
     st.caption(
         t(
             "cp.enc.caption",
@@ -135,11 +116,12 @@ def cop_tab(p: CopParams, fusion_ui: FusionUIParams, animate: bool) -> None:
         st.error(_error_text(exc))
         return
     _metrics(view)
-    _warnings(view)
+    estado_cop(view)
     calculator_section(view)
     inquartation_section(view)
     charts_section(view)
     animation_section(view, animate)
+    prueba_cop()
 
 
 # ------------------------------------------------------------------ validación

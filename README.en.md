@@ -19,6 +19,7 @@ No slag thermodynamics, no platinoid assay and no instrumental cupellation. The 
 - **Cyanide leach test:** recovery and head grade by balance from (time, gold in solution, gold in residue), unreacted-core terms L, M and N with their lines, a power-law model and a first order with plateau, and a beaker in section with a stirrer and a recovery gauge (see below).
 - **Settling test:** from the h(t) curve of a cylinder to the diameter of a thickener (Coe-Clevenger, Kynch, Talmage-Fitch, Luz curve or editable table), Vale's 0.64 factor and its scale-up, the table of Vale thickeners and an animated cylinder and thickener (see below).
 - **Quality control:** a CRM control chart with ±2 SD and ±3 SD built point by point, duplicates (Thompson-Howarth and relative difference), blanks against 3 and 10 times the detection limit and how a standard is certified (CDN-GS-2X), with every rule cited and a batch verdict (see below).
+- **Operation status and "Try this":** each calculation tab has indicators, a panel of checks (each with its source in the help), experiments with live-computed figures and, where a published case maps exactly onto the controls, buttons that load it and show the published value next to the calculated one with its Δ.
 - **Validation:** table and charts of what is calculated against what is published.
 - **Guide:** the fundamental error, the factors and what datum each one asks for, and which sampling errors are NOT modeled.
 

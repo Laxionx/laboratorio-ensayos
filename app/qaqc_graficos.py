@@ -86,9 +86,10 @@ def _state_traces(view: CrmView, k: int) -> list[go.Scatter]:
 
 def _crm_note(view: CrmView, k: int) -> dict:
     p = view.puntos[k - 1]
-    return _note(
-        t("qc.crm.note", n=p.n, v=es(p.valor, 4), z=es(p.z, 2), rule=t(f"qc.crm.rule.{p.estado}"))
+    text = t(
+        "qc.crm.note", n=p.n, v=es(p.valor, 4), z=es(p.z, 2), rule=t(f"qc.crm.rule.{p.estado}")
     )
+    return _note(text.replace(" → ", "<br>→ "))  # en dos líneas: a 1 000 px no cabe en una
 
 
 def crm_figure(view: CrmView) -> go.Figure:

@@ -253,4 +253,58 @@ T = {
     "cp.v.trend": "- The silver loss is larger with 2 mg than with 200 mg in {a} of {na} lead amounts (**not independent**: the silver effect comes from Godshall).\n- The loss with 1 A.T. exceeds that of 1/4 A.T. in {b} of {nb} silver amounts.\n- The predicted one is within a factor of {f} of the published one in {c} of {nc} cells.",
     "cp.v.rep": "Silver replication (informative, no pass cut): of {total} ratios loss(Ag) / loss(200 mg) from Godshall's first and third series with 1/2 A.T., {n} fall within ±{cut} % of the model; the ones at {fails} mg of silver fail, where Godshall's three series differ a lot from each other.",
     "cp.v.not": "This is not a validation of Bugbee or Godshall: it is a comparison of a table-based model with an 1896 paper. The gold loss figures have no second source.",
+    # ------------------------------------------------------------ status, cases and tests
+    "cp.src.temp": (
+        "Lodge's tables in Bugbee (1922): the silver loss covers 700 to 1,000 °C (Table IX) and "
+        "the gold loss, 775 to 1,075 °C (Table XII); at 700 °C or less the button freezes. "
+        "Outside that range there is no extrapolation."
+    ),
+    "cp.src.plomo": "Bugbee 1922, Table X (Lodge): lead from 10 to 25 g; outside that range there is no extrapolation.",
+    "cp.src.plata": (
+        "Bugbee 1922, Table XI (Godshall): total silver (present plus added) from 2 to 200 mg; "
+        "outside that range there is no extrapolation."
+    ),
+    "cp.src.fusion": (
+        "Definition: with \"From the fusion button\" the lead comes from the Fusion tab; if that "
+        "tab cannot compute the button, your own lead is used."
+    ),
+    "cp.src.particion": (
+        "Bugbee 1922, p. 118, 121 and 122: parting asks for at least 3 of silver per 1 of gold "
+        "(2 to 2.5 in a thin rolled bullion); for ore beads 8 to 10 is advised."
+    ),
+    "cp.chk.temp.ok": (
+        "Temperature of {temp} °C, inside the tables (silver from {lo} to {hi} °C; gold from "
+        "{alo} to {ahi} °C)."
+    ),
+    "cp.chk.plomo.ok": "Lead of {value} g, inside the {lo} to {hi} g of Table X.",
+    "cp.chk.plata.ok": "Total silver of {value} mg, inside the {lo} to {hi} mg of Table XI.",
+    "cp.chk.fusion.ok": "The lead ({pb} g) comes from the button of the Fusion tab.",
+    "cp.caso.lodge925": "Lodge, Tables IX and XII: 925 °C",
+    "cp.caso.lodge1000": "Lodge, Tables IX and XII: 1,000 °C",
+    "cp.caso.col": "Loss",
+    "cp.caso.ag": "Silver at {t} °C (Table IX: 200 mg, 10 g of lead)",
+    "cp.caso.au": "Gold at {t} °C (Table XII: 200 mg of gold, no silver)",
+    "cp.caso.res": (
+        "**Losses against Lodge's tables** (Bugbee 1922, p. 100 and 102), with 200 mg of silver, "
+        "10 g of lead and no added silver. The model's gold loss does not depend on the gold "
+        "mass: it is the one for 200 mg without silver. Δ = calculated − published."
+    ),
+    "cp.exp.caliente.titulo": "Heat the cupel to 1,000 °C",
+    "cp.exp.caliente.texto": (
+        "At {t1} °C instead of {t0} °C, the silver loss rises from {ag0} % to {ag1} % and the "
+        "gold loss, from {au0} % to {au1} % (Tables IX and XII); to keep the target ratio more "
+        "silver must be added: from {add0} mg to {add1} mg."
+    ),
+    "cp.exp.frio.titulo": "Cool the cupel to 700 °C",
+    "cp.exp.frio.texto": (
+        "At {t700} °C the silver loss drops from {ag0} % to {ag1} %, but Bugbee says that at that "
+        "temperature or less the button freezes: the panel warns that there is no cupellation "
+        "and that the gold loss uses the value at {t775} °C."
+    ),
+    "cp.exp.razon.titulo": "Ask for a ratio of 1.5 to 1",
+    "cp.exp.razon.texto": (
+        "With your own ratio of {razon} to 1 no silver is added ({add0} mg to {add1} mg) and the "
+        "ratio at parting drops from {r0} to {r1} to 1, under the {low} to 1 that Bugbee gives "
+        "as the minimum for a bullion: the panel flags a problem."
+    ),
 }

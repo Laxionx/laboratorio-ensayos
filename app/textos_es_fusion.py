@@ -19,9 +19,6 @@ T = {
         "cambiada, no los de la calculada."
     ),
     "f.warn.range": "El botón de {button} g queda fuera de {lo} a {hi} g.",
-    "f.warn.line": "**{level}:** {text} _(Fuente: {source})_",
-    "f.level.aviso": "Aviso",
-    "f.level.riesgo": "Riesgo",
     "f.alt": "Crisol cónico con el plomo líquido al fondo y la escoria encima",
     "f.caption": (
         "El plomo está líquido en la fusión: {lead} cm³ a {rho} g/cm³ (1 050 °C), un charco al "
@@ -188,4 +185,70 @@ T = {
     "verdict.cuadra con los pesos de Bugbee": "cuadra con los pesos de Bugbee",
     "verdict.truncamiento de Bugbee": "truncamiento de Bugbee",
     "verdict.no cuadra": "no cuadra",
+    # ------------------------------------------------------------ estado, casos y pruebas
+    "fe.chk.boton.ok": "Botón de {button} g, dentro del rango de {lo} a {hi} g.",
+    "fe.chk.escoria.ok": (
+        "Escoria de grado {degree} ({label}), entre mono-silicato (1) y tri-silicato (3)."
+    ),
+    "fe.chk.fundente.ok": (
+        "Fundente activo de {active} g, {ratio} veces la muestra (mínimo {min} veces)."
+    ),
+    "fe.chk.crisol.ok": (
+        "La carga en polvo ocupa {dry} cm³ y lo fundido, {melt} cm³: bajo los 2/3 del crisol "
+        "({lim} de {cap} cm³)."
+    ),
+    "fe.chk.cobre.ok": "Cobre de {copper} %, bajo el {lim} % desde el que conviene más fundente.",
+    "fe.chk.reductor.ok": "El reductor no pide más litargirio del que hay.",
+    "fe.chk.lodge.ok": "Litargirio con el exceso del 15 al 25 % que piden los sulfuros.",
+    "fe.src.boton": (
+        "Bugbee 1922: «no menos de 25 g» de plomo; sobre 30 g conviene escorificar antes de "
+        "copelar (`fusion_avisos.py`)."
+    ),
+    "fe.src.escoria": (
+        "Bugbee 1922, Tabla XIX y texto: de mono-silicato (grado 1) a tri-silicato (grado 3)."
+    ),
+    "fe.src.fundente": (
+        "Bugbee 1922: al menos 2,5 veces de fundente activo que de muestra (soda, bórax y "
+        "litargirio libre)."
+    ),
+    "fe.src.crisol": (
+        "Bugbee 1922: «nunca más de dos tercios llenos» (el 2/3 es del volumen); capacidad del "
+        "crisol de 20 g: 190 cm³ (Tabla IV). La densidad de la carga en polvo y la de la escoria "
+        "son supuestos del modelo."
+    ),
+    "fe.src.cobre": (
+        "USGS Bulletin 1445: con Cu de 2 a 5 % conviene aumentar todo el fundente; Perkins "
+        "(citado por Bugbee 1922) pide 137 a 300 partes de PbO por parte de Cu desde un cobre "
+        "alto (umbral supuesto del modelo)."
+    ),
+    "fe.src.reductor": (
+        "Bugbee 1922, notas del ensayo: si el reductor pide más litargirio del que hay, queda "
+        "azufre o reductor sin oxidar y se forma una mata."
+    ),
+    "fe.src.lodge": "Lodge, citado por Bugbee 1922: 15 a 25 % de litargirio sobre el del reductor.",
+    "fe.caso.bugbee50": "Bugbee (1922): 1 assay-ton de 50 % CaCO₃ y 50 % SiO₂",
+    "fe.caso.bugbee100": "Bugbee (1922): 1 assay-ton de CaCO₃ puro",
+    "fe.caso.res": (
+        "**{caso}.** Carga calculada frente a la que imprime Bugbee (botón de 28 g, "
+        "bi-silicato, harina de R.P. 12 y 30 g de soda y de litargirio de escoria). "
+        "Δ = calculada − publicada; el veredicto es el de la pestaña Validación."
+    ),
+    "fe.exp.harina.titulo": "Quitar la harina",
+    "fe.exp.harina.texto": (
+        "Sin harina, solo reduce la muestra: el botón baja de {b0} g a {b1} g, bajo el rango de "
+        "{lo} a {hi} g, y el panel lo marca. La escoria sube de {s0} g a {s1} g y su grado baja "
+        "de {d0} a {d1}."
+    ),
+    "fe.exp.litargirio.titulo": "Bajar el litargirio",
+    "fe.exp.litargirio.texto": (
+        "Con el {x} % del litargirio calculado ({l0} g a {l1} g) el botón no cambia ({b1} g), "
+        "pero la escoria se vuelve más ácida: grado {d0} a {d1}, y pesa {s1} g en vez de {s0} g. "
+        "El panel marca el fundente activo por debajo de {ratio} veces la muestra."
+    ),
+    "fe.exp.mono.titulo": "Pedir una escoria mono-silicato",
+    "fe.exp.mono.texto": (
+        "Con grado 1 (mono-silicato) en vez de 2 (bi-silicato), la escoria pesa {s1} g en vez de "
+        "{s0} g y la carga en polvo sube de {p0} a {p1} cm³, sobre los 2/3 del crisol ({lim} de "
+        "{cap} cm³): el panel lo marca."
+    ),
 }

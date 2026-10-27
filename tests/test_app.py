@@ -42,7 +42,7 @@ def test_las_nueve_pestanas_cargan_sin_excepciones():
 @pytest.mark.app
 def test_la_pestana_de_oro_recomienda_screen_fire_assay_con_pocos_granos():
     at = _run()
-    assert any("screen fire assay" in w.value for w in at.warning)
+    assert any("screen fire assay" in m.value for m in at.markdown)
     assert any("errata" not in w.value and "ℓ = 0,000035" in w.value for w in at.warning)
 
 

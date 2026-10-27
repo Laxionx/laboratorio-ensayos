@@ -59,7 +59,8 @@ def md(at: AppTest, needle: str) -> str:
 
 
 def warned(at: AppTest, needle: str) -> bool:
-    return any(needle in w.value for w in at.warning)
+    badges = (m for m in at.markdown if m.value.startswith(":"))
+    return any(needle in w.value for w in [*at.warning, *badges])
 
 
 # ------------------------------------------------------------------ humo
@@ -75,7 +76,7 @@ def test_humo_de_la_pestana_en_cada_idioma(lang, tab, dim, area):
     at = run(lang)
     assert not at.exception and not at.error
     assert [t.label for t in at.tabs][6] == tab
-    assert len(at.metric) == 30  # 16 de siempre más 14 del control de calidad
+    assert len(at.metric) == 42  # 30 de antes más 12 indicadores nuevos
     assert any(dim in m.value for m in at.markdown) and any(area in m.value for m in at.markdown)
     assert max(len(d.value) for d in at.dataframe) == 31  # la tabla de Vale
     assert not [w for w in at.warning if "tangente" in w.value.lower() or "tangent" in w.value]

@@ -193,4 +193,72 @@ T = {
     "qc.cert.title": "CDN-GS-2X: los {n} resultados y el recorte a ±2 SD",
     "qc.cert.x": "Au (g/t)",
     "qc.cert.y": "Resultados por intervalo",
+    # ------------------------------------------------------------ indicadores, estado y pruebas
+    "qc.verd.pasa": "Pasa",
+    "qc.verd.aviso": "Aviso",
+    "qc.verd.reensayar": "Re-ensayar",
+    "qc.verd.rechazar": "Rechazar",
+    "qc.i.crm": "Lote del CRM",
+    "qc.i.crm.help": (
+        "Veredicto de la carta de control del CRM: rechazo con un resultado fuera de ±3 SD, "
+        "re-ensayo con dos seguidos fuera de ±2 SD y aviso si más de 5 % queda fuera de ±2 SD."
+    ),
+    "qc.i.dup": "Duplicados bajo umbral",
+    "qc.i.dup.help": (
+        "Porcentaje de pares evaluables con diferencia relativa bajo el umbral de su tipo (campo "
+        "y rechazo grueso: 20 %; pulpa: 10 %); se pide al menos 80 %."
+    ),
+    "qc.i.blk": "Blancos sobre 3 × LD",
+    "qc.i.blk.help": (
+        "Blancos que superan 3 veces el límite de detección, sobre el total; más de 10 veces "
+        "es una falla."
+    ),
+    "qc.src.crm": (
+        "Rainy River Mine, NI 43-101 (2025), p. 97 y 108: fuera de ±3 SD se rechaza el lote y dos "
+        "seguidos fuera de ±2 SD piden re-ensayo; OREAS usa esos mismos intervalos; Abzalov "
+        "(2011), Eq. 21: con buena calidad, al menos 95 % queda dentro de ±2 SD."
+    ),
+    "qc.src.th": (
+        "Thompson y Howarth (1973); Demetriades y Argyraki (2025): el 90 % de los pares debe "
+        "quedar bajo la línea del percentil 90 y el 99 %, bajo la del 99, con la precisión P al "
+        "95 % de confianza."
+    ),
+    "qc.src.dup": (
+        "Stoker (2006), citado por Rainy River (2025), p. 103: campo y rechazo grueso, 80-85 % "
+        "de los pares con RPD < 20 %; pulpa, 80 % dentro de 10 % (la app toma el extremo bajo)."
+    ),
+    "qc.src.blk": (
+        "Rainy River (2025), p. 101, y Loma Larga, sec. 11.3.2.2: falla con más de 10 veces el "
+        "límite de detección; más de 3 veces es el indicador que el informe cuenta aparte."
+    ),
+    "qc.src.cert": (
+        "CDN Resource Laboratories, certificado CDN-GS-2X (2021): media y SD del round robin, se "
+        "descarta lo que cae fuera de ±2 SD y se recalcula; el intervalo es 2 SD de esa media."
+    ),
+    "qc.chk.cert.ok": (
+        "Certificación del estándar CDN-GS-2X: la media ({m} g/t) y las 2 SD recortadas "
+        "({band} g/t) coinciden con lo publicado, al redondeo."
+    ),
+    "qc.chk.cert.mal": (
+        "Certificación del estándar CDN-GS-2X: la media ({m} g/t) y las 2 SD recortadas "
+        "({band} g/t) no coinciden con lo publicado."
+    ),
+    "qc.exp.sesgo.titulo": "Dar un sesgo de +4 % a la serie del CRM",
+    "qc.exp.sesgo.texto": (
+        "Con un sesgo de {sesgo} % en la serie de ejemplo, el sesgo medido pasa de {s0} % a "
+        "{s1} %, los resultados fuera de ±3 SD pasan de {f30} a {f31} y el panel marca el "
+        "rechazo del lote."
+    ),
+    "qc.exp.precision.titulo": "Pedir una precisión de 20 % a los duplicados",
+    "qc.exp.precision.texto": (
+        "Con P = {p1} % en vez de {p0} %, las líneas de Thompson-Howarth se abren: {b90} % de los "
+        "pares queda bajo la línea 90 (antes {a90} %) y {b99} % bajo la 99 (antes {a99} %). Aun "
+        "así el panel no lo da por bueno: hacen falta 90 % y 99 %."
+    ),
+    "qc.exp.pico.titulo": "Subir el pico de los blancos",
+    "qc.exp.pico.texto": (
+        "Con un pico de {pico1} × LD en vez de {pico0} × LD, los blancos sobre {k} × LD pasan de "
+        "{x0} a {x1} y el panel marca la falla: contaminación significativa para Rainy River y "
+        "Loma Larga."
+    ),
 }

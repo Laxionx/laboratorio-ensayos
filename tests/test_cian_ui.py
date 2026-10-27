@@ -66,13 +66,14 @@ def test_humo_de_la_pestana_en_cada_idioma(lang, tab, recovery, model):
     at = run(lang)
     assert not at.exception and not at.error
     assert [t.label for t in at.tabs][5] == tab
-    assert len(at.metric) == 30  # 16 de siempre más 14 del control de calidad
+    assert len(at.metric) == 42  # 30 de antes más 12 indicadores nuevos
     frame = balance_table(at)
     assert len(frame) == 7 and frame.iloc[:, 3].round(2).tolist()[-1] == 94.77
     assert any(recovery in m.value for m in at.markdown)
     assert sidebar(at, "c_model").value == model
     # un aviso por el punto de 2 h, el único que no cuadra con una recuperación creciente
-    mine = [w.value for w in at.warning if re.search(r"(^|\s)2 h(\s|$)", w.value)]
+    badges = [m.value for m in at.markdown if m.value.startswith(":")]
+    mine = [w for w in badges if re.search(r"(^|\s)2 h(\s|$)", w)]
     assert len(mine) == 1 and "94" not in mine[0]
 
 
@@ -172,7 +173,7 @@ def test_la_cabeza_distinta_da_aviso_de_balance():
     at = run()
     sidebar(at, "c_factor").set_value(1.0).run()
     assert not at.exception
-    assert any("cabeza por balance" in w.value for w in at.warning)
+    assert any("cabeza por balance" in m.value for m in at.markdown)
 
 
 def test_volver_al_ejemplo_restaura_la_tabla():

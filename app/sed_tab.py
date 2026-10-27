@@ -20,6 +20,7 @@ from sed_calculo import (
     run_sed,
     tabla_de_luz,
 )
+from sed_estado import estado_sed, prueba_sed
 from sed_graficos import curve_figure, kynch_figure
 from sed_svg import settling_svg
 
@@ -136,8 +137,6 @@ def sizing_section(v: SedView) -> None:
     )
     if v.factor == 1.0:
         st.caption(t("sd.dim.nofactor"))
-    else:
-        st.warning(t("sd.dim.vale"))
 
 
 def scale_section() -> None:
@@ -244,8 +243,11 @@ def animation_section(v: SedView, animate: bool) -> None:
 
 def sed_tab(p: SedParams, animate: bool) -> None:
     ficha("sedimentacion")
+    estado = st.container()  # va arriba, pero se llena cuando la curva ya dio su resultado
     view = curve_section(p)
     if view is not None:
+        with estado:
+            estado_sed(view)
         construction_section(view)
         sizing_section(view)
     scale_section()
@@ -253,6 +255,7 @@ def sed_tab(p: SedParams, animate: bool) -> None:
     coe_section()
     if view is not None:
         animation_section(view, animate)
+    prueba_sed()
 
 
 # ------------------------------------------------------------------ validación

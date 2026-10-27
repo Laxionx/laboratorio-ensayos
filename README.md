@@ -19,6 +19,7 @@ Sin termodinámica de escorias, sin ensayo de platinoides y sin copelación inst
 - **Ensayo de cianuración:** recuperación y ley de cabeza por balance desde (tiempo, oro en solución, oro en residuo), términos L, M y N del núcleo sin reaccionar con sus rectas, modelo potencial y un primer orden con meseta, y un vaso de precipitados en corte con agitador y un indicador de recuperación (ver abajo).
 - **Ensayo de sedimentación:** de la curva h(t) de una probeta al diámetro de un espesador (Coe-Clevenger, Kynch, Talmage-Fitch, curva de Luz o tabla editable), el factor 0,64 de Vale y su escalamiento, la tabla de espesadores de Vale y una probeta y un espesador animados (ver abajo).
 - **Control de calidad:** la carta de control de un CRM con ±2 SD y ±3 SD que se arma punto a punto, los duplicados (Thompson-Howarth y diferencia relativa), los blancos contra 3 y 10 veces el límite de detección y cómo se certifica un estándar (CDN-GS-2X), con cada regla citada y un veredicto del lote (ver abajo).
+- **Estado de la operación y «Prueba esto»:** cada pestaña de cálculo trae indicadores, un panel de chequeos (cada uno con su fuente en la ayuda), experimentos con cifras calculadas en vivo y, donde un caso publicado se mapea exacto a los controles, botones que lo cargan y muestran lo publicado junto a lo calculado con su Δ.
 - **Validación:** tabla y gráficos de lo calculado frente a lo publicado.
 - **Guía:** el error fundamental, los factores y qué dato pide cada uno, y qué errores de muestreo NO se modelan.
 

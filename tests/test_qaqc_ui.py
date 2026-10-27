@@ -69,7 +69,8 @@ def md(at: AppTest, needle: str) -> str:
 
 
 def alerts(at: AppTest) -> list[str]:
-    return [a.value for a in (*at.success, *at.info, *at.warning, *at.error)]
+    badges = (m for m in at.markdown if m.value.startswith(":"))
+    return [a.value for a in (*at.success, *at.info, *at.warning, *at.error, *badges)]
 
 
 def said(at: AppTest, needle: str) -> bool:
@@ -91,7 +92,7 @@ def test_humo_de_la_pestana_en_cada_idioma(lang, tab, crm, cdn):
     assert [t.label for t in at.tabs][TAB_INDEX] == tab
     assert any(crm in m.value for m in at.markdown)
     assert any(cdn in m.value for m in at.markdown)
-    assert len(at.metric) == 30  # 16 de siempre y 14 del control de calidad
+    assert len(at.metric) == 42  # 30 de antes más 12 indicadores nuevos
     assert len(at.sidebar.expander) == 8
 
 

@@ -7,7 +7,7 @@ T = {
     "app.caption": "Laboratory metallurgical tests besides the fire assay: sampling error, the flux charge, cyanide leaching, the settling test that sizes a thickener and the laboratory's quality control (CRMs, duplicates and blanks). How much sampling error each preparation stage adds and how many gold grains fall in the aliquot, using Gy's equation validated against published figures. Includes the fusion flux charge (phase 2) and cupellation with parting (phase 3). Start with the **Guide**; change the inputs in the sidebar. Public ALS preparation codes; no affiliation.",
     "err.generic": "Something went wrong. Try other inputs or reload the page.",
     "toggle.label": "Animate",
-    "toggle.help": 'Turns off the crucible animation (Fusion tab) and the cupel animation (Cupellation tab), the beaker animation (Cyanide leach test tab) and the cylinder and thickener animation (Settling test tab). It also turns off on its own if the system has "reduce motion" enabled.',
+    "toggle.help": 'Turns off the crucible animation (Fusion tab) and the cupel animation (Cupellation tab), the beaker animation (Cyanide leach test tab) and the cylinder and thickener animation (Settling test tab). It also turns off on its own if the system has "reduce motion" enabled. Drawing only: no number depends on it.',
     "tab.guide": "Guide",
     "tab.protocol": "Protocol",
     "tab.gold": "Coarse gold",
@@ -148,4 +148,131 @@ T = {
     "svg.gold.shown": "({n} drawn)",
     "svg.gold.foot": "{note}; the position of each grain is illustrative.",
     "svg.gold.label": "Three aliquots with different numbers of gold grains",
+    # ------------------------------------------------------------ status, cases and "Try this"
+    "estado.h": "#### Operation status",
+    "estado.nivel.ok": "In range",
+    "estado.nivel.aviso": "Warning",
+    "estado.nivel.mal": "Problem",
+    "estado.todo_ok": "Operation within range.",
+    "estado.ver": "Show the {n} checks in range",
+    "prueba.h": "#### Try this",
+    "prueba.intro": (
+        "Experiments that start from the **sidebar example**; the model computes the numbers live. "
+        "The button puts the change into the inputs and \"Back to the example\" resets them."
+    ),
+    "prueba.aplicar": "Apply this change to the controls",
+    "prueba.restablecer": "Back to the example",
+    "caso.h": "Published cases",
+    "caso.intro": (
+        "Each button puts the data of a published case in the sidebar and, while they are set, "
+        "the tab shows the published value next to the calculated one (Δ = calculated − "
+        "published)."
+    ),
+    "caso.activo": " (set)",
+    "caso.col.pub": "Published",
+    "caso.col.calc": "Calculated",
+    "caso.col.delta": "Δ",
+    # ------------------------------------------------------------ protocol: status and tests
+    "prot.chk.seg.ok": (
+        "All {n} splits are under the {seg} % safety error (the largest gives {max})."
+    ),
+    "prot.chk.seg.una": "stage {n} ({rsd})",
+    "prot.chk.seg.mal": "Over the {seg} % safety error: {etapas}.",
+    "prot.crit.seg": (
+        "App criterion, not a standard: each split must give a relative error no larger than the "
+        "\"Nomogram safety error\" control (the safety line of the nomogram)."
+    ),
+    "prot.chk.masas": "Each of the {n} splits takes less mass than it receives.",
+    "prot.crit.masas": (
+        "Definition of the calculation: a split takes MS from a larger mass ML (σ² = "
+        "IHL·(1/MS − 1/ML)); otherwise the protocol is not computed and the tab says so."
+    ),
+    "prot.chk.kalpha.dado": (
+        "K = {k} and α = {alpha} are the ones Minnitt (2017) calibrated for a Witwatersrand gold "
+        "ore: they do not hold for another mineral."
+    ),
+    "prot.chk.kalpha.propio": "K = {k} and α = {alpha} are yours: they are calibrated per mineral.",
+    "prot.crit.kalpha": (
+        "Source: Minnitt (2017), J. SAIMM 117(2), for that ore; K and α are calibrated per "
+        "mineral and never assumed (docstring of `gy.py` and the tab sheet)."
+    ),
+    "prot.chk.lote": (
+        "Minnitt's (2017) Table VIII does not use the lot-mass correction: with it, the error "
+        "comes out lower than the published one."
+    ),
+    "prot.crit.lote": (
+        "Source: `gy.py` (Minnitt 2017 omits the correction in his Table VIII) and this app's "
+        "validation, which reproduces it without the correction."
+    ),
+    "prot.caso.minnitt": "Minnitt (2017), Table VIII, DSA method",
+    "prot.caso.res": (
+        "**Minnitt (2017), Table VIII, DSA method.** Relative variance of each split against the "
+        "printed one (K = 167.4 and α = 1.123, no lot-mass correction)."
+    ),
+    "prot.exp.division.titulo": "Split more mass after crushing",
+    "prot.exp.division.texto": (
+        "With PREP-31B ({m1} g are split instead of {m0} g after crushing to 2 mm) the total "
+        "error drops from {t0} % to {t1} %, and stage 1 from {e0} % to {e1} %. Even so, the "
+        "protocol still misses the {seg} % safety."
+    ),
+    "prot.exp.alicuota.titulo": "Move to a 50 g aliquot",
+    "prot.exp.alicuota.texto": (
+        "With {a1} g instead of {a0} g, the error of the last split drops from {l0} % to {l1} %, "
+        "but the total hardly moves ({t0} % to {t1} %): stage 1 already contributes {s0} % of the "
+        "variance and, with the larger aliquot, {s1} %. The bottleneck is before the aliquot."
+    ),
+    "prot.exp.lote.titulo": "Drop the lot-mass correction",
+    "prot.exp.lote.texto": (
+        "Without the 1/ML term, the total error rises from {t0} % to {t1} %: that is what "
+        "Minnitt's (2017) Table VIII does. The correction is always on, except to reproduce that "
+        "table."
+    ),
+    # ------------------------------------------------------------ coarse gold: status and tests
+    "oro.crit.clifton": (
+        "Source: Clifton, Hunter, Swanson and Phillips (1969), USGS Professional Paper 625-C: "
+        "about {n} particles per sample for ±50 % at 95 %."
+    ),
+    "oro.chk.fig4.ok": (
+        "With {lam} grains expected, the calculation is inside the range of {lo} to {hi} "
+        "particles against which this app checks the Clifton equations."
+    ),
+    "oro.chk.fig4.mal": (
+        "With {lam} grains expected, the calculation is outside the range of {lo} to {hi} "
+        "particles against which this app checks the Clifton equations: read it next to the "
+        "exact Poisson."
+    ),
+    "oro.crit.fig4": (
+        "Source: the Validation tab checks the Clifton limits against the 1969 Fig. 4 for {lo} "
+        "to {hi} particles (`validacion.py`, CLIFTON_PUBLISHED); outside that range there is no "
+        "check."
+    ),
+    "oro.exp.grano100.titulo": "Grind the gold to 100 µm grains",
+    "oro.exp.grano100.texto": (
+        "With {g100} µm grains instead of {g0} µm, each grain weighs much less and the expected "
+        "grains rise from {lam0} to {lam1} (×{ratio}): the probability of getting none drops from "
+        "{p0} % to {p1} %. It is still under {n} grains and the panel keeps the warning."
+    ),
+    "oro.exp.alicuota.titulo": "Move to a 50 g aliquot",
+    "oro.exp.alicuota.texto": (
+        "With {a50} g instead of {a0} g, the expected grains rise from {lam0} to {lam1} (×{ratio}, "
+        "proportional to the mass) and the probability of none drops from {p0} % to {p1} %. It is "
+        "still under {n} grains: the panel keeps the warning."
+    ),
+    "oro.exp.grano50.titulo": "Grind the gold to 50 µm grains",
+    "oro.exp.grano50.texto": (
+        "With {g50} µm grains you expect {lam1} grains per aliquot: the {n}-particle criterion is "
+        "met, the panel is in range, the probability of none falls to {p1} % and the median of "
+        "the assays goes from {med0} to {med1} g/t, closer to the true grade ({ley} g/t)."
+    ),
+    "vi.ok": "Match the published",
+    "vi.ok.help": (
+        "Checks that match the published figure, summed over all the areas of this tab. In the "
+        "flux charge only the \"matches\" verdict counts."
+    ),
+    "vi.no": "Do not match",
+    "vi.no.help": "Those that do not match; each table below says which and why.",
+    "vi.areas": "Areas validated",
+    "vi.areas.help": (
+        "Gy equation, flux charge, cyanide leaching, settling, cupellation and quality control."
+    ),
 }

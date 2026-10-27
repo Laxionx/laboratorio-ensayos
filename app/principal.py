@@ -38,21 +38,20 @@ from nomograma import (  # noqa: E402
     stage_figure,
 )
 from oro_graficos import aliquot_svg, histogram_figure  # noqa: E402
+from prot_estado import estado_oro, estado_protocolo, prueba_oro, prueba_protocolo  # noqa: E402
 from qaqc_tab import qaqc_tab, qaqc_validation_section  # noqa: E402
 from sed_tab import sed_tab, sed_validation_section  # noqa: E402
+from val_estado import estado_validacion  # noqa: E402
 from validacion_graficos import clifton_figure, minnitt_2007_figure, variance_figure  # noqa: E402
 
 from muestreo import gy  # noqa: E402
 from muestreo import validacion as val  # noqa: E402
 from muestreo.oro import (  # noqa: E402
     PARTICLES_CRITERION,
-    SFA_MASS_G,
-    SFA_SCREEN_UM,
     clifton_limits,
     mass_for_particles,
     poisson_exact_limits,
     poisson_p0,
-    recommend_screen_fire_assay,
 )
 from muestreo.protocolo import PRESETS  # noqa: E402
 
@@ -83,6 +82,7 @@ def protocol_tab(p: ProtocolParams, mp: MineralParams) -> None:
               t("p.safe.delta", pct=es(p.safety_pct, 0)), delta_color="off")  # fmt: skip
     if p.preset == PRESETS[2]:
         st.info(t("p.info"))
+    estado_protocolo(view, p, mp)
     st.caption(
         t("p.mineral", name=opt(view.mineral.name))
         + (t("p.mineral.note") if view.mineral.name.startswith("Calibrado") else "")
@@ -108,6 +108,7 @@ def protocol_tab(p: ProtocolParams, mp: MineralParams) -> None:
     fig = granulometry_figure(view)
     if fig is not None:
         st.plotly_chart(fig, width="stretch")
+    prueba_protocolo()
 
 
 def gold_tab(gp: GoldParams, grade: float, aliquot: float) -> None:
@@ -124,11 +125,7 @@ def gold_tab(gp: GoldParams, grade: float, aliquot: float) -> None:
     c3.metric(t("g.median"), f"{es(sim.median_gpt, 2)} g/t",
               t("g.median.delta", grade=es(grade, 2)), delta_color="off")  # fmt: skip
     c4.metric(t("g.above"), _pct(sim.share_above(2.0)))
-    if recommend_screen_fire_assay(view.lam):
-        st.warning(t("g.sfa", lam=es(view.lam, 1), n=PARTICLES_CRITERION,
-                     mass=es(SFA_MASS_G, 0), screen=es(SFA_SCREEN_UM, 0)))  # fmt: skip
-    else:
-        st.success(t("g.ok", lam=es(view.lam, 0), n=PARTICLES_CRITERION))
+    estado_oro(view)
     mass20 = mass_for_particles(grade, view.grain_g)
     lo, hi = clifton_limits(view.lam)
     exact = poisson_exact_limits(max(view.lam, 0.5))
@@ -149,6 +146,7 @@ def gold_tab(gp: GoldParams, grade: float, aliquot: float) -> None:
     st.html(as_images(aliquot_svg(view), aliquot_svg(view), t("g.alt")))
     st.caption(t("g.grain", size=es(gp.grain_um, 0), shape=opt(gp.shape),
                  mass=es(view.grain_g * 1e6, 2)))  # fmt: skip
+    prueba_oro()
 
 
 def _check_table(checks: list[val.Check]) -> str:
@@ -169,6 +167,7 @@ def validation_tab() -> None:
     cli, findings = val.clifton_checks(), val.minnitt_2007_findings()
     implied, lib = val.minnitt_2007_implied(), val.minnitt_2007_liberation()
     st.markdown(t("v.intro"))
+    estado_validacion()
     summary = pd.DataFrame({
         t("v.col.source"): [t(f"v.s{i}") for i in range(1, 7)],
         t("v.col.published"): [t(f"v.p{i}") for i in range(1, 7)],

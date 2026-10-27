@@ -190,4 +190,61 @@ T = {
     "sv.kn.res": "**Kynch sintético.** Función de flujo conocida: v(C) = v0 (1 − C/Cmax)ⁿ con v0 = {v0} m/h, Cmax = {cmax} t/m³ y n = {n_exp}, sin compresión, por el método de las características. Con {n} puntos entre C = {lo} y {hi} t/m³ (hasta 0,8 Cmax) las tangentes devuelven v(C) con un error máximo de {err} %, muy por debajo del corte de 2 %.",
     "sv.ty.res": "**Talmage-Fitch frente al flujo límite (informativo, sin corte).** Sobre esa misma curva, el flujo límite exacto da un área de {y} m² por t/d. El trazo de Talmage-Fitch da {a5} con la tangente a la mitad del tiempo en que la interfase llega a Hu ({d5} %), {a9} al 90 % ({d9} %) y {a99} al 99,9 % ({d99} %): coincide solo si la tangente se traza donde la interfase llega a Hu y en cualquier punto anterior queda por debajo (no es conservador). Con compresión real, la tangente cae más tarde y el área sube.",
     "sv.notes": "**Hallazgos, sin maquillar.** (1) Dos filas de Alegría no cuadran: la de 59 t/h y 42 m publica 0,987 y salen 0,978 (parece una transposición de dígitos), y la de 57 t/h y 30 m publica 0,521 y salen 0,517. (2) De los cinco ensayos de Coe y Clevenger, el 2 y el 3 cuadran; el 1 sale 2,99 (no 3,00), el 4 sale 4,21 (no 4,22) y el 5 sale 4,19 (no 4,05) con D = 1,12; el artículo no imprime el D de esos ensayos. (3) El texto de Torquato y Luz dice que el área de bancada (0,898) se divide entre la industrial (0,573) para dar 0,64, pero 0,573/0,898 = 0,64 y 0,898/0,573 = 1,57: el 0,64 es industrial entre bancada.",
+    # ------------------------------------------------------------ indicadores, estado y pruebas
+    "se.i.au": "Área unitaria",
+    "se.i.au.help": (
+        "Área unitaria corregida, en m² por t/d: la de Talmage-Fitch (tu / (C0·H0)) por el factor "
+        "de corrección."
+    ),
+    "se.i.area": "Área requerida (m²)",
+    "se.i.area.help": "Para {tph} t/h: área unitaria × t/h × 24 h.",
+    "se.i.d": "Diámetro (m)",
+    "se.i.d.help": "Diámetro del círculo con esa área: √(4·A/π).",
+    "se.chk.conc": (
+        "Alimentación de {cma} % y underflow de {cmu} % de sólidos (ρs = {rho} t/m³): "
+        "C0 = {c0} y Cu = {cu} t/m³."
+    ),
+    "se.src.conc": (
+        "Definición del cálculo: la alimentación debe llevar menos sólidos que el underflow y "
+        "C = cm·ρpulpa. La densidad del sólido del ejemplo (4,0 t/m³) es un supuesto declarado: "
+        "el artículo no la da."
+    ),
+    "se.chk.compresion": (
+        "El punto de compresión ({tc} s, cota {hc} m) está sobre la cota del underflow "
+        "Hu = {hu} m y la tangente la corta en tu = {tu} s (la curva llega a {tmax} s)."
+    ),
+    "se.src.compresion": (
+        "Talmage y Fitch (1955), `sedimentacion.talmage_fitch`: tc debe estar entre 0 y el "
+        "último tiempo de la curva y la tangente en (tc, hc) debe bajar hasta Hu; si no, el "
+        "cálculo se rechaza."
+    ),
+    "se.chk.kynch": "Kynch: {n} puntos de flujo con C entre {lo} y {hi} t/m³.",
+    "se.src.kynch": (
+        "Kynch (1952), `sedimentacion.kynch`: de una curva h(t), la tangente en cada punto da C y "
+        "v, y el flujo de sólidos es G = v·C."
+    ),
+    "se.chk.factor.ok": "Sin factor de corrección: el área es la que da la probeta tal cual.",
+    "se.src.factor": (
+        "Torquato et al. (2011): el factor 0,64 vale SOLO para las lamas de hierro de Vale "
+        "(`sedimentacion.py`, FACTOR_VALE_LAMAS); no es universal."
+    ),
+    "se.exp.caudal.titulo": "Duplicar el caudal del espesador",
+    "se.exp.caudal.texto": (
+        "Con {tph1} t/h en vez de {tph0} t/h, el área unitaria no cambia ({au0} m² por t/d), pero "
+        "el área sube de {a0} m² a {a1} m² (×{ratio}) y el diámetro de {d0} m a {d1} m (×{rd}): "
+        "el área es proporcional al caudal y el diámetro, a su raíz."
+    ),
+    "se.exp.vale.titulo": "Aplicar el factor de Vale",
+    "se.exp.vale.texto": (
+        "Con el factor {f} de las lamas de hierro de Vale, el área unitaria baja de {au0} a {au1} "
+        "m² por t/d y el diámetro, de {d0} m a {d1} m. El panel avisa: ese factor no es "
+        "universal."
+    ),
+    "se.exp.compresion.titulo": "Leer la compresión más tarde",
+    "se.exp.compresion.texto": (
+        "Con el punto de compresión en {tc1} s en vez de {tc0} s, la tangente corta la cota del "
+        "underflow más tarde (tu de {tu0} s a {tu1} s), el área unitaria sube de {au0} a {au1} m² "
+        "por t/d y el diámetro, de {d0} m a {d1} m: tc es una lectura de la curva y el diámetro "
+        "depende de ella."
+    ),
 }

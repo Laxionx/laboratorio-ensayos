@@ -6,36 +6,18 @@ import pandas as pd
 import streamlit as st
 from calculo import FusionUIParams, run_fusion
 from dibujo import as_images, es
+from fusion_estado import estado_fusion, prueba_fusion
 from fusion_graficos import balance_figure
 from fusion_svg import crucible_svg
 from guia import ficha, markdown_table
-from i18n import decimal, num_g, t, tm, tr_error
+from i18n import decimal, t, tm, tr_error
 
 from muestreo import fusion_datos as fd
 from muestreo.fusion import FUSION_TEMP_C, SLAG_DENSITY, FusionError, pb_liquid_density
-from muestreo.fusion_avisos import BUTTON_RANGE, Warning
-
-BUTTON_CODES = ("button_low", "button_high")  # ya salen arriba, con el botón fuera de rango
 
 
 def _pct_sum(f: FusionUIParams) -> float:
     return sum(v for _, v in f.minerals)
-
-
-# cómo se muestra cada número de un aviso: «g» = el menor número de cifras; si no, los decimales
-_G_FIELDS = {"lo", "hi", "ratio", "limit", "density"}
-_DECIMALS = {"degree": 2, "button": 1, "copper": 1}  # el resto, sin decimales
-
-
-def warning_text(w: Warning) -> tuple[str, str]:
-    """(texto, cita) de un aviso del modelo, en el idioma de la app, con sus números."""
-    args = {k: num_g(v) if k in _G_FIELDS else es(v, _DECIMALS.get(k, 0)) for k, v in w.args}
-    source_key = w.code.replace("dry_", "").replace("melt_", "")
-    if source_key in ("over_capacity", "over_two_thirds"):
-        source = t(f"warn.{source_key}.source")
-    else:
-        source = t(f"warn.{w.code}.source", **args)
-    return t(f"warn.{w.code}.text", **args), source
 
 
 def fusion_tab(f: FusionUIParams, animate: bool) -> None:
@@ -51,7 +33,6 @@ def fusion_tab(f: FusionUIParams, animate: bool) -> None:
         return
     r = view.result
     st.caption(t("f.minerals", total=es(total, 0), rest=es(100 - total, 0)) + t("f.codes"))
-    lo, hi = BUTTON_RANGE
     c1, c2, c3, c4 = st.columns(4)
     c1.metric(t("f.m.button"), f"{es(r.button_g, 1)} g", t("f.m.button.delta", x=es(f.button_g, 1)),
               delta_color="off")  # fmt: skip
@@ -62,13 +43,7 @@ def fusion_tab(f: FusionUIParams, animate: bool) -> None:
     c4.metric(t("f.m.flour" if uses_flour else "f.m.niter"), f"{es(grams, 2)} g")
     if view.changed:
         st.info(t("f.info.changed"))
-    if not lo <= r.button_g <= hi:
-        st.warning(t("f.warn.range", button=es(r.button_g, 1), lo=es(lo, 0), hi=es(hi, 0)))
-    for w in r.warnings:
-        if w.code in BUTTON_CODES:
-            continue  # ya está arriba
-        text, source = warning_text(w)
-        st.warning(t("f.warn.line", level=t(f"f.level.{w.level}"), text=text, source=source))
+    estado_fusion(view, f)
     st.html(as_images(crucible_svg(view, paused=not animate), crucible_svg(view, paused=True),
                       t("f.alt")))  # fmt: skip
     st.caption(
@@ -99,6 +74,7 @@ def fusion_tab(f: FusionUIParams, animate: bool) -> None:
                          "g": [round(v, 2) for v in r.slag.components_g.values()]})  # fmt: skip
     st.markdown(t("f.slag.head"))
     st.dataframe(slag, hide_index=True)
+    prueba_fusion()
 
 
 def _check_table(checks: list[fd.FusionCheck]) -> str:

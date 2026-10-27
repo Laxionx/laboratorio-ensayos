@@ -18,6 +18,7 @@ sys.path.insert(0, str(APP_DIR))
 
 import controles  # noqa: E402
 import cop_calculo as cc  # noqa: E402
+import cop_estado  # noqa: E402
 import cop_graficos as cg  # noqa: E402
 import cop_svg as cs  # noqa: E402
 import cop_tab  # noqa: E402
@@ -239,7 +240,7 @@ def test_cada_error_y_cada_aviso_tiene_texto_en_los_dos_idiomas():
     for lang in ("es", "en"):
         with i18n.use(lang):
             for code in ("temp", "plomo", "plata", "congelado"):
-                assert "{" not in cop_tab._range_text(code)
+                assert "{" not in cop_estado.range_text(code)
             for code in ("temp", "plomo", "plata", "oro", "ley", "perdida", "razon", "modo"):
                 assert "{" not in cop_tab._error_text(cp.CopelacionError(code))
 

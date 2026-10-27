@@ -87,10 +87,6 @@ T = {
         "el oro no se vuelve a depositar. Ese punto no entra en las rectas, como los autores "
         "dejan el de 2 h."
     ),
-    "cn.warn.cabeza": (
-        "A las {t} h la cabeza por balance se aparta {v} % de la declarada: solución y residuo no "
-        "cuadran con la ley de cabeza."
-    ),
     "cn.cal.res": "Última fila: **{r} %** de recuperación a las {t} h con S0 = {head} ppb.",
     # ------------------------------------------------------------ modelos
     "cn.mod.h": "#### Modelos cinéticos: cuál describe y cuál solo ajusta",
@@ -206,5 +202,65 @@ T = {
     "cv.rows": (
         "La fila de 2 h queda fuera de las regresiones, como en el artículo: su recuperación "
         "(85,70 %) supera la de las 3 h (82,34 %), y el oro no se vuelve a depositar."
+    ),
+    # ------------------------------------------------------------ indicadores, estado y pruebas
+    "cn.i.rec": "Recuperación final",
+    "cn.i.rec.help": (
+        "Recuperación de la última fila ({t} h): (1 − residuo/cabeza) × 100 con la cabeza declarada."
+    ),
+    "cn.i.head": "Cabeza por balance (ppb)",
+    "cn.i.head.help": "Residuo + F·solución en la última fila, con F = {f} ppb/ppb.",
+    "cn.i.r2": "R² potencial",
+    "cn.i.r2.help": (
+        "R² de la regresión log-log del residuo contra el tiempo (Ec. 3 de los autores), con todos "
+        "los puntos."
+    ),
+    "cn.src.monotona": (
+        "Definición del cálculo (`cianuracion.balance`): en un ensayo normal el oro disuelto no se "
+        "vuelve a depositar, así que una fila no puede recuperar más que una posterior; ese punto "
+        "no entra en las rectas (regla que reproduce la de los autores)."
+    ),
+    "cn.chk.monotona.ok": "La recuperación de ninguna de las {n} filas supera la de una posterior.",
+    "cn.chk.cabeza.mal": (
+        "La cabeza por balance se aparta más de {tol} % de la declarada ({head} ppb) en {n} de "
+        "{total} filas (la mayor, {v} % a las {t} h): solución y residuo no cuadran con la ley de "
+        "cabeza."
+    ),
+    "cn.chk.cabeza.ok": (
+        "La cabeza por balance de cada fila queda a menos de {tol} % de la declarada ({head} ppb)."
+    ),
+    "cn.src.cabeza": (
+        "Criterio propio del módulo (`cianuracion.py`, COHERENCIA_PCT = {tol} %), no del artículo: "
+        "la cabeza de cada fila es residuo + F·solución."
+    ),
+    "cn.chk.tramos.ok": "Los dos tramos de las rectas usan {n1} y {n2} puntos (mínimo {min}).",
+    "cn.chk.tramos.mal": (
+        "Con el corte a las {cut} h, el tramo {tramos} usa menos de {n} puntos y queda sin ajustar."
+    ),
+    "cn.src.tramos": (
+        "Definición del cálculo (`MIN_PUNTOS_TRAMO`): una recta necesita al menos 3 puntos usados."
+    ),
+    "cn.caso.h": "Caso publicado: Roostaei et al. (2026), Tabla 4",
+    "cn.caso.res": (
+        "La tabla y la cabeza de {head} ppb son las de la Tabla 4 del artículo. Recuperación "
+        "calculada frente a la impresa; la mayor diferencia es de {delta} puntos. Δ = calculado − "
+        "publicado."
+    ),
+    "cn.exp.cabeza.titulo": "Declarar una cabeza menor",
+    "cn.exp.cabeza.texto": (
+        "Con una cabeza declarada de {head1} ppb en vez de {head0} ppb, la recuperación final "
+        "baja de {rec0} % a {rec1} % y en {n1} filas la cabeza por balance se aparta más de "
+        "{tol} % de la declarada: el panel avisa."
+    ),
+    "cn.exp.factor.titulo": "Cambiar el factor de la solución",
+    "cn.exp.factor.texto": (
+        "Con F = {f1} en vez de {f0}, la cabeza por balance de la última fila sube de {cab0} a "
+        "{cab1} ppb y {n1} filas se apartan más de {tol} % de la declarada: el panel avisa."
+    ),
+    "cn.exp.corte.titulo": "Mover el corte de los tramos",
+    "cn.exp.corte.texto": (
+        "Con el corte a las {cut1} h en vez de las {cut0} h, el R² de la recta del primer tramo "
+        "del modelo de reacción (M) baja de {r0} a {r1}: el corte lo elige quien analiza y "
+        "cambia el ajuste."
     ),
 }

@@ -250,4 +250,58 @@ T = {
     "cp.v.trend": "- La pérdida de plata es mayor con 2 mg que con 200 mg en {a} de {na} plomos (**no es independiente**: el efecto de la plata sale de Godshall).\n- La pérdida con 1 A.T. supera a la de ¼ A.T. en {b} de {nb} cantidades de plata.\n- La predicha queda a menos de un factor {f} de la publicada en {c} de {nc} celdas.",
     "cp.v.rep": "Réplica de la plata (informativa, sin corte de aprobación): de {total} razones pérdida(Ag) / pérdida(200 mg) de las series primera y tercera de Godshall con ½ A.T., {n} de {total} caen a ±{cut} % del modelo; fallan las de {fails} mg de plata, donde las tres series de Godshall difieren mucho entre sí.",
     "cp.v.not": "No es validación de Bugbee ni de Godshall: es una comparación de un modelo de tablas con un artículo de 1896. Las cifras de la pérdida de oro no tienen segunda fuente.",
+    # ------------------------------------------------------------ estado, casos y pruebas
+    "cp.src.temp": (
+        "Tablas de Lodge en Bugbee (1922): la pérdida de plata cubre 700 a 1 000 °C (Tabla IX) y "
+        "la de oro, 775 a 1 075 °C (Tabla XII); a 700 °C o menos el botón se congela. Fuera de "
+        "ese rango no se extrapola."
+    ),
+    "cp.src.plomo": "Bugbee 1922, Tabla X (Lodge): plomo de 10 a 25 g; fuera de ese rango no se extrapola.",
+    "cp.src.plata": (
+        "Bugbee 1922, Tabla XI (Godshall): plata total (presente más agregada) de 2 a 200 mg; "
+        "fuera de ese rango no se extrapola."
+    ),
+    "cp.src.fusion": (
+        "Definición: con «Del botón de la fusión» el plomo sale de la pestaña Fusión; si esa "
+        "pestaña no puede calcular el botón, se usa el plomo propio."
+    ),
+    "cp.src.particion": (
+        "Bugbee 1922, p. 118, 121 y 122: partir exige al menos 3 de plata por 1 de oro (2 a 2,5 "
+        "en un lingote laminado fino); en perlas de mena conviene 8 a 10."
+    ),
+    "cp.chk.temp.ok": (
+        "Temperatura de {temp} °C, dentro de las tablas (plata de {lo} a {hi} °C; oro de {alo} a "
+        "{ahi} °C)."
+    ),
+    "cp.chk.plomo.ok": "Plomo de {value} g, dentro de los {lo} a {hi} g de la Tabla X.",
+    "cp.chk.plata.ok": "Plata total de {value} mg, dentro de los {lo} a {hi} mg de la Tabla XI.",
+    "cp.chk.fusion.ok": "El plomo ({pb} g) sale del botón de la pestaña Fusión.",
+    "cp.caso.lodge925": "Lodge, Tablas IX y XII: 925 °C",
+    "cp.caso.lodge1000": "Lodge, Tablas IX y XII: 1 000 °C",
+    "cp.caso.col": "Pérdida",
+    "cp.caso.ag": "Plata a {t} °C (Tabla IX: 200 mg, 10 g de plomo)",
+    "cp.caso.au": "Oro a {t} °C (Tabla XII: 200 mg de oro, sin plata)",
+    "cp.caso.res": (
+        "**Pérdidas frente a las tablas de Lodge** (Bugbee 1922, p. 100 y 102), con 200 mg de "
+        "plata, 10 g de plomo y sin plata agregada. La pérdida de oro del modelo no depende de la "
+        "masa de oro: es la de 200 mg sin plata. Δ = calculado − publicado."
+    ),
+    "cp.exp.caliente.titulo": "Calentar la copela a 1 000 °C",
+    "cp.exp.caliente.texto": (
+        "A {t1} °C en vez de {t0} °C, la pérdida de plata sube de {ag0} % a {ag1} % y la de oro, "
+        "de {au0} % a {au1} % (Tablas IX y XII); para mantener la razón objetivo hay que "
+        "agregar más plata: de {add0} mg a {add1} mg."
+    ),
+    "cp.exp.frio.titulo": "Enfriar la copela a 700 °C",
+    "cp.exp.frio.texto": (
+        "A {t700} °C la pérdida de plata baja de {ag0} % a {ag1} %, pero Bugbee dice que a esa "
+        "temperatura o menos el botón se congela: el panel avisa que no hay copelación y que la "
+        "pérdida de oro usa el valor de {t775} °C."
+    ),
+    "cp.exp.razon.titulo": "Pedir una razón de 1,5 a 1",
+    "cp.exp.razon.texto": (
+        "Con razón propia de {razon} a 1 no se agrega plata ({add0} mg a {add1} mg) y la razón al "
+        "partir baja de {r0} a {r1} a 1, bajo el {low} a 1 que Bugbee da como mínimo para un "
+        "lingote: el panel marca un problema."
+    ),
 }

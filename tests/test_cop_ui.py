@@ -50,7 +50,8 @@ def metrics(at: AppTest) -> dict[str, tuple[str, str]]:
 
 
 def warned(at: AppTest, needle: str) -> bool:
-    return any(needle in w.value for w in at.warning)
+    badges = (m for m in at.markdown if m.value.startswith(":"))
+    return any(needle in w.value for w in [*at.warning, *badges])
 
 
 # ------------------------------------------------------------------ humo
@@ -77,7 +78,7 @@ def test_humo_de_la_pestana_en_cada_idioma(lang, ag, add, pearl, text):
     assert values[ag] == (f"4{sep}51 %", values[ag][1])
     assert values[add][0] == f"4{sep}27 mg" and values[pearl][0] == f"6{sep}99 mg"
     assert any(text in m.value for m in at.markdown)
-    assert len(at.metric) == 30 and len(at.sidebar.expander) == 8
+    assert len(at.metric) == 42 and len(at.sidebar.expander) == 8
 
 
 def values_label(lang: str, key: str) -> str:
@@ -153,15 +154,14 @@ def test_a_700_grados_el_boton_se_congela_para_el_oro():
 def test_los_tres_modos_de_la_razon_y_el_veredicto_de_la_particion():
     at = run()
     widget(at, "k_modo").set_value(MODOS["es"][1]).run()
-    assert "**3,00 a 1**" in md(at, "Modo:") and any("parte, pero con más ácido" in i.value
-                                                  for i in at.info)  # fmt: skip
+    assert "**3,00 a 1**" in md(at, "Modo:") and warned(at, "parte, pero con más ácido")
     widget(at, "k_modo").set_value(MODOS["es"][2]).run()
     widget(at, "k_razon").set_value(1.0).run()
-    assert any("insuficiente" in e.value for e in at.error) and not at.exception
+    assert warned(at, "insuficiente") and not at.exception
     widget(at, "k_razon").set_value(2.5).run()
     assert warned(at, "solo parte si la aleación se lamina fina")
     widget(at, "k_razon").set_value(12.0).run()
-    assert any("buena para partir" in s.value for s in at.success)
+    assert warned(at, "buena para partir")
 
 
 def test_mas_oro_cambia_la_razon_de_rose_y_la_plata_a_agregar():

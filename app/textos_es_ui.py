@@ -17,7 +17,7 @@ T = {
     "toggle.label": "Mover la animación",
     "toggle.help": (
         "Apaga la animación del crisol (pestaña Fusión), la de la copela (pestaña Copelación), la del vaso (pestaña Ensayo de cianuración) y la de la probeta y el espesador (pestaña Ensayo de sedimentación). También se apaga sola si el "
-        "sistema tiene activado «reducir movimiento»."
+        "sistema tiene activado «reducir movimiento». Solo cambia el dibujo: ningún número depende de él."
     ),
     "tab.guide": "Guía",
     "tab.protocol": "Protocolo",
@@ -199,4 +199,130 @@ T = {
     "svg.gold.shown": "(se dibujan {n})",
     "svg.gold.foot": "{note}; la posición de cada grano es ilustrativa.",
     "svg.gold.label": "Tres alícuotas con distinto número de granos de oro",
+    # ------------------------------------------------------------ estado, casos y «Prueba esto»
+    "estado.h": "#### Estado de la operación",
+    "estado.nivel.ok": "En rango",
+    "estado.nivel.aviso": "Aviso",
+    "estado.nivel.mal": "Problema",
+    "estado.todo_ok": "Operación dentro de rango.",
+    "estado.ver": "Ver los {n} chequeos en rango",
+    "prueba.h": "#### Prueba esto",
+    "prueba.intro": (
+        "Experimentos desde el **ejemplo de la barra lateral**; los números los calcula el modelo "
+        "en vivo. El botón pone el cambio en los datos y «Volver al ejemplo» los restablece."
+    ),
+    "prueba.aplicar": "Aplicar este cambio a los controles",
+    "prueba.restablecer": "Volver al ejemplo",
+    "caso.h": "Casos publicados",
+    "caso.intro": (
+        "Cada botón pone en la barra lateral los datos de un caso publicado y, mientras estén "
+        "puestos, la pestaña muestra lo publicado junto a lo calculado (Δ = calculado − publicado)."
+    ),
+    "caso.activo": " (puesto)",
+    "caso.col.pub": "Publicado",
+    "caso.col.calc": "Calculado",
+    "caso.col.delta": "Δ",
+    # ------------------------------------------------------------ protocolo: estado y pruebas
+    "prot.chk.seg.ok": (
+        "Las {n} divisiones quedan bajo el error de seguridad de {seg} % (la mayor da {max})."
+    ),
+    "prot.chk.seg.una": "etapa {n} ({rsd})",
+    "prot.chk.seg.mal": "Sobre el error de seguridad de {seg} %: {etapas}.",
+    "prot.crit.seg": (
+        "Criterio de la app, no una norma: cada división debe dar un error relativo no mayor que "
+        "el control «Error de seguridad del nomograma» (es la línea de seguridad del nomograma)."
+    ),
+    "prot.chk.masas": "Cada una de las {n} divisiones toma menos masa de la que recibe.",
+    "prot.crit.masas": (
+        "Definición del cálculo: una división toma MS de una masa ML mayor (σ² = IHL·(1/MS − 1/ML)); "
+        "si no, el protocolo no se calcula y la pestaña lo dice."
+    ),
+    "prot.chk.kalpha.dado": (
+        "K = {k} y α = {alpha} son los que Minnitt (2017) calibró para una mena de oro de "
+        "Witwatersrand: no valen para otro mineral."
+    ),
+    "prot.chk.kalpha.propio": "K = {k} y α = {alpha} son los tuyos: se calibran por mineral.",
+    "prot.crit.kalpha": (
+        "Fuente: Minnitt (2017), J. SAIMM 117(2), para esa mena; K y α se calibran por mineral y "
+        "nunca se suponen (docstring de `gy.py` y ficha de la pestaña)."
+    ),
+    "prot.chk.lote": (
+        "La Tabla VIII de Minnitt (2017) no usa la corrección por masa del lote: con ella el "
+        "error sale menor que el publicado."
+    ),
+    "prot.crit.lote": (
+        "Fuente: `gy.py` (Minnitt 2017 omite la corrección en su Tabla VIII) y la validación de "
+        "esta app, que la reproduce sin la corrección."
+    ),
+    "prot.caso.minnitt": "Minnitt (2017), Tabla VIII, método DSA",
+    "prot.caso.res": (
+        "**Tabla VIII de Minnitt (2017), método DSA.** Varianza relativa de cada división frente "
+        "a la impresa (K = 167,4 y α = 1,123, sin corrección por masa del lote)."
+    ),
+    "prot.exp.division.titulo": "Dividir más masa tras el chancado",
+    "prot.exp.division.texto": (
+        "Con PREP-31B (se divide {m1} g en vez de {m0} g tras chancar a 2 mm) el error total baja "
+        "de {t0} % a {t1} %, y el de la etapa 1 de {e0} % a {e1} %. Aun así, el protocolo sigue "
+        "sin cumplir la seguridad de {seg} %."
+    ),
+    "prot.exp.alicuota.titulo": "Pasar a una alícuota de 50 g",
+    "prot.exp.alicuota.texto": (
+        "Con {a1} g en vez de {a0} g, el error de la última división baja de {l0} % a {l1} %, "
+        "pero el total casi no se mueve ({t0} % a {t1} %): la etapa 1 ya aporta {s0} % de la "
+        "varianza y con la alícuota mayor aporta {s1} %. El cuello está antes de la alícuota."
+    ),
+    "prot.exp.lote.titulo": "Quitar la corrección por masa del lote",
+    "prot.exp.lote.texto": (
+        "Sin el término 1/ML, el error total sube de {t0} % a {t1} %: es lo que hace la Tabla "
+        "VIII de Minnitt (2017). La corrección se activa siempre, salvo para reproducir esa tabla."
+    ),
+    # ------------------------------------------------------------ oro grueso: estado y pruebas
+    "oro.crit.clifton": (
+        "Fuente: Clifton, Hunter, Swanson y Phillips (1969), USGS Professional Paper 625-C: unas "
+        "{n} partículas por muestra para ±50 % al 95 %."
+    ),
+    "oro.chk.fig4.ok": (
+        "Con {lam} granos esperados, el cálculo cae dentro del rango de {lo} a {hi} partículas "
+        "con que esta app contrasta las ecuaciones de Clifton."
+    ),
+    "oro.chk.fig4.mal": (
+        "Con {lam} granos esperados, el cálculo cae fuera del rango de {lo} a {hi} partículas con "
+        "que esta app contrasta las ecuaciones de Clifton: léelo junto al Poisson exacto."
+    ),
+    "oro.crit.fig4": (
+        "Fuente: la pestaña Validación contrasta los límites de Clifton con la Fig. 4 de 1969 para "
+        "{lo} a {hi} partículas (`validacion.py`, CLIFTON_PUBLISHED); fuera de ese rango no hay "
+        "contraste."
+    ),
+    "oro.exp.grano100.titulo": "Moler el oro a granos de 100 µm",
+    "oro.exp.grano100.texto": (
+        "Con granos de {g100} µm en vez de {g0} µm, cada grano pesa mucho menos y los granos "
+        "esperados suben de {lam0} a {lam1} (×{ratio}): la probabilidad de no recibir ninguno "
+        "baja de {p0} % a {p1} %. Sigue por debajo de {n} granos y el panel mantiene el aviso."
+    ),
+    "oro.exp.alicuota.titulo": "Pasar a una alícuota de 50 g",
+    "oro.exp.alicuota.texto": (
+        "Con {a50} g en vez de {a0} g, los granos esperados suben de {lam0} a {lam1} (×{ratio}, "
+        "proporcional a la masa) y la probabilidad de ninguno baja de {p0} % a {p1} %. Sigue "
+        "por debajo de {n} granos: el panel mantiene el aviso."
+    ),
+    "oro.exp.grano50.titulo": "Moler el oro a granos de 50 µm",
+    "oro.exp.grano50.texto": (
+        "Con granos de {g50} µm esperas {lam1} granos por alícuota: se cumple el criterio de {n} "
+        "partículas, el panel queda en rango, la probabilidad de ninguno cae a {p1} % y la "
+        "mediana de los ensayos pasa de {med0} a {med1} g/t, más cerca de la ley real "
+        "({ley} g/t)."
+    ),
+    "vi.ok": "Cuadran con lo publicado",
+    "vi.ok.help": (
+        "Comprobaciones que cuadran con la cifra publicada, sumadas sobre todas las áreas de esta "
+        "pestaña. En la carga fundente solo cuenta el veredicto «cuadra»."
+    ),
+    "vi.no": "No cuadran",
+    "vi.no.help": "Las que no cuadran; cada tabla de abajo dice cuáles y por qué.",
+    "vi.areas": "Áreas validadas",
+    "vi.areas.help": (
+        "Ecuación de Gy, carga fundente, cianuración, sedimentación, copelación y control de "
+        "calidad."
+    ),
 }

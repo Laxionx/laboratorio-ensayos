@@ -27,6 +27,7 @@ from qaqc_calculo import (
     tabla_crm,
     tabla_duplicados,
 )
+from qaqc_estado import estado_qaqc, prueba_qaqc
 from qaqc_graficos import (
     blk_figure,
     cert_figure,
@@ -41,13 +42,6 @@ from muestreo import qaqc_validacion as qv
 
 KEY_CRM, KEY_DUP, KEY_BLK = "qaqc_tabla_crm", "qaqc_tabla_dup", "qaqc_tabla_blk"
 VALOR_MAX = 1_000_000.0  # tope de una celda de la tabla editable
-VERDICT_CALL = {
-    qc.PASA: st.success,
-    qc.AVISO: st.info,
-    qc.REENSAYAR: st.warning,
-    qc.RECHAZAR: st.error,
-}
-BLANK_CALL = {qc.BLANCO_OK: st.success, qc.BLANCO_ALERTA: st.warning, qc.BLANCO_FALLA: st.error}
 
 
 def _error_text(exc: qc.QaqcError) -> str:
@@ -115,7 +109,7 @@ def _crm_intro(v: CrmView) -> None:
 
 def _crm_metrics(v: CrmView) -> None:
     r = v.veredicto
-    c1, c2, c3, c4 = st.columns(4)
+    (c1, c2), (c3, c4) = st.columns(2), st.columns(2)  # en 4 columnas, a 1 000 px se cortan
     c1.metric(t("qc.crm.m.n"), int_num(r.n))
     c2.metric(
         t("qc.crm.m.f2"),
@@ -137,19 +131,6 @@ def _crm_metrics(v: CrmView) -> None:
     )
 
 
-def _crm_verdict(v: CrmView) -> None:
-    r = v.veredicto
-    text = t(
-        f"qc.crm.v.{r.veredicto}",
-        n=int_num(r.n),
-        f2=int_num(r.n_fuera_2sd),
-        f3=int_num(r.n_fuera_3sd),
-        pares=int_num(r.n_pares),
-        pct=es(100 * (r.tasa_3sd if r.veredicto == qc.RECHAZAR else r.frac_fuera_2sd), 1),
-    )
-    VERDICT_CALL[r.veredicto](text)
-
-
 def crm_section(p: QaqcParams) -> CrmView | None:
     st.markdown(t("qc.crm.h"))
     own = p.crm_fuente != FUENTES[0]
@@ -162,7 +143,6 @@ def crm_section(p: QaqcParams) -> CrmView | None:
         return None
     _crm_intro(view)
     _crm_metrics(view)
-    _crm_verdict(view)
     st.plotly_chart(crm_figure(view), width="stretch")
     st.caption(t("qc.crm.caption"))
     st.caption(t("qc.crm.rules"))
@@ -181,7 +161,7 @@ def _dup_intro(p: QaqcParams, v: DupView) -> None:
 
 def _dup_metrics(v: DupView) -> None:
     th, d = v.th, v.dup
-    c1, c2, c3, c4 = st.columns(4)
+    (c1, c2), (c3, c4) = st.columns(2), st.columns(2)  # en 4 columnas, a 1 000 px se cortan
     c1.metric(t("qc.dup.m.pairs"), int_num(th.n))
     c2.metric(
         t("qc.dup.m.in90"),
@@ -204,28 +184,9 @@ def _dup_metrics(v: DupView) -> None:
     )
 
 
-def _dup_verdicts(p: QaqcParams, v: DupView) -> None:
-    th, d = v.th, v.dup
-    key = "pasa" if th.pasa else "falla"
-    (st.success if th.pasa else st.warning)(
-        t(f"qc.dup.v.th.{key}", p=es(v.p_pct, 0), pct90=es(th.pct90, 1), pct99=es(th.pct99, 1))
-    )
-    if th.sin_media:
-        st.caption(t("qc.dup.th.sin", n=int_num(th.sin_media)))
-    u = d.umbral
-    key = "pasa" if d.pasa else "falla"
-    (st.success if d.pasa else st.warning)(
-        t(
-            f"qc.dup.v.dup.{key}",
-            tipo=opt(p.dup_tipo).lower(),
-            pct=es(d.pct_bajo, 1),
-            n=int_num(d.n_evaluables),
-            u=es(u.rpd_max, 0),
-            min=es(u.minimo_pct, 0),
-            rule=t("qc.dup.rule.lt" if u.estricto else "qc.dup.rule.le"),
-            hard=es(d.hard_medio, 1),
-        )
-    )
+def _dup_nota(v: DupView) -> None:
+    if v.th.sin_media:
+        st.caption(t("qc.dup.th.sin", n=int_num(v.th.sin_media)))
 
 
 def dup_section(p: QaqcParams) -> DupView | None:
@@ -246,7 +207,7 @@ def dup_section(p: QaqcParams) -> DupView | None:
         return None
     _dup_intro(p, view)
     _dup_metrics(view)
-    _dup_verdicts(p, view)
+    _dup_nota(view)
     st.plotly_chart(th_figure(view), width="stretch")
     omitidos = th_omitidos(view)
     if omitidos:
@@ -294,21 +255,9 @@ def blk_section(p: QaqcParams) -> BlkView | None:
         t("qc.blk.m.delta", pct=es(r.pct_sobre_10, 1)),
         delta_color="off",
     )
-    BLANK_CALL[r.veredicto](
-        t(
-            f"qc.blk.v.{_BLK_KEY[r.veredicto]}",
-            s3=int_num(r.n_sobre_3),
-            s10=int_num(r.n_sobre_10),
-            pct3=es(r.pct_sobre_3, 1),
-            pct10=es(r.pct_sobre_10, 1),
-        )
-    )
     st.plotly_chart(blk_figure(view), width="stretch")
     st.caption(t("qc.blk.rules"))
     return view
-
-
-_BLK_KEY = {qc.BLANCO_OK: "pasa", qc.BLANCO_ALERTA: "alerta", qc.BLANCO_FALLA: "falla"}
 
 
 # ------------------------------------------------------------------ certificar un estándar
@@ -361,10 +310,14 @@ def cert_section() -> CertView:
 def qaqc_tab(p: QaqcParams) -> None:
     ficha("qaqc")
     st.markdown(t("qc.intro"))
-    crm_section(p)
-    dup_section(p)
-    blk_section(p)
-    cert_section()
+    estado = st.container()  # va arriba, pero se llena cuando las tablas ya dieron su resultado
+    crm = crm_section(p)
+    dup = dup_section(p)
+    blk = blk_section(p)
+    cert = cert_section()
+    with estado:
+        estado_qaqc(p, crm, dup, blk, cert)
+    prueba_qaqc()
 
 
 # ------------------------------------------------------------------ validación

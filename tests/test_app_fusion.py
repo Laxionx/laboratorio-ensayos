@@ -291,7 +291,7 @@ def test_la_pestana_de_fusion_carga_con_la_carga_calculada_sin_avisos_de_boton()
     values = {m.label: m.value for m in at.metric}
     assert values["Botón de plomo"] == "28,0 g"
     assert values["Grado de silicato"] == "bi (2,00)"
-    assert not any("Botón de" in w.value or "fuera de" in w.value for w in at.warning)
+    assert not any("fuera de 25" in m.value for m in at.markdown)
 
 
 @pytest.mark.app
@@ -300,7 +300,7 @@ def test_una_carga_con_la_harina_a_la_mitad_avisa_boton_chico():
     flour = next(w for w in at.sidebar.number_input if w.key == controles.PREFIX + "x_flour")
     flour.set_value(0.5).run()
     assert not at.exception
-    assert any("fuera de 25 a 30 g" in w.value for w in at.warning)
+    assert any("fuera de 25 a 30 g" in m.value for m in at.markdown)
     assert any("carga cambiada" in i.value for i in at.info)
 
 
@@ -314,8 +314,9 @@ def test_mucha_sílice_avisa_escoria_acida_y_riesgo_de_mata_con_sulfuros():
             w.set_value(sets[key])
     at.run()
     assert not at.exception
-    texts = " ".join(w.value for w in at.warning)
-    assert "Riesgo" in texts and "Fuente:" in texts
+    texts = " ".join(m.value for m in at.markdown)
+    assert ":red-badge[Problema]" in texts  # el riesgo de mata; su fuente va en la ayuda
+    assert all(m.help for m in at.markdown if m.value.startswith(":red-badge["))
 
 
 @pytest.mark.app

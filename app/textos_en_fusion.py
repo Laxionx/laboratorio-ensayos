@@ -13,9 +13,6 @@ T = {
     "f.m.niter": "Niter in charge",
     "f.info.changed": "You are testing a modified charge: the button and slag shown are those of the modified charge, not the calculated one.",
     "f.warn.range": "The {button} g button is outside {lo} to {hi} g.",
-    "f.warn.line": "**{level}:** {text} _(Source: {source})_",
-    "f.level.aviso": "Warning",
-    "f.level.riesgo": "Risk",
     "f.alt": "Conical crucible with liquid lead at the bottom and slag on top",
     "f.caption": "The lead is liquid during fusion: {lead} cm³ at {rho} g/cm³ (1,050 °C), a pool at the bottom of the cone; the slag above it takes {slag} cm³ (assumed density {slag_rho} g/cm³; Bugbee does not give one). The cold button measures {cold} cm³ (solid, 11.34 g/cm³). Crucible dimensions are illustrative; its capacity, 190 cm³, is that of Bugbee's 20 g crucible. Drops and bubbles are illustrative too.",
     "r.soda": "Soda (Na₂CO₃)",
@@ -116,4 +113,71 @@ T = {
     "verdict.cuadra con los pesos de Bugbee": "matches with Bugbee's weights",
     "verdict.truncamiento de Bugbee": "Bugbee's truncation",
     "verdict.no cuadra": "does not match",
+    # ------------------------------------------------------------ status, cases and tests
+    "fe.chk.boton.ok": "Button of {button} g, inside the range of {lo} to {hi} g.",
+    "fe.chk.escoria.ok": (
+        "Slag of degree {degree} ({label}), between mono-silicate (1) and tri-silicate (3)."
+    ),
+    "fe.chk.fundente.ok": (
+        "Active flux of {active} g, {ratio} times the sample (minimum {min} times)."
+    ),
+    "fe.chk.crisol.ok": (
+        "The dry charge takes {dry} cm³ and the melt, {melt} cm³: under 2/3 of the crucible "
+        "({lim} of {cap} cm³)."
+    ),
+    "fe.chk.cobre.ok": "Copper of {copper} %, under the {lim} % from which more flux is advised.",
+    "fe.chk.reductor.ok": "The reducing agent does not ask for more litharge than there is.",
+    "fe.chk.lodge.ok": "Litharge with the 15 to 25 % excess that sulfides ask for.",
+    "fe.src.boton": (
+        "Bugbee 1922: \"no less than 25 g\" of lead; over 30 g it is better to scorify before "
+        "cupelling (`fusion_avisos.py`)."
+    ),
+    "fe.src.escoria": (
+        "Bugbee 1922, Table XIX and text: from mono-silicate (degree 1) to tri-silicate "
+        "(degree 3)."
+    ),
+    "fe.src.fundente": (
+        "Bugbee 1922: at least 2.5 times as much active flux as sample (soda, borax and free "
+        "litharge)."
+    ),
+    "fe.src.crisol": (
+        "Bugbee 1922: \"never more than two thirds full\" (the 2/3 is of volume); capacity of the "
+        "20 g crucible: 190 cm³ (Table IV). The density of the dry charge and that of the slag "
+        "are assumptions of the model."
+    ),
+    "fe.src.cobre": (
+        "USGS Bulletin 1445: with Cu from 2 to 5 % it is better to increase all the flux; Perkins "
+        "(cited by Bugbee 1922) asks for 137 to 300 parts of PbO per part of Cu from a high "
+        "copper (threshold assumed by the model)."
+    ),
+    "fe.src.reductor": (
+        "Bugbee 1922, assay notes: if the reducing agent asks for more litharge than there is, "
+        "sulfur or reducing agent is left unoxidized and a matte forms."
+    ),
+    "fe.src.lodge": "Lodge, cited by Bugbee 1922: 15 to 25 % of litharge over that of the reducing agent.",
+    "fe.caso.bugbee50": "Bugbee (1922): 1 assay-ton of 50 % CaCO₃ and 50 % SiO₂",
+    "fe.caso.bugbee100": "Bugbee (1922): 1 assay-ton of pure CaCO₃",
+    "fe.caso.res": (
+        "**{caso}.** Calculated charge against the one Bugbee prints (28 g button, bi-silicate, "
+        "flour of R.P. 12 and 30 g of soda and of slag litharge). Δ = calculated − published; "
+        "the verdict is the one of the Validation tab."
+    ),
+    "fe.exp.harina.titulo": "Take out the flour",
+    "fe.exp.harina.texto": (
+        "Without flour only the sample reduces: the button drops from {b0} g to {b1} g, under "
+        "the range of {lo} to {hi} g, and the panel flags it. The slag rises from {s0} g to "
+        "{s1} g and its degree drops from {d0} to {d1}."
+    ),
+    "fe.exp.litargirio.titulo": "Lower the litharge",
+    "fe.exp.litargirio.texto": (
+        "With {x} % of the calculated litharge ({l0} g to {l1} g) the button does not change "
+        "({b1} g), but the slag turns more acid: degree {d0} to {d1}, and it weighs {s1} g "
+        "instead of {s0} g. The panel flags the active flux below {ratio} times the sample."
+    ),
+    "fe.exp.mono.titulo": "Ask for a mono-silicate slag",
+    "fe.exp.mono.texto": (
+        "With degree 1 (mono-silicate) instead of 2 (bi-silicate), the slag weighs {s1} g instead "
+        "of {s0} g and the dry charge rises from {p0} to {p1} cm³, over 2/3 of the crucible "
+        "({lim} of {cap} cm³): the panel flags it."
+    ),
 }

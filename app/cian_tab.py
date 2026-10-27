@@ -15,6 +15,7 @@ from cian_calculo import (
     model_name,
     run_cian,
 )
+from cian_estado import estado_cian, horas, prueba_cian
 from cian_graficos import recovery_figure, terms_figure
 from cian_svg import beaker_svg
 from dibujo import as_images, es
@@ -43,12 +44,7 @@ def _error_text(exc: c.SerieInvalida) -> str:
     return t(f"cn.err.{exc.code}", **args)
 
 
-def _h(x: float) -> str:
-    return es(x, 0 if float(x).is_integer() else 1)
-
-
-def _warning(a: c.Aviso) -> str:
-    return t(f"cn.warn.{a.code}", t=_h(a.t_h), v=es(a.value, 1))
+_h = horas
 
 
 def balance_frame(view: CianView) -> pd.DataFrame:
@@ -106,8 +102,6 @@ def calculator(p: CianParams) -> CianView | None:
             head=es(p.head, 0),
         )
     )
-    for aviso in view.balance.avisos:
-        st.warning(_warning(aviso))
     return view
 
 
@@ -191,11 +185,15 @@ def animation_section(view: CianView, animate: bool) -> None:
 
 def cian_tab(p: CianParams, animate: bool) -> None:
     ficha("cianuracion")
+    estado = st.container()  # va arriba, pero se llena cuando la tabla ya dio su resultado
     view = calculator(p)
     if view is None:
         return
+    with estado:
+        estado_cian(view)
     models_section(view)
     animation_section(view, animate)
+    prueba_cian()
 
 
 # ------------------------------------------------------------------ validación

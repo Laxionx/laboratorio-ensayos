@@ -69,7 +69,8 @@ def test_ningun_texto_esta_vacio_y_solo_los_cognados_son_iguales_en_los_dos_idio
     assert not {k for k in ES if not ES[k].strip() or not EN[k].strip()}
     same = {k for k in ES if ES[k] == EN[k]}
     # palabras que se escriben igual (mineral, no), fórmulas, unidades y fuentes citadas
-    assert same == {"f.min.mineral", "f.min.pb", "f.min.rp", "fv.m.mineral", "group.Mineral",
+    assert same == {"caso.col.delta", "f.min.mineral", "f.min.pb", "f.min.rp", "fv.m.mineral",
+                    "group.Mineral",
                     "no", "p.col.dn", "p.mineral", "plot.gran.d95", "plot.nomo.error",
                     "r.soda", "v.no", "v.s3",
                     # símbolos de la cianuración (R², L, M, N, a, b)
@@ -220,7 +221,7 @@ def test_los_datos_se_conservan_al_cambiar_de_idioma():
 def test_humo_de_todas_las_pestanas(lang):
     at = run(lang)
     assert not at.exception and not at.error
-    assert len(at.tabs) == 9 and len(at.metric) == 30
+    assert len(at.tabs) == 9 and len(at.metric) == 42
     assert len(at.sidebar.expander) == 8
 
 
@@ -272,7 +273,7 @@ def test_las_cifras_son_identicas_en_los_dos_idiomas(values):
     es_, en = run("es", **values), run("en", **values)
     assert not es_.exception and not en.exception
     assert _figures(es_, "es") == _figures(en, "en")
-    assert len(es_.metric) == len(en.metric) == 30
+    assert len(es_.metric) == len(en.metric) == 42
 
 
 @pytest.mark.app
@@ -523,7 +524,7 @@ def test_cada_aviso_del_modelo_tiene_su_texto_y_su_cita_en_los_dos_idiomas():
 
 def test_todos_los_avisos_posibles_se_dibujan_en_los_dos_idiomas():
     """Dispara todos los avisos que el modelo puede dar y los pasa por la app en los dos idiomas."""
-    from fusion_tab import warning_text
+    from fusion_estado import warning_text
 
     scenarios = [
         dict(x_flour=0.5), dict(x_flour=2.0), dict(x_silica=3.0), dict(x_silica=0.0),

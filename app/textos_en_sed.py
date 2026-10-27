@@ -190,4 +190,62 @@ T = {
     "sv.kn.res": "**Synthetic Kynch.** Known flux function: v(C) = v0 (1 − C/Cmax)ⁿ with v0 = {v0} m/h, Cmax = {cmax} t/m³ and n = {n_exp}, without compression, by the method of characteristics. With {n} points between C = {lo} and {hi} t/m³ (up to 0.8 Cmax) the tangents return v(C) with a maximum error of {err} %, far below the 2 % cut.",
     "sv.ty.res": "**Talmage-Fitch against the limiting flux (informative, no cut).** On that same curve, the exact limiting flux gives an area of {y} m² per t/d. The Talmage-Fitch construction gives {a5} with the tangent at half the time at which the interface reaches Hu ({d5} %), {a9} at 90 % ({d9} %) and {a99} at 99.9 % ({d99} %): it matches only if the tangent is drawn where the interface reaches Hu and at any earlier point it falls below (it is not conservative). With real compression the tangent falls later and the area rises.",
     "sv.notes": "**Findings, not dressed up.** (1) Two Alegria rows do not match: the 59 t/h, 42 m one prints 0.987 and 0.978 comes out (it looks like a digit transposition), and the 57 t/h, 30 m one prints 0.521 and 0.517 comes out. (2) Of the five Coe and Clevenger tests, 2 and 3 match; 1 gives 2.99 (not 3.00), 4 gives 4.21 (not 4.22) and 5 gives 4.19 (not 4.05) with D = 1.12; the paper does not print the D of those tests. (3) The text of Torquato and Luz says the bench area (0.898) is divided by the industrial one (0.573) to give 0.64, but 0.573/0.898 = 0.64 and 0.898/0.573 = 1.57: the 0.64 is industrial over bench.",
+    # ------------------------------------------------------------ indicators, status and tests
+    "se.i.au": "Unit area",
+    "se.i.au.help": (
+        "Corrected unit area, in m² per t/d: the Talmage-Fitch one (tu / (C0·H0)) times the "
+        "correction factor."
+    ),
+    "se.i.area": "Required area (m²)",
+    "se.i.area.help": "For {tph} t/h: unit area × t/h × 24 h.",
+    "se.i.d": "Diameter (m)",
+    "se.i.d.help": "Diameter of the circle with that area: √(4·A/π).",
+    "se.chk.conc": (
+        "Feed of {cma} % and underflow of {cmu} % solids (ρs = {rho} t/m³): C0 = {c0} and "
+        "Cu = {cu} t/m³."
+    ),
+    "se.src.conc": (
+        "Definition of the calculation: the feed must carry fewer solids than the underflow and "
+        "C = cm·ρpulp. The solid density of the example (4.0 t/m³) is a declared assumption: the "
+        "paper does not give it."
+    ),
+    "se.chk.compresion": (
+        "The compression point ({tc} s, height {hc} m) is above the underflow height "
+        "Hu = {hu} m and the tangent reaches it at tu = {tu} s (the curve runs to {tmax} s)."
+    ),
+    "se.src.compresion": (
+        "Talmage and Fitch (1955), `sedimentacion.talmage_fitch`: tc must be between 0 and the "
+        "last time of the curve and the tangent at (tc, hc) must come down to Hu; otherwise the "
+        "calculation is rejected."
+    ),
+    "se.chk.kynch": "Kynch: {n} flux points with C between {lo} and {hi} t/m³.",
+    "se.src.kynch": (
+        "Kynch (1952), `sedimentacion.kynch`: from one h(t) curve, the tangent at each point "
+        "gives C and v, and the solids flux is G = v·C."
+    ),
+    "se.chk.factor.ok": "No correction factor: the area is what the cylinder gives as is.",
+    "se.src.factor": (
+        "Torquato et al. (2011): the 0.64 factor holds ONLY for Vale's iron slimes "
+        "(`sedimentacion.py`, FACTOR_VALE_LAMAS); it is not universal."
+    ),
+    "se.exp.caudal.titulo": "Double the thickener throughput",
+    "se.exp.caudal.texto": (
+        "With {tph1} t/h instead of {tph0} t/h, the unit area does not change ({au0} m² per t/d), "
+        "but the area rises from {a0} m² to {a1} m² (×{ratio}) and the diameter from {d0} m to "
+        "{d1} m (×{rd}): the area is proportional to the throughput and the diameter, to its "
+        "square root."
+    ),
+    "se.exp.vale.titulo": "Apply Vale's factor",
+    "se.exp.vale.texto": (
+        "With the {f} factor for Vale's iron slimes, the unit area drops from {au0} to {au1} m² "
+        "per t/d and the diameter from {d0} m to {d1} m. The panel warns: that factor is not "
+        "universal."
+    ),
+    "se.exp.compresion.titulo": "Read the compression later",
+    "se.exp.compresion.texto": (
+        "With the compression point at {tc1} s instead of {tc0} s, the tangent reaches the "
+        "underflow height later (tu from {tu0} s to {tu1} s), the unit area rises from {au0} to "
+        "{au1} m² per t/d and the diameter from {d0} m to {d1} m: tc is a reading of the curve "
+        "and the diameter depends on it."
+    ),
 }

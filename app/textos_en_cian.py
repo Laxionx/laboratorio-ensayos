@@ -86,10 +86,6 @@ T = {
         "deposited again. That point stays out of the lines, as the authors leave out the 2 h "
         "one."
     ),
-    "cn.warn.cabeza": (
-        "At {t} h the head grade by balance is {v} % away from the stated one: solution and "
-        "residue do not match the head grade."
-    ),
     "cn.cal.res": "Last row: **{r} %** recovery at {t} h with S0 = {head} ppb.",
     # ------------------------------------------------------------ models
     "cn.mod.h": "#### Kinetic models: which one describes and which one only fits",
@@ -206,5 +202,67 @@ T = {
     "cv.rows": (
         "The 2 h row is left out of the regressions, as in the paper: its recovery (85.70 %) is "
         "above that of 3 h (82.34 %), and gold is not deposited again."
+    ),
+    # ------------------------------------------------------------ indicators, status and tests
+    "cn.i.rec": "Final recovery",
+    "cn.i.rec.help": (
+        "Recovery of the last row ({t} h): (1 − residue/head) × 100 with the declared head grade."
+    ),
+    "cn.i.head": "Head by balance (ppb)",
+    "cn.i.head.help": "Residue + F·solution in the last row, with F = {f} ppb/ppb.",
+    "cn.i.r2": "Power-law R²",
+    "cn.i.r2.help": (
+        "R² of the log-log regression of the residue against time (the authors' Eq. 3), with all "
+        "the points."
+    ),
+    "cn.src.monotona": (
+        "Definition of the calculation (`cianuracion.balance`): in a normal test the dissolved "
+        "gold is not redeposited, so a row cannot recover more than a later one; that point is "
+        "left out of the lines (a rule that reproduces the authors')."
+    ),
+    "cn.chk.monotona.ok": "None of the {n} rows recovers more than a later one.",
+    "cn.chk.cabeza.mal": (
+        "The head grade by balance departs more than {tol} % from the declared one ({head} ppb) "
+        "in {n} of {total} rows (largest, {v} % at {t} h): solution and residue do not match the "
+        "head grade."
+    ),
+    "cn.chk.cabeza.ok": (
+        "The head grade by balance of every row is within {tol} % of the declared one ({head} ppb)."
+    ),
+    "cn.src.cabeza": (
+        "The module's own criterion (`cianuracion.py`, COHERENCIA_PCT = {tol} %), not the "
+        "paper's: the head grade of each row is residue + F·solution."
+    ),
+    "cn.chk.tramos.ok": "The two line stretches use {n1} and {n2} points (minimum {min}).",
+    "cn.chk.tramos.mal": (
+        "With the split at {cut} h, stretch {tramos} uses fewer than {n} points and is left "
+        "unfitted."
+    ),
+    "cn.src.tramos": (
+        "Definition of the calculation (`MIN_PUNTOS_TRAMO`): a line needs at least 3 used points."
+    ),
+    "cn.caso.h": "Published case: Roostaei et al. (2026), Table 4",
+    "cn.caso.res": (
+        "The table and the {head} ppb head grade are those of the paper's Table 4. Calculated "
+        "recovery against the printed one; the largest difference is {delta} points. "
+        "Δ = calculated − published."
+    ),
+    "cn.exp.cabeza.titulo": "Declare a lower head grade",
+    "cn.exp.cabeza.texto": (
+        "With a declared head grade of {head1} ppb instead of {head0} ppb, the final recovery "
+        "drops from {rec0} % to {rec1} % and in {n1} rows the head grade by balance departs more "
+        "than {tol} % from the declared one: the panel warns."
+    ),
+    "cn.exp.factor.titulo": "Change the solution factor",
+    "cn.exp.factor.texto": (
+        "With F = {f1} instead of {f0}, the head grade by balance of the last row rises from "
+        "{cab0} to {cab1} ppb and {n1} rows depart more than {tol} % from the declared one: the "
+        "panel warns."
+    ),
+    "cn.exp.corte.titulo": "Move the split between stretches",
+    "cn.exp.corte.texto": (
+        "With the split at {cut1} h instead of {cut0} h, the R² of the first-stretch line of the "
+        "reaction model (M) drops from {r0} to {r1}: whoever analyzes picks the split and it "
+        "changes the fit."
     ),
 }
