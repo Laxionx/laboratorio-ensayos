@@ -155,10 +155,11 @@ T = {
     "estado.nivel.mal": "Problem",
     "estado.todo_ok": "Operation within range.",
     "estado.ver": "Show the {n} checks in range",
+    "estado.ver1": "Show the check in range",
     "prueba.h": "#### Try this",
     "prueba.intro": (
         "Experiments that start from the **sidebar example**; the model computes the numbers live. "
-        "The button puts the change into the inputs and \"Back to the example\" resets them."
+        'The button puts the change into the inputs and "Back to the example" resets them.'
     ),
     "prueba.aplicar": "Apply this change to the controls",
     "prueba.restablecer": "Back to the example",
@@ -180,7 +181,7 @@ T = {
     "prot.chk.seg.mal": "Over the {seg} % safety error: {etapas}.",
     "prot.crit.seg": (
         "App criterion, not a standard: each split must give a relative error no larger than the "
-        "\"Nomogram safety error\" control (the safety line of the nomogram)."
+        '"Nomogram safety error" control (the safety line of the nomogram).'
     ),
     "prot.chk.masas": "Each of the {n} splits takes less mass than it receives.",
     "prot.crit.masas": (
@@ -267,7 +268,7 @@ T = {
     "vi.ok": "Match the published",
     "vi.ok.help": (
         "Checks that match the published figure, summed over all the areas of this tab. In the "
-        "flux charge only the \"matches\" verdict counts."
+        'flux charge only the "matches" verdict counts.'
     ),
     "vi.no": "Do not match",
     "vi.no.help": "Those that do not match; each table below says which and why.",

@@ -129,19 +129,18 @@ T = {
     "fe.chk.reductor.ok": "The reducing agent does not ask for more litharge than there is.",
     "fe.chk.lodge.ok": "Litharge with the 15 to 25 % excess that sulfides ask for.",
     "fe.src.boton": (
-        "Bugbee 1922: \"no less than 25 g\" of lead; over 30 g it is better to scorify before "
+        'Bugbee 1922: "no less than 25 g" of lead; over 30 g it is better to scorify before '
         "cupelling (`fusion_avisos.py`)."
     ),
     "fe.src.escoria": (
-        "Bugbee 1922, Table XIX and text: from mono-silicate (degree 1) to tri-silicate "
-        "(degree 3)."
+        "Bugbee 1922, Table XIX and text: from mono-silicate (degree 1) to tri-silicate (degree 3)."
     ),
     "fe.src.fundente": (
         "Bugbee 1922: at least 2.5 times as much active flux as sample (soda, borax and free "
         "litharge)."
     ),
     "fe.src.crisol": (
-        "Bugbee 1922: \"never more than two thirds full\" (the 2/3 is of volume); capacity of the "
+        'Bugbee 1922: "never more than two thirds full" (the 2/3 is of volume); capacity of the '
         "20 g crucible: 190 cm³ (Table IV). The density of the dry charge and that of the slag "
         "are assumptions of the model."
     ),

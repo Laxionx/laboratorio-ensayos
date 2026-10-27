@@ -265,7 +265,7 @@ T = {
         "outside that range there is no extrapolation."
     ),
     "cp.src.fusion": (
-        "Definition: with \"From the fusion button\" the lead comes from the Fusion tab; if that "
+        'Definition: with "From the fusion button" the lead comes from the Fusion tab; if that '
         "tab cannot compute the button, your own lead is used."
     ),
     "cp.src.particion": (

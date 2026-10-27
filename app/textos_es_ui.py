@@ -206,6 +206,7 @@ T = {
     "estado.nivel.mal": "Problema",
     "estado.todo_ok": "Operación dentro de rango.",
     "estado.ver": "Ver los {n} chequeos en rango",
+    "estado.ver1": "Ver el chequeo en rango",
     "prueba.h": "#### Prueba esto",
     "prueba.intro": (
         "Experimentos desde el **ejemplo de la barra lateral**; los números los calcula el modelo "
