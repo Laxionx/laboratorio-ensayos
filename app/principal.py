@@ -83,10 +83,7 @@ def protocol_tab(p: ProtocolParams, mp: MineralParams) -> None:
     if p.preset == PRESETS[2]:
         st.info(t("p.info"))
     estado_protocolo(view, p, mp)
-    st.caption(
-        t("p.mineral", name=opt(view.mineral.name))
-        + (t("p.mineral.note") if view.mineral.name.startswith("Calibrado") else "")
-    )
+    st.caption(t("p.mineral", name=opt(view.mineral.name)))
     st.plotly_chart(nomogram_figure(view), width="stretch")
     st.caption(t("p.nomo.caption"))
     table = pd.DataFrame({

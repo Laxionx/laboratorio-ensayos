@@ -83,6 +83,46 @@ def test_el_mineral_por_defecto_es_el_calibrado_de_minnitt_2017_con_su_fuente():
     assert any("Minnitt (2017)" in c.value for c in at.caption)
 
 
+ATRIBUYE_A_MINNITT = "Minnitt (2017) calibr"  # «calibró» y «calibrated»
+
+
+def _protocolo_con_mineral(lang: str, mineral: str) -> list[str]:
+    """Textos de la pestaña Protocolo (leyendas y markdown) con el mineral elegido."""
+    import i18n
+
+    at = AppTest.from_file(APP, default_timeout=180)
+    at.query_params["lang"] = lang
+    at.run()
+    with i18n.use(lang):
+        etiqueta = i18n.opt(mineral)
+    next(w for w in at.sidebar.selectbox if w.key == "dato_form").set_value(etiqueta).run()
+    assert not at.exception
+    tab = at.tabs[1]
+    return [e.value for e in (*tab.caption, *tab.markdown)]
+
+
+@pytest.mark.app
+@pytest.mark.parametrize("lang", ["es", "en"])
+def test_con_k_y_alfa_propios_nada_los_atribuye_a_minnitt(lang):
+    # La leyenda decidía por el nombre («Calibrado…») y también le decía a quien carga sus propios
+    # K y α que eran los de Minnitt para Witwatersrand; el panel ya distingue los dos casos. La
+    # ficha y la tabla de datos nombran Witwatersrand como referencia general: se busca la frase
+    # que atribuye los valores («Minnitt (2017) calibró / calibrated»).
+    from calculo import MINERALS
+
+    textos = _protocolo_con_mineral(lang, MINERALS[2])
+    assert not [x for x in textos if ATRIBUYE_A_MINNITT in x]
+
+
+@pytest.mark.app
+@pytest.mark.parametrize("lang", ["es", "en"])
+def test_la_nota_de_minnitt_sale_una_sola_vez_con_el_mineral_por_defecto(lang):
+    from calculo import MINERALS
+
+    textos = _protocolo_con_mineral(lang, MINERALS[0])
+    assert len([x for x in textos if ATRIBUYE_A_MINNITT in x]) == 1  # la fila del panel
+
+
 @pytest.mark.app
 @pytest.mark.parametrize("preset", ["PREP-31", "PREP-31B", "Minnitt 2017, Tabla VIII"])
 @pytest.mark.parametrize("aliquot", ["30", "50"])

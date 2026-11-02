@@ -24,7 +24,6 @@ T = {
     "p.safe.delta": "safety limit {pct} %",
     "p.info": "This protocol uses its own masses and sizes (Minnitt 2017, Table VIII); the received mass, the aliquot and the slope m have no effect.",
     "p.mineral": "Mineral: {name}. ",
-    "p.mineral.note": "K and α are the values Minnitt (2017) calibrated for a Witwatersrand gold ore; they do not apply to other minerals.",
     "p.nomo.caption": 'Each horizontal leg reduces size (constant mass); each vertical leg splits (constant size). The straight lines are constant-error lines: the route must stay above the safety line. "Play" walks through the stages. The initial size only draws the first leg.',
     "p.col.stage": "Stage",
     "p.col.dn": "dN (cm)",

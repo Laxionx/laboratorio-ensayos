@@ -39,10 +39,6 @@ T = {
         "masa recibida, la alícuota y la pendiente m no cambian nada."
     ),
     "p.mineral": "Mineral: {name}. ",
-    "p.mineral.note": (
-        "K y α son los que Minnitt (2017) calibró para una mena de oro de Witwatersrand: no valen "
-        "para otro mineral."
-    ),
     "p.nomo.caption": (
         "Cada tramo horizontal reduce el tamaño (masa constante); cada tramo vertical divide "
         "(tamaño constante). Las rectas son de error constante: la ruta debe quedar por encima "
