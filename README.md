@@ -49,7 +49,7 @@ La suite completa tarda unos 21 min, y casi todo es de las pruebas que abren la 
 | Paso | Comando | Tarda | Qué atrapa |
 |---|---|---|---|
 | 1. Revisar sin ejecutar | `ruff check . && basedpyright` | ~15 s | nombres y tipos; basedpyright avisa solo los errores **nuevos** (los 65 previos están en `.basedpyright/baseline.json`) |
-| 2. Pruebas sin la app | `pytest -m "not app" -x` | ~30 s | 626 pruebas: cálculos, gráficos, esquemas y las claves de los dos idiomas |
+| 2. Pruebas sin la app | `pytest -m "not app" -x` | ~30 s | 746 pruebas: cálculos, gráficos, esquemas y las claves de los dos idiomas |
 | 3. Suite completa | `pytest` | ~21 min | todo; obligatoria antes de cada commit |
 | 4. CI | al hacer push | | Python 3.12 y 3.13 con instalación limpia |
 

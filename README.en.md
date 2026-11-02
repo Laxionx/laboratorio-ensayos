@@ -49,7 +49,7 @@ The full suite takes about 21 min, and almost all of it is the tests that open t
 | Step | Command | Time | What it catches |
 |---|---|---|---|
 | 1. Check without running | `ruff check . && basedpyright` | ~15 s | names and types; basedpyright reports only **new** errors (the 65 earlier ones are in `.basedpyright/baseline.json`) |
-| 2. Tests without the app | `pytest -m "not app" -x` | ~30 s | 626 tests: calculations, charts, diagrams and the keys of both languages |
+| 2. Tests without the app | `pytest -m "not app" -x` | ~30 s | 746 tests: calculations, charts, diagrams and the keys of both languages |
 | 3. Full suite | `pytest` | ~21 min | everything; required before every commit |
 | 4. CI | on push | | Python 3.12 and 3.13 with a clean install |
 
